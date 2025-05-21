@@ -1,0 +1,160 @@
+/* Dark mode styles */
+.dark {
+  color-scheme: dark;
+  background-color: #121212;
+}
+
+.dark body {
+  background-color: #121212;
+  color: white;
+}
+
+/* Dark mode specific styles for Header */
+.dark .Header-root {
+  background-color: #1e1e1e !important;
+  color: white !important;
+}
+
+.dark .MuiAppBar-root {
+  background-color: #1e1e1e !important;
+}
+
+.dark .Header-menuButton,
+.dark .Header-avatarButton,
+.dark .Header-dateButton {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.dark .Header-menu {
+  background-color: #222e3c !important;
+}
+
+.dark .Header-menuItem,
+.dark .Header-logoutMenuItem {
+  color: white !important;
+}
+
+.dark .MuiMenuItem-root {
+  color: white !important;
+}
+
+.dark .MuiTypography-root {
+  color: white !important;
+}
+
+/* Dark mode specific styles for dashboard */
+.dark .DashboardLayout-root {
+  background-color: #222e3c !important;
+}
+
+.dark .DashboardLayout-main {
+  background-color: #19212c !important;
+  color: white !important;
+}
+
+/* Dark mode styles for common components */
+.dark .MuiPaper-root {
+  background-color: #222e3c ;
+  color: white ;
+}
+
+.dark .MuiCard-root {
+  background-color: #222e3c !important;
+  color: white !important;
+}
+
+.dark .MuiTableCell-root {
+  color: white !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .MuiTableHead-root .MuiTableCell-root {
+  background-color: #3a3a3a !important;
+  color: white !important;
+}
+
+.dark .MuiTableRow-root:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .MuiInputBase-root {
+  color: white !important;
+}
+
+.dark .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.dark .MuiFormLabel-root {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.dark .MuiButton-contained {
+  background-color: #aa8c78 !important;
+}
+
+.dark .MuiButton-contained:hover {
+  background-color: #98877b !important;
+}
+
+.dark .MuiButton-outlined {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+}
+
+.dark .MuiButton-outlined:hover {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Modal customization for dark mode */
+.dark .MuiDialog-paper {
+  background-color: #222e3c !important;
+  color: white !important;
+}
+
+.dark .MuiDialogTitle-root {
+  color: white !important;
+}
+
+.dark .MuiDialogContent-root {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.dark .MuiSwitch-track {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .MuiSwitch-thumb {
+  background-color: white !important;
+}
+
+.dark .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
+  background-color: #aa8c78 !important;
+}
+
+.dark .MuiSwitch-switchBase.Mui-checked .MuiSwitch-thumb {
+  background-color: white !important;
+}
+
+/* Fix for MUI Menu in dark mode */
+.dark .MuiMenu-paper {
+  background-color: #222e3c !important;
+}
+
+.dark .MuiMenu-list {
+  color: white !important;
+}
+
+/* Fixes for Material UI components in dark mode */
+.dark .MuiSvgIcon-root {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark .MuiIconButton-root {
+  color: rgba(255, 255, 255, 0.8);
+}

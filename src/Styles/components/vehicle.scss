@@ -1,0 +1,89 @@
+@use "../_variables.scss" as *;
+
+.vehicle-page {
+  padding: 1.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 50px);
+
+  .filters-container {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin-bottom: 1.5rem;
+    background-color: white;
+    padding: 1rem 1rem 0rem;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-card;
+    .plate-search-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 40px;
+    }
+    .MuiFormControl-root {
+      min-width: 200px;
+    }
+    .MuiTextField-root {
+      min-width: 250px;
+    }
+  }
+
+  .vehicle-cards-container {
+    overflow-y: auto;
+    flex: 1;
+    max-height: calc(100vh - 300px);
+  }
+
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    background: white;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-card;
+
+    .MuiPagination-root {
+      .MuiPaginationItem-root {
+        color: $primaryColorOne;
+        font-family: $font-family1;
+        font-size: 0.9rem;
+        margin: 0 4px;
+        border-radius: $border-radius-sm;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: $primaryColorOne;
+          color: $primaryColorOne;
+        }
+
+        &.Mui-selected {
+          background-color: $primaryColorOne;
+          color: white;
+
+          &:hover {
+            background-color: $primaryColorOne;
+          }
+        }
+
+        &.MuiPaginationItem-previousNext {
+          border: 1px solid $borderInput;
+          background-color: white;
+
+          &:hover {
+            background-color: $primaryColorOne;
+            border-color: $primaryColorOne;
+          }
+
+          &.Mui-disabled {
+            border-color: $borderInput;
+            background-color: $primaryColorOne;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,177 @@
+@use '../_variables.scss' as *;
+
+.Header-root {
+  box-shadow: 0px 4px 20px rgba(31, 31, 31, 0.07);
+  background-color: $tertiaryColorOne !important;
+  position: fixed;
+  direction: rtl;
+  left: auto;
+  right: 0;
+  top: 0;
+}
+
+.Header-toolbar {
+  min-height: 64px;
+  @media (min-width: 1200px) {
+    min-height: 64px;
+    padding: 0 40px;
+  }
+}
+
+.Header-search {
+  background-color: $tertiaryColorTwo;
+  border-radius: 12px;
+  position: relative;
+  &:hover {
+    background-color: $tertiaryColorFive;
+  }
+  margin-right: 16px;
+  margin-left: 0;
+  width: 100%;
+  @media (min-width: 600px) {
+    margin-left: 24px;
+    width: auto;
+  }
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.Header-searchIcon {
+  justify-content: center;
+  color: $primaryColorTwo;
+  pointer-events: none;
+  align-items: center;
+  position: absolute;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+}
+
+.Header-inputBase {
+  color: $primaryColorOne;
+  width: 100%;
+  .MuiInputBase-input {
+    padding: 9.6px 8px 9.6px 0;
+    padding-right: calc(1em + 32px);
+    transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    width: 100%;
+    @media (min-width: 960px) {
+      width: 28ch;
+    }
+    font-size: 0.95rem;
+  }
+}
+
+.Header-badge {
+  .MuiBadge-badge {
+    background-color: $dangerColor;
+    box-shadow: 0 0 0 2px #fff;
+    font-size: 0.65rem;
+    min-width: 18px;
+    padding: 0 4px;
+    color: #fff;
+    height: 18px;
+  }
+}
+
+.Header-menuButton {
+  color: $primaryColorTwo;
+  &:hover {
+    background-color: $secondaryColorOne;
+  }
+}
+
+.Header-searchButton {
+  display: none;
+  @media (min-width: 600px) {
+    display: flex;
+  }
+  color: $primaryColorTwo;
+  &:hover {
+    background-color: $secondaryColorOne;
+  }
+}
+
+.Header-dateButton {
+  display: none;
+  @media (min-width: 900px) {
+    display: flex;
+  }
+  color: $primaryColorTwo;
+  font-size: 0.85rem;
+  cursor: default;
+  &:hover {
+    background-color: transparent;
+  }
+}
+
+.Header-notificationButton {
+  color: $primaryColorTwo;
+  background-color: rgba(244, 244, 244, 0.7);
+  width: 40px;
+  height: 40px;
+  transition: all 0.2s ease;
+  &:hover {
+    background-color: rgba(170, 140, 120, 0.1);
+  }
+}
+
+.Header-avatarButton {
+  padding: 4px;
+  border: 2px solid transparent;
+  &:hover {
+    border: 2px solid rgba(170, 140, 120, 0.3);
+  }
+  transition: all 0.2s ease;
+}
+
+.Header-avatar {
+  background-color: $secondaryColorOne;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 2px 8px rgba(31, 31, 31, 0.12);
+}
+
+.Header-menu {
+  margin-top: 12px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 20px rgba(31, 31, 31, 0.15);
+  border: 1px solid rgba(152, 135, 123, 0.15);
+  min-width: 180px;
+  padding: 6px;
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 14px;
+    width: 10px;
+    height: 10px;
+    background-color: #fff;
+    transform: translateY(-50%) rotate(45deg);
+    z-index: 0;
+    border-top: 1px solid rgba(152, 135, 123, 0.15);
+    border-left: 1px solid rgba(152, 135, 123, 0.15);
+  }
+}
+
+.Header-menuItem {
+  padding: 12px 0;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  &:hover {
+    background-color: $secondaryColorOne;
+  }
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.Header-logoutMenuItem {
+  padding: 12px 0;
+  border-radius: 8px;
+  &:hover {
+    background-color: rgba(220, 53, 69, 0.08);
+  }
+  color: $dangerColor;
+}

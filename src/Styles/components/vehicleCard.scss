@@ -1,0 +1,182 @@
+@use '../_variables.scss' as *;
+
+.vehicle-card {
+  background: linear-gradient(
+    145deg,
+    $tertiaryColorOne 0%,
+    $tertiaryColorTwo 100%
+  );
+  border-radius: $border-radius-lg;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  box-shadow: $box-shadow-card;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .vehicle-image {
+    height: 130px;
+    width: fit-content;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  .vehicle-content {
+    padding: 0rem 1.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 0 0 $border-radius-lg $border-radius-lg;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vehicle-title {
+    font-size: 1.25rem;
+    color: $primaryColorOne;
+    margin-bottom: 1rem;
+    font-weight: bold;
+  }
+
+  .vehicle-info {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex: 1;
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: $primaryColorTwo;
+      font-size: 0.9rem;
+
+      .icon {
+        color: $secondaryColorOne;
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  .plate-wrapper {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: $border-radius-md;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .status-chip {
+    position: absolute;
+    top: 4rem;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: $border-radius-xl;
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    &.success {
+      background: linear-gradient(
+        145deg,
+        rgba($successColor, 0.9) 0%,
+        $successColor 100%
+      );
+      color: white;
+    }
+
+    &.warning {
+      background: linear-gradient(
+        145deg,
+        rgba($pendingColor, 0.9) 0%,
+        $pendingColor 100%
+      );
+      color: $primaryColorOne;
+    }
+  }
+
+  .price-tag {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: $border-radius-xl;
+    font-size: 0.9rem;
+    font-weight: bold;
+    backdrop-filter: blur(5px);
+  }
+
+  .description-item {
+    position: relative;
+    margin-top: 0.5rem;
+
+    .description-text {
+      display: inline-block;
+      max-width: calc(100% - 2rem);
+    }
+
+    .show-more-button {
+      color: $secondaryColorOne;
+      font-size: 0.8rem;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }
+}
+
+.description-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .modal-content {
+    background: white;
+    border-radius: $border-radius-lg;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: $box-shadow-card;
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid $tertiaryColorThree;
+
+      .close-button {
+        color: $primaryColorTwo;
+        padding: 0.25rem;
+        transition: all 0.3s ease;
+
+        &:hover {
+          color: $primaryColorOne;
+          background: rgba(0, 0, 0, 0.05);
+        }
+      }
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      color: $primaryColorTwo;
+      line-height: 1.6;
+    }
+  }
+}

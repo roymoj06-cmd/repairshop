@@ -1,0 +1,40 @@
+.service-admission-page {
+  .plate-container {
+    display: inline-block;
+    min-width: 300px;
+  }
+  
+  .file-upload-container {
+    border: 2px dashed #e0e0e0;
+    border-radius: 4px;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.3s;
+    
+    &:hover, &.active {
+      border-color: #1976d2;
+    }
+  }
+  
+  .issues-container {
+    margin-bottom: 1rem;
+    
+    .issue-row {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      
+      .issue-field {
+        flex: 1;
+      }
+      
+      .delete-button {
+        margin-left: 0.5rem;
+      }
+    }
+  }
+  
+  .notification-section {
+    margin-top: 1rem;
+  }
+} 

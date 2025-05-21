@@ -1,0 +1,27 @@
+@use "../_variables.scss" as *;
+
+.DashboardLayout-root {
+  background: linear-gradient(
+    145deg,
+    $tertiaryColorOne 0%,
+    $tertiaryColorThree 100%
+  );
+  overflow: hidden;
+  min-height: 100%;
+  direction: rtl;
+  display: flex;
+}
+
+.DashboardLayout-main {
+  padding: 15px 15px 0px 15px;
+  background-color: #ebebec;
+  min-height: 100vh;
+  position: relative;
+  text-align: right;
+  overflow: auto;
+  width: 100%;
+  
+  @media (max-width: 1023px) {
+    padding-top: 4.5rem !important;
+  }
+}

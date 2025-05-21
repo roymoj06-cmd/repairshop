@@ -1,0 +1,35 @@
+@use '../_variables.scss' as *;
+
+.breadcrumb-container {
+  .breadcrumb-item {
+    display: flex;
+    align-items: center;
+
+    .breadcrumb-link {
+      text-decoration: none;
+      transition: all 0.2s ease;
+
+      &:hover {
+        .breadcrumb-text {
+          color: $primaryColorOne;
+        }
+      }
+    }
+
+    .breadcrumb-text {
+      font-family: $font-family1;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+
+      &.active {
+        color: $secondaryColorOne;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .MuiBreadcrumbs-separator {
+    color: $secondaryColorOne;
+    margin: 0 0.5rem;
+  }
+} 

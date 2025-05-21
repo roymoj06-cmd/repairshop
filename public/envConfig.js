@@ -1,0 +1,3 @@
+window.globalConfig = {
+  mode: "development",
+};

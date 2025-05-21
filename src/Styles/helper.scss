@@ -1,0 +1,354 @@
+@use "./globals" as *;
+
+//font & text
+.font-0 {
+  font-size: 0;
+}
+.font-05 {
+  font-size: rem(5px);
+}
+.font-8,
+.font-08 {
+  font-size: rem(8px);
+}
+.font-10 {
+  font-size: rem(10px) !important;
+}
+.font-11 {
+  font-size: rem(11px) !important;
+}
+.font-12 {
+  font-size: rem(12px) !important;
+}
+.font-14 {
+  font-size: rem(14px) !important;
+}
+.font-16 {
+  font-size: rem(16px);
+}
+.font-18 {
+  font-size: rem(18px);
+}
+.font-20 {
+  font-size: rem(20px);
+}
+.font-24 {
+  font-size: rem(24px);
+}
+.font-28 {
+  font-size: rem(28px);
+}
+.font-32 {
+  font-size: rem(32px);
+}
+.font-48 {
+  font-size: rem(48px);
+}
+.font-64 {
+  font-size: rem(64px);
+}
+.font-weight-900 {
+  font-weight: 900;
+}
+.font-weight-600 {
+  font-weight: 600;
+}
+.font-weight-500 {
+  font-weight: 500;
+}
+.font-weight-300 {
+  font-weight: 300;
+}
+.font-weight-400 {
+  font-weight: 400;
+}
+.is-line-normal {
+  line-height: normal;
+}
+.is-word-break {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+:lang(en) {
+  font-family: "Montserrat", sans-serif;
+}
+.font-english {
+  font-family: "Montserrat", sans-serif !important;
+}
+.text-justify {
+  text-align: justify;
+}
+.text-justify {
+  text-align: justify;
+}
+// color
+// primary is black
+// secondary is brown
+// tertiary is white
+.first-color {
+  color: $colorPrimary;
+}
+.color-primary-one {
+  color: $primaryColorOne !important;
+}
+.color-primary-two {
+  color: $primaryColorTwo !important;
+}
+.color-primary-three {
+  color: $primaryColorThree !important;
+}
+.color-primary-four {
+  color: $primaryColorFour !important;
+}
+.color-secondary-one {
+  color: $secondaryColorOne !important;
+}
+.color-secondary-two {
+  color: $secondaryColorTwo;
+}
+.color-tertiary-one {
+  color: $tertiaryColorOne !important;
+}
+.color-tertiary-two {
+  color: $tertiaryColorTwo;
+}
+.color-tertiary-three {
+  color: $tertiaryColorThree;
+}
+.color-tertiary-four {
+  color: $tertiaryColorFour;
+}
+.color-tertiary-five {
+  color: $tertiaryColorFive !important;
+}
+.color-quaternary-one {
+  color: $primaryColorFour;
+}
+.color-quaternary {
+  color: $colorQuaternary;
+}
+.color-primary-dark {
+  color: $colorPrimaryDark;
+}
+.color-secondary-dark {
+  color: $colorSecondaryDark;
+}
+.color-tertiary-dark {
+  color: $colorTertiaryDark;
+}
+
+.color-success {
+  color: $successColor !important;
+}
+.color-danger {
+  color: $dangerColor !important;
+}
+.color-gold {
+  color: $goldColor;
+}
+
+.bg-success {
+  background-color: $successColor;
+}
+.bg-danger {
+  background-color: $dangerColor;
+}
+.is-gray {
+  color: $isGray;
+}
+// shadow
+.is-main-shadow {
+  box-shadow: $box-shadow-main;
+}
+.h-1px {
+  height: rem(1px);
+}
+.language-switcher {
+  select {
+    border-radius: rem(5px);
+    box-shadow: $box-shadow-main;
+    border: none;
+  }
+}
+// background color //
+.bg-primary-one {
+  background-color: $primaryColorOne;
+}
+.bg-primary-two {
+  background-color: $primaryColorTwo;
+}
+.bg-primary-three {
+  background-color: $primaryColorThree;
+}
+.bg-primary-six {
+  background-color: $primaryColorSix;
+}
+.bg-secondary-one {
+  background-color: $secondaryColorOne !important;
+}
+.bg-secondary-two {
+  background-color: $secondaryColorTwo;
+}
+.bg-tertiary-one {
+  background-color: $tertiaryColorOne !important;
+}
+.bg-tertiary-two {
+  background-color: $tertiaryColorTwo;
+}
+.bg-tertiary-three {
+  background-color: $tertiaryColorThree;
+}
+.bg-tertiary-four {
+  background-color: $tertiaryColorFour;
+}
+.bg-tertiary-five {
+  background-color: $tertiaryColorFive;
+}
+.bg-quaternary {
+  background-color: $colorQuaternary;
+}
+.bg-primary-dark {
+  background-color: $colorPrimaryDark;
+}
+.bg-secondary-dark {
+  background-color: $colorSecondaryDark;
+}
+.bg-tertiary-dark {
+  background-color: $colorTertiaryDark;
+}
+.bg-quaternary-dark {
+  background-color: $colorّQuaternaryDark;
+}
+.bgPrimary {
+  background-color: $tertiaryColorOne;
+}
+.bgSecondary {
+  background-color: $colorSecondary;
+}
+.bgTertiary {
+  background-color: $colorTertiary;
+}
+.bg-first {
+  background-color: $firstColor;
+}
+.dark-light-bg {
+  background-color: $colorBlackLight;
+}
+// other
+.cursor-pointer {
+  cursor: pointer;
+}
+.disable-select-text {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+//border-radius
+.border-radius-0 {
+  border-radius: 0 !important;
+}
+.border-radius-xs {
+  border-radius: $border-radius-xs;
+}
+.border-radius-sm {
+  border-radius: $border-radius-sm;
+}
+.border-radius-md {
+  border-radius: $border-radius-md;
+}
+.border-radius-lg {
+  border-radius: $border-radius-lg;
+}
+.border-radius-xl {
+  border-radius: $border-radius-xl;
+}
+// border
+.border-Tertiary {
+  border-color: $colorTertiary !important;
+}
+.border-color-secondary {
+  border: rem(1px) solid $colorSecondary;
+}
+.border-tertiary-five {
+  border: rem(1px) solid $tertiaryColorFive !important;
+}
+.border-primary-four {
+  border: rem(1px) solid $primaryColorFour !important;
+}
+.border-left-tertiary-five {
+  border-left: rem(1px) solid $tertiaryColorFive !important;
+}
+.border-right-tertiary-five {
+  border-left: rem(1px) solid $tertiaryColorFive !important;
+}
+.border-bottom-tertiary-five {
+  border-bottom: rem(1px) solid $tertiaryColorFive !important;
+}
+.border-secondary-one {
+  border-color: $secondaryColorOne;
+}
+.border-primary-color {
+  border: rem(1px) solid $primaryColorThree !important;
+}
+.border-color-Primary {
+  border: rem(1px) solid $colorPrimary !important;
+}
+.right-align-placeholder {
+  &::placeholder {
+    text-align: right;
+  }
+}
+.MuiListItem-root.active {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.MuiListItem-root.active .MuiListItemIcon-root,
+.MuiListItem-root.active .MuiListItemText-primary {
+  color: $secondaryColorOne; /* Or your primary color */
+}
+.w-216px {
+  width: rem(216px);
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-background-clip: text;
+  transition: background-color 5000s ease-in-out 0s;
+  box-shadow: inset 0 0 20px 20px #23232329;
+}
+.min-height150px {
+  height: rem(150px) !important;
+}
+.w-90 {
+  width: 90% !important;
+}
+.w-70 {
+  width: 70% !important;
+}
+.is-word-break {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.MuiSwitch-switchBase.Mui-checked {
+  color: #aa8c78 !important;
+}
+.MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
+  background-color: #aa8c78 !important;
+  opacity: 0.5 !important;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+}
