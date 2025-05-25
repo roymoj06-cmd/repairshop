@@ -10,7 +10,7 @@ const DashboardLayout: FC = () => {
 
   return (
     <div className="DashboardLayout-root bg-white dark:bg-gray-900">
-      <div className="block lg:hidden">
+      <div className="block xl:hidden">
         <Header onMenuClick={() => setOpenSidebar(true)} />
       </div>
       <Sidebar open={openSidebar} onClose={() => setOpenSidebar(false)} />

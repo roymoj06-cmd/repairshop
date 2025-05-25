@@ -49,7 +49,7 @@ const getDesignTokens = (mode: PaletteMode) => ({
             dark: "#98877b",
           },
           error: {
-            main: "#ff5b5b",
+            main: "#dc3545",
           },
           warning: {
             main: "#f2a102",

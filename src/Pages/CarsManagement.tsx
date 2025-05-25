@@ -193,11 +193,7 @@ const CarsManagement: FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       {isDeletingCar && <Loading />}
-      <Typography variant="h5" gutterBottom>
-        مدیریت خودروها
-      </Typography>
-
-      <Paper sx={{ p: 3, mb: 4 }}>
+      <Paper sx={{ p: 3, mb: 2 }}>
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }}>
             <EnhancedSelect
@@ -226,10 +222,19 @@ const CarsManagement: FC = () => {
           هیچ خودرویی برای این مشتری ثبت نشده است
         </Typography>
       )}
-
+      <Button
+        disabled={!selectedCustomerId}
+        sx={{ mb: { xs: 0, md: 2 } }}
+        onClick={handleAddNewPlate}
+        startIcon={<AddIcon />}
+        variant="contained"
+        color="secondary"
+      >
+        افزودن پلاک جدید
+      </Button>
       <Grid container spacing={3}>
         {customerCars.map((car) => (
-          <Grid key={car.id} size={{ xs: 12, sm: 6, md: 4 }}>
+          <Grid key={car.id} size={{ xs: 12, sm: 6, md: 3 }}>
             <Paper
               sx={{
                 p: 2,
@@ -237,7 +242,6 @@ const CarsManagement: FC = () => {
                 flexDirection: "column",
                 alignItems: "center",
                 position: "relative",
-                minHeight: "180px",
               }}
             >
               <Box sx={{ position: "absolute", top: 10, right: 10 }}>
@@ -259,10 +263,10 @@ const CarsManagement: FC = () => {
               </Box>
 
               <Typography variant="subtitle1" gutterBottom>
-                {car.carCompany} - {car.carType}
+                {car.carCompany}
               </Typography>
 
-              <Box sx={{ width: "100%", my: 2 }}>
+              <Box sx={{ width: "60%", my: 2 }}>
                 <PlateNumberDisplay
                   plateSection1={car.plateSection1}
                   plateSection2={car.plateSection2}
@@ -274,20 +278,10 @@ const CarsManagement: FC = () => {
           </Grid>
         ))}
       </Grid>
-      <Button
-        disabled={!selectedCustomerId}
-        sx={{ mt: { xs: 0, md: 2 } }}
-        onClick={handleAddNewPlate}
-        startIcon={<AddIcon />}
-        variant="contained"
-        color="secondary"
-      >
-        افزودن پلاک جدید
-      </Button>
 
       <Dialog
-        open={showPlateDialog}
         onClose={handleClosePlateDialog}
+        open={showPlateDialog}
         maxWidth="sm"
         fullWidth
       >
@@ -299,7 +293,9 @@ const CarsManagement: FC = () => {
           <Box sx={{ py: 2 }}>
             <EnhancedSelect
               placeholder="شرکت خودرو سازی را انتخاب کنید"
-              value={plateData.carCompany}
+              value={carCompany?.find(
+                (i) => `${i.label}` === plateData.carCompany
+              )}
               containerClassName="mb-5"
               label="شرکت خودرو سازی"
               storeValueOnly={true}
@@ -310,14 +306,14 @@ const CarsManagement: FC = () => {
               onChange={(value) => {
                 setPlateData((prev) => ({
                   ...prev,
-                  carCompany: value.value,
+                  carCompany: value.label,
                 }));
               }}
             />
 
             <EnhancedSelect
               placeholder="تیپ خودرو را انتخاب کنید"
-              value={plateData.carTipId}
+              value={carTipTypes?.find((i) => i.value === plateData.carTipId)}
               containerClassName="mb-5"
               options={carTipTypes}
               storeValueOnly={true}

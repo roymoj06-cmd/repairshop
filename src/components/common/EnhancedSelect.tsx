@@ -18,7 +18,6 @@ import {
   Select,
 } from "@mui/material";
 
-// تعریف ویژگی‌های SpeechRecognition برای window
 declare global {
   interface Window {
     webkitSpeechRecognition?: any;
@@ -34,33 +33,33 @@ export interface SelectOption {
 }
 
 export interface EnhancedSelectProps {
-  options: SelectOption[];
   onChange?: (value: any, event?: React.SyntheticEvent) => void;
   onInputChange?: (value: string) => void;
-  name: string;
-  label?: string;
-  value?: any;
-  defaultValue?: any;
+  transformValue?: (value: any) => any;
+  iconPosition?: "start" | "end";
+  enableSpeechToText?: boolean;
+  containerClassName?: string;
+  size?: "small" | "medium";
+  storeValueOnly?: boolean;
+  options: SelectOption[];
+  control?: Control<any>;
+  icon?: React.ReactNode;
   placeholder?: string;
+  searchable?: boolean;
   helperText?: string;
-  error?: boolean;
+  fullWidth?: boolean;
   disabled?: boolean;
   multiple?: boolean;
   required?: boolean;
-  enableSpeechToText?: boolean;
-  icon?: React.ReactNode;
-  iconPosition?: "start" | "end";
+  defaultValue?: any;
+  className?: string;
+  loading?: boolean;
+  error?: boolean;
   isRtl?: boolean;
   isLtr?: boolean;
-  containerClassName?: string;
-  className?: string;
-  fullWidth?: boolean;
-  size?: "small" | "medium";
-  searchable?: boolean;
-  loading?: boolean;
-  control?: Control<any>; // React Hook Form control
-  transformValue?: (value: any) => any; // Function to transform the value before setting in form
-  storeValueOnly?: boolean; // Whether to store only the value in the form or the complete object
+  label?: string;
+  name: string;
+  value?: any;
 }
 
 const EnhancedSelect = forwardRef<HTMLDivElement, EnhancedSelectProps>(
@@ -96,14 +95,12 @@ const EnhancedSelect = forwardRef<HTMLDivElement, EnhancedSelectProps>(
     },
     ref
   ) => {
-    // If control is provided, we wrap the component in a Controller
     if (control) {
       return (
         <Controller
           name={name}
           control={control}
           render={({ field }) => {
-            // Find the selected option(s) from value if available
             let selectedOption;
             if (field.value !== undefined && field.value !== null) {
               if (multiple && Array.isArray(field.value)) {
@@ -112,7 +109,6 @@ const EnhancedSelect = forwardRef<HTMLDivElement, EnhancedSelectProps>(
                   return foundOption || { value: val, label: String(val) };
                 });
               } else {
-                // Convert value to option object
                 selectedOption = options.find((o) => o.value === field.value);
                 if (!selectedOption && field.value) {
                   selectedOption = {
@@ -152,8 +148,6 @@ const EnhancedSelect = forwardRef<HTMLDivElement, EnhancedSelectProps>(
                 }}
                 value={selectedOption}
                 onChange={(newValue, event) => {
-                  // Extract the value if it's an object with a value property
-                  // or keep full object based on storeValueOnly setting
                   const finalValue = multiple
                     ? (newValue || []).map((v: any) =>
                         storeValueOnly && typeof v === "object" ? v.value : v
@@ -164,16 +158,10 @@ const EnhancedSelect = forwardRef<HTMLDivElement, EnhancedSelectProps>(
                       "value" in newValue
                     ? newValue.value
                     : newValue;
-
-                  // Apply transformation if provided
                   const transformedValue = transformValue
                     ? transformValue(finalValue)
                     : finalValue;
-
-                  // Update the form
                   field.onChange(transformedValue);
-
-                  // Call the external onChange if provided
                   if (onChange) {
                     onChange(newValue, event);
                   }
@@ -184,8 +172,6 @@ const EnhancedSelect = forwardRef<HTMLDivElement, EnhancedSelectProps>(
         />
       );
     }
-
-    // If no control is provided, render the regular component
     return (
       <EnhancedSelectImplementation
         options={options}
@@ -217,8 +203,6 @@ const EnhancedSelect = forwardRef<HTMLDivElement, EnhancedSelectProps>(
     );
   }
 );
-
-// The actual implementation of the select component
 const EnhancedSelectImplementation = forwardRef<
   HTMLDivElement,
   EnhancedSelectProps
@@ -274,7 +258,7 @@ const EnhancedSelectImplementation = forwardRef<
       startSpeechToText,
       stopSpeechToText,
     } = useSpeechToText({
-      continuous: true,
+      continuous: false,
       crossBrowser: true,
       useLegacyResults: false,
       speechRecognitionProperties: {
@@ -310,16 +294,10 @@ const EnhancedSelectImplementation = forwardRef<
     const handleSpeechResult = (text: string) => {
       if (!text || text.trim() === "") return;
       const fixedText = fixNumbers(text.trim());
-
-      // First update the search text
       setSearchText(fixedText);
-
-      // Then notify parent components
       if (onInputChange) {
         onInputChange(fixedText);
       }
-
-      // Find matching option and trigger onChange if found
       const matchingOption = options.find((option) =>
         option.label.toLowerCase().includes(fixedText.toLowerCase())
       );
@@ -327,13 +305,9 @@ const EnhancedSelectImplementation = forwardRef<
       if (matchingOption && onChange) {
         onChange(matchingOption);
       }
-
-      // Create a slight delay before trying to open the dropdown
       setTimeout(() => {
         try {
-          // Try to find any dropdown element in the DOM that's part of this component
           if (searchable) {
-            // For Autocomplete
             const popupButton = document.querySelector(
               ".MuiAutocomplete-popupIndicator"
             );
@@ -341,13 +315,9 @@ const EnhancedSelectImplementation = forwardRef<
               popupButton.click();
               return;
             }
-
-            // Alternative: try to find the input and simulate a focus+keydown event
             const input = document.querySelector(`input[name="${name}"]`);
             if (input && input instanceof HTMLInputElement) {
               input.focus();
-
-              // Simulate arrow down key to open dropdown
               const event = new KeyboardEvent("keydown", {
                 key: "ArrowDown",
                 code: "ArrowDown",
@@ -358,7 +328,6 @@ const EnhancedSelectImplementation = forwardRef<
               input.dispatchEvent(event);
             }
           } else {
-            // For Select
             const selectElement = document.querySelector(`#${name}`);
             if (selectElement) {
               selectElement.dispatchEvent(
@@ -446,13 +415,6 @@ const EnhancedSelectImplementation = forwardRef<
       );
     };
 
-    const getFilteredOptions = () => {
-      if (!searchText || !searchable) return options;
-      return options.filter((option) =>
-        option.label.toLowerCase().includes(searchText.toLowerCase())
-      );
-    };
-
     const renderMenuItems = () => {
       return options.map((option) => (
         <MenuItem
@@ -512,16 +474,21 @@ const EnhancedSelectImplementation = forwardRef<
                 }
               }
             }}
-            options={getFilteredOptions()}
+            options={options}
             multiple={multiple}
             value={selectedValue}
             onChange={(_, newValue) => handleChange(newValue)}
-            inputValue={searchText}
             onInputChange={(_, newInputValue) => {
               setSearchText(newInputValue);
               if (onInputChange) {
                 onInputChange(newInputValue);
               }
+            }}
+            filterOptions={(options, { inputValue }) => {
+              if (!inputValue || inputValue.trim() === "") return options;
+              return options.filter((option) =>
+                option.label.toLowerCase().includes(inputValue.toLowerCase())
+              );
             }}
             isOptionEqualToValue={(option, value) =>
               typeof value === "object"
@@ -611,10 +578,10 @@ const EnhancedSelectImplementation = forwardRef<
       <div className={`w-full ${containerClassName}`} ref={selectRef}>
         <FormControl
           fullWidth={fullWidth}
-          error={error}
-          disabled={disabled}
-          required={required}
           className={className}
+          required={required}
+          disabled={disabled}
+          error={error}
           size={size}
         >
           {label && <InputLabel id={`${name}-label`}>{label}</InputLabel>}
@@ -628,13 +595,13 @@ const EnhancedSelectImplementation = forwardRef<
                 }
               }
             }}
-            labelId={`${name}-label`}
-            id={name}
-            value={selectedValue}
             onChange={(e: any) => handleChange(e.target.value, e)}
-            label={label}
-            multiple={multiple}
             displayEmpty={!!placeholder}
+            labelId={`${name}-label`}
+            value={selectedValue}
+            multiple={multiple}
+            label={label}
+            id={name}
             renderValue={
               placeholder && !selectedValue
                 ? () => placeholder

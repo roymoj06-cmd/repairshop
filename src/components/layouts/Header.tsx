@@ -41,9 +41,9 @@ export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
 
   return (
     <AppBar
-      className="Header-roo"
+      className="Header-root"
       sx={{
-        bgcolor: 'transparent',
+        bgcolor: '#ffffff',
         color: mode === 'dark' ? 'white' : 'text.primary'
       }}
     >
