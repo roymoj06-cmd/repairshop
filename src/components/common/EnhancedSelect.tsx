@@ -26,7 +26,7 @@ declare global {
 }
 
 export interface SelectOption {
-  value: string | number;
+  value: string | number | null;
   disabled?: boolean;
   label: string;
   id?: string;
@@ -419,7 +419,7 @@ const EnhancedSelectImplementation = forwardRef<
       return options.map((option) => (
         <MenuItem
           key={option.id || `option-${option.value}`}
-          value={option.value}
+          value={option.value ?? ""}
           disabled={option.disabled}
         >
           {multiple && (

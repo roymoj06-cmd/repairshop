@@ -1,4 +1,4 @@
-@use '../_variables.scss' as *;
+@use "../_variables.scss" as *;
 
 .plate-container {
   display: flex;
@@ -24,34 +24,41 @@
   .plate-number {
     font-size: 16px;
     font-weight: 900;
+
+    input {
+      background-color: #fff;
+    }
   }
 }
 
 .plate-numbers {
-  display: flex;
-  flex-direction: row-reverse;
   justify-content: space-between;
-  padding: 0 8px;
-  width: 70%;
+  flex-direction: row-reverse;
   font-size: 28px;
+  padding: 0 8px;
+  display: flex;
+  width: 70%;
 
+  input {
+    background-color: #fff;
+  }
   p {
     margin-bottom: 0;
-    display: flex;
+    font-weight: 900;
     align-items: end;
     font-size: 22px;
-    font-weight: 900;
+    display: flex;
   }
 }
 
 .plate-flag {
   width: 12%;
+  justify-content: space-between;
+  border-bottom-left-radius: 2px;
   background-color: $plateColor;
   border-top-left-radius: 2px;
-  border-bottom-left-radius: 2px;
-  display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  display: flex;
 
   .flag-image {
     width: 80%;

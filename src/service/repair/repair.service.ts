@@ -105,7 +105,7 @@ export const getRepairReceptions = async (data: {
   plateSection3?: string;
   plateSection4?: string;
   customerId?: number;
-  isDischarged?: boolean;
+  isDischarged?: boolean | null;
 }) => {
   const query = convertObjectToQueryString(data);
   const reqConfig: AxiosRequestConfig = {

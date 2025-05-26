@@ -6,30 +6,24 @@ import { toast } from "react-toastify";
 import { FC, useState } from "react";
 import {
   FormControlLabel,
-  DialogActions,
-  DialogContent,
   Grid2 as Grid,
   FormControl,
-  DialogTitle,
   Typography,
   IconButton,
   FormGroup,
   FormLabel,
   Checkbox,
-  Dialog,
   Box,
 } from "@mui/material";
 
 import { getCustomers } from "@/service/customer/customer.service";
-import { carCompany, carTipTypes } from "@/utils/statics";
-import { createCar } from "@/service/cars/cars.service";
 import useFileUpload from "@/hooks/useFileUpload";
 import {
   createRepairReception,
   getCustomerCars,
 } from "@/service/repair/repair.service";
 import {
-  PlateNumberDisplay,
+  PlateManagementDialog,
   EnhancedSelect,
   EnhancedInput,
   FileUploader,
@@ -44,7 +38,6 @@ const ServiceAdmissionForm: FC = () => {
   const [showNewPlateDialog, setShowNewPlateDialog] = useState(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
-  const [newPlate, setNewPlate] = useState<plateSection>({});
   const [uploadedFileIds, setUploadedFileIds] = useState<number[]>([]);
   const { upload, uploadMultiple, isUploading, uploadError } = useFileUpload({
     onSuccess: (response) => {
@@ -126,19 +119,7 @@ const ServiceAdmissionForm: FC = () => {
       }
     },
   });
-  const { mutateAsync: mutateAsyncCreateCar, isPending: isPendingCreateCar } =
-    useMutation({
-      mutationFn: createCar,
-      onSuccess: (data: any) => {
-        if (data?.isSuccess) {
-          toast.success(data?.message);
-          handleCloseNewPlateDialog();
-          mutateAsyncCustomerCars(watch("customerId"));
-        } else {
-          toast?.error(data?.message);
-        }
-      },
-    });
+
   const addIssue = () => {
     append({ id: generateId(), description: "" });
   };
@@ -148,17 +129,11 @@ const ServiceAdmissionForm: FC = () => {
   const handleCloseNewPlateDialog = () => {
     setShowNewPlateDialog(false);
   };
-  const handleSaveNewPlate = () => {
-    mutateAsyncCreateCar({
-      plateSection1: newPlate.plateSection1,
-      plateSection2: newPlate.plateSection2,
-      plateSection3: newPlate.plateSection3,
-      plateSection4: newPlate.plateSection4,
-      customerId: watch("customerId"),
-      carCompany: watch("carCompany"),
-      carTipId: watch("carTipId"),
-      carType: "کامیونت",
-    });
+  const handlePlateSuccess = () => {
+    const customerId = watch("customerId");
+    if (customerId) {
+      mutateAsyncCustomerCars(customerId);
+    }
   };
   const handleFilesChange = async (files: File[]) => {
     const currentFiles = watch("files") || [];
@@ -182,12 +157,12 @@ const ServiceAdmissionForm: FC = () => {
       }
     }
   };
-  const onSubmit = () => {};
   const handleCustomerSearch = (searchText: string) => {
     if (searchText && searchText.length >= 2) {
       searchCustomers(searchText);
     }
   };
+  const onSubmit = () => {};
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -218,7 +193,6 @@ const ServiceAdmissionForm: FC = () => {
             }}
           />
         </Grid>
-
         <Grid size={{ xs: 12, md: 4 }}>
           <EnhancedSelect
             helperText={errors.vehicleTypeId?.message as string}
@@ -252,7 +226,6 @@ const ServiceAdmissionForm: FC = () => {
             </Button>
           </Box>
         </Grid>
-
         <Grid size={{ xs: 12 }}>
           <Box className="mb-2 flex justify-between items-center">
             <Typography variant="subtitle1">شرح مشکلات</Typography>
@@ -291,7 +264,6 @@ const ServiceAdmissionForm: FC = () => {
             </Box>
           ))}
         </Grid>
-
         <Grid size={{ xs: 12 }}>
           <Typography variant="subtitle1" className="mb-2">
             آپلود فایل (اختیاری)
@@ -321,15 +293,14 @@ const ServiceAdmissionForm: FC = () => {
             </Box>
           )}
         </Grid>
-
         <Grid size={{ xs: 12, md: 6 }}>
           <EnhancedInput
             helperText={errors.preferredRepairTime?.message as string}
             error={!!errors.preferredRepairTime}
+            enableSpeechToText={false}
             name="preferredRepairTime"
             label="زمان ترجیحی تعمیر"
             type="datetime-local"
-            enableSpeechToText={false}
             icon={<span>روز</span>}
             iconPosition="end"
             isTextArea
@@ -337,7 +308,6 @@ const ServiceAdmissionForm: FC = () => {
             rows={1}
           />
         </Grid>
-
         <Grid size={{ xs: 12, md: 6 }}>
           <FormControl component="fieldset" variant="standard">
             <FormLabel component="legend" sx={{ mb: 1 }}>
@@ -395,7 +365,6 @@ const ServiceAdmissionForm: FC = () => {
             </FormGroup>
           </FormControl>
         </Grid>
-
         <Grid
           size={{ xs: 12 }}
           sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
@@ -413,88 +382,15 @@ const ServiceAdmissionForm: FC = () => {
           </Button>
         </Grid>
       </Grid>
-
-      <Dialog
+      <PlateManagementDialog
         open={showNewPlateDialog}
         onClose={handleCloseNewPlateDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        {isPendingCreateCar && <Loading />}
-        <DialogTitle>ثبت پلاک جدید</DialogTitle>
-        <DialogContent sx={{ pt: "10px !important" }}>
-          <Box sx={{ py: 2 }}>
-            <Typography
-              justifyContent="center"
-              marginBottom="1rem"
-              display="flex"
-              variant="h6"
-            >
-              لطفا اطلاعات خودرو جدید را برای مشتری انتخاب شده وارد کنید.
-            </Typography>
-            <EnhancedSelect
-              helperText={errors.vehicleTypeId?.message as string}
-              placeholder="شرکت خودرو سازی را انتخاب کنید"
-              containerClassName="mb-5"
-              label="شرکت خودرو سازی"
-              options={carCompany}
-              searchable={true}
-              control={control}
-              storeValueOnly={true}
-              name="carCompany"
-              isRtl
-              onChange={(value) => {
-                setSelectedVehicle(value);
-              }}
-              onInputChange={(value) => {
-                console.log("Vehicle search input:", value);
-              }}
-            />
-            <EnhancedSelect
-              helperText={errors.vehicleTypeId?.message as string}
-              placeholder="تیپ خودرو را انتخاب کنید"
-              containerClassName="mb-5"
-              options={carTipTypes}
-              control={control}
-              storeValueOnly={true}
-              searchable={true}
-              label="تیپ خودرو"
-              name="carTipId"
-              isRtl
-              onChange={(value) => {
-                setSelectedVehicle(value);
-              }}
-              onInputChange={(value) => {
-                console.log("Vehicle search input:", value);
-              }}
-            />
-            <div className="w-1/2 mx-auto">
-              <PlateNumberDisplay
-                setState={setNewPlate as any}
-                state={newPlate}
-              />
-            </div>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseNewPlateDialog} variant="outlined">
-            انصراف
-          </Button>
-          <Button
-            onClick={handleSaveNewPlate}
-            variant="contained"
-            color="secondary"
-            disabled={
-              !newPlate.plateSection1 ||
-              !newPlate.plateSection2 ||
-              !newPlate.plateSection3 ||
-              !newPlate.plateSection4
-            }
-          >
-            ثبت و انتخاب پلاک
-          </Button>
-        </DialogActions>
-      </Dialog>
+        mode="add"
+        customerId={watch("customerId")}
+        onSuccess={handlePlateSuccess}
+        title="ثبت پلاک جدید"
+        description="لطفا اطلاعات خودرو جدید را برای مشتری انتخاب شده وارد کنید."
+      />
     </form>
   );
 };

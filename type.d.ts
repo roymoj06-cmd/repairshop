@@ -103,9 +103,9 @@ type plateSection = {
   plateSection2?: string | undefined
   plateSection3?: string | undefined
   plateSection4?: string | undefined
-  isDischarged?: any
   customerId?: number
   carCompany?: string
+  isDischarged?: any
   carTipId?: number
 }
 

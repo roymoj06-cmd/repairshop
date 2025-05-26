@@ -158,3 +158,29 @@
 .dark .MuiIconButton-root {
   color: rgba(255, 255, 255, 0.8);
 }
+/* Vehicle page specific dark mode styles */
+.dark .vehicle-page .filters-container {
+  background-color: #222e3c !important;
+}
+
+.dark .vehicle-page .pagination-container {
+  background-color: #222e3c !important;
+}
+
+.dark .vehicle-page .MuiPaginationItem-root {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.dark .vehicle-page .MuiPaginationItem-root:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.dark .vehicle-page .MuiPaginationItem-root.Mui-selected {
+  background-color: #aa8c78 !important;
+  color: white !important;
+}
+
+.dark .vehicle-page .MuiPaginationItem-root.Mui-selected:hover {
+  background-color: #98877b !important;
+}

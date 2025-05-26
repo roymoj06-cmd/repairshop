@@ -13,7 +13,7 @@
     z-index: 10;
     margin-bottom: 1.5rem;
     background-color: white;
-    padding: 1rem 1rem 0rem;
+    padding: 1rem 1rem 1rem;
     border-radius: $border-radius-md;
     box-shadow: $box-shadow-card;
     .plate-search-container {
@@ -82,6 +82,52 @@
             border-color: $borderInput;
             background-color: $primaryColorOne;
           }
+        }
+      }
+    }
+  }
+}
+// Dark mode styles
+:global(.dark) .vehicle-page {
+  .filters-container {
+    background-color: #222e3c !important;
+  }
+
+  .pagination-container {
+    background: #222e3c !important;
+
+    .MuiPaginationItem-root {
+      color: rgba(255, 255, 255, 0.8) !important;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+      }
+
+      &.Mui-selected {
+        background-color: #aa8c78 !important;
+        color: white !important;
+
+        &:hover {
+          background-color: #98877b !important;
+        }
+      }
+
+      &.MuiPaginationItem-previousNext {
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        background-color: transparent !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+
+        &:hover {
+          background-color: #aa8c78 !important;
+          border-color: #aa8c78 !important;
+          color: white !important;
+        }
+
+        &.Mui-disabled {
+          border-color: rgba(255, 255, 255, 0.1) !important;
+          background-color: transparent !important;
+          color: rgba(255, 255, 255, 0.3) !important;
         }
       }
     }

@@ -1,4 +1,4 @@
-@use '../_variables.scss' as *;
+@use "../_variables.scss" as *;
 
 .vehicle-card {
   background: linear-gradient(
@@ -51,7 +51,6 @@
   .vehicle-info {
     display: grid;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
     flex: 1;
 
     .info-item {
@@ -177,6 +176,95 @@
       padding: 1.5rem;
       color: $primaryColorTwo;
       line-height: 1.6;
+    }
+  }
+}
+// Dark mode styles
+:global(.dark) .vehicle-card {
+  background: linear-gradient(145deg, #222e3c 0%, #1a252f 100%) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .vehicle-content {
+    background: rgba(34, 46, 60, 0.9) !important;
+    backdrop-filter: blur(10px);
+  }
+
+  .vehicle-title {
+    color: #ffffff !important;
+  }
+
+  .vehicle-info {
+    .info-item {
+      color: #e0e0e0 !important;
+
+      .icon {
+        color: #60a5fa !important;
+      }
+    }
+  }
+
+  .plate-wrapper {
+    background: rgba(60, 60, 60, 0.7) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .status-chip {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+    &.warning {
+      color: #1f2937 !important;
+    }
+  }
+
+  .price-tag {
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(8px);
+  }
+
+  .description-item {
+    .description-text {
+      color: #e0e0e0 !important;
+    }
+
+    .show-more-button {
+      color: #60a5fa !important;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+      }
+    }
+  }
+}
+
+:global(.dark) .description-modal {
+  .modal-content {
+    background: #222e3c !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+
+    .modal-header {
+      border-bottom: 1px solid #374151;
+
+      h3 {
+        color: #ffffff !important;
+      }
+
+      .close-button {
+        color: #9ca3af !important;
+
+        &:hover {
+          color: #ffffff !important;
+          background: rgba(255, 255, 255, 0.1) !important;
+        }
+      }
+    }
+
+    .modal-body {
+      color: #e5e7eb !important;
     }
   }
 }

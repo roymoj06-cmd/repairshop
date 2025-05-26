@@ -1,6 +1,6 @@
 import { FC, SetStateAction, Dispatch } from "react";
 
-import { fixNumbers, getPlateBackgroundColor } from "@/utils";
+import { fixNumbers } from "@/utils";
 
 interface IPlateNumberDisplayProps {
   setState?: Dispatch<SetStateAction<plateSection>>;
@@ -32,10 +32,10 @@ const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({
       }));
     }
   };
-  const backgroundColor = getPlateBackgroundColor(plateSection2 || "");
+  // const backgroundColor = getPlateBackgroundColor(plateSection2 || "");
 
   return (
-    <div className="plate-container" style={{ backgroundColor }}>
+    <div className="plate-container" style={{ background: "#fff" }}>
       <div className="plate-section">
         <div className="plate-section-content">
           <div className="text-center text-black">ایران</div>
@@ -44,7 +44,7 @@ const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({
               <p className="text-black">{plateSection4}</p>
             ) : (
               <input
-                className="w-100 border-0 outline-none font-14 text-center dir-ltr"
+                className="w-100 border-0 outline-none font-14 text-center dir-ltr text-black"
                 onChange={(e) => {
                   if (e.target.value === "") {
                     handleInputChange(undefined, "plateSection4");
@@ -80,7 +80,7 @@ const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({
               }
             }}
             style={{ maxWidth: "28px" }}
-            className="w-100 border-0 outline-none font-14 text-center dir-ltr"
+            className="w-100 border-0 outline-none font-14 text-center dir-ltr text-black"
             value={state?.plateSection1 || ""}
             placeholder="99"
             maxLength={2}
@@ -92,7 +92,7 @@ const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({
           <p className="text-black">{plateSection2}</p>
         ) : (
           <input
-            className="w-100 border-0 outline-none font-14 text-center dir-ltr"
+            className="w-100 border-0 outline-none font-14 text-center dir-ltr text-black"
             onChange={(e) => {
               if (e.target.value === "") {
                 handleInputChange(undefined, "plateSection2");
@@ -124,7 +124,7 @@ const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({
               }
             }}
             style={{ maxWidth: "33px" }}
-            className="w-100 border-0 outline-none font-14 text-center dir-ltr"
+            className="w-100 border-0 outline-none font-14 text-center dir-ltr text-black"
             value={state?.plateSection3 || ""}
             placeholder="999"
             maxLength={3}
