@@ -138,15 +138,15 @@ const CarsManagement: FC = () => {
         </Typography>
       )}
       <Button
+        containerClassName="mb-3 md:mb-3 lg:mb-0"
         disabled={!selectedCustomerId}
         sx={{ mb: { xs: 0, md: 2 } }}
         onClick={handleAddNewPlate}
+        label="افزودن پلاک جدید"
         startIcon={<Add />}
         variant="contained"
         color="secondary"
-      >
-        افزودن پلاک جدید
-      </Button>
+      />
       <Grid container spacing={3}>
         {customerCars.map((car) => (
           <CarCard

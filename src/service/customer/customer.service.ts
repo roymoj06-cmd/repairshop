@@ -5,12 +5,14 @@ import axiosInstance from "@/service/axiosInstance";
 import { proxyServerUrl } from "@/service/url";
 
 export const getCustomers = async (searchText: string) => {
-  const query = convertObjectToQueryString({
+  const queryString = convertObjectToQueryString({
     searchText,
   });
   const reqConfig: AxiosRequestConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getCustomers}?${query}`,
+    url: `${proxyServerUrl.getCustomers}${
+      queryString ? `?${queryString}` : ""
+    }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };

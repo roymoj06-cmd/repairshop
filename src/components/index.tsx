@@ -1,10 +1,15 @@
 export { default as ServiceAdmissionForm } from "./Page/ServiceAdmission/ServiceAdmissionForm";
+export { default as MechanicModal } from "./Page/mechanicManagement/MechanicModal";
 export { default as PlateManagementDialog } from "./common/PlateManagementDialog";
+export { default as MechanicCard } from "./Page/mechanicManagement/MechanicCard";
+export { default as ServiceModal } from "./Page/serviceManagement/ServiceModal";
+export { default as ServiceCard } from "./Page/serviceManagement/ServiceCard";
 export { default as PlateNumberDisplay } from "./common/PlateNumberDisplay";
 export { default as DashboardLayout } from "./layouts/DashboardLayout";
 export { default as VehicleCard } from "./Page/Vehicle/VehicleCard";
 export { default as EnhancedSelect } from "./common/EnhancedSelect";
 export { default as EnhancedInput } from "./common/EnhancedInput";
+export { default as ConfirmDialog } from "./common/ConfirmDialog";
 export { default as CarCard } from "./Page/CarManagement/CarCard";
 export { default as FileUploader } from "./common/FileUploader";
 export { default as ThemeToggle } from "./common/ThemeToggle";

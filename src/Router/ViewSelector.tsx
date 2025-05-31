@@ -6,6 +6,8 @@ import { DashboardLayout, Loading } from "@/components";
 import AuthGuard from "./AuthGuard";
 import dir from "./dir";
 
+const MechanicsManagement = lazy(() => import("@/Pages/MechanicManagement"));
+const ServiceManagement = lazy(() => import("@/Pages/ServiceManagement"));
 const ServiceAdmission = lazy(() => import("@/Pages/ServiceAdmission"));
 const CarsManagement = lazy(() => import("@/Pages/CarsManagement"));
 const Dashboard = lazy(() => import("@/Pages/Dashboard"));
@@ -37,6 +39,8 @@ const ViewSelector: FC = () => {
           }
         >
           <Route path="/" element={<Navigate to={dir.dashboard} replace />} />
+          <Route path={dir.mechanicsManagement} element={<MechanicsManagement />} />
+          <Route path={dir.serviceManagement} element={<ServiceManagement />} />
           <Route path={dir.serviceAdmission} element={<ServiceAdmission />} />
           <Route path={dir.carsManagement} element={<CarsManagement />} />
           <Route path={dir.dashboard} element={<Dashboard />} />

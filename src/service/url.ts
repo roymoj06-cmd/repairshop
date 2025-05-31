@@ -5,15 +5,9 @@ declare global {
     };
   }
 }
-// this variables are global scope in file public/envConfig.js
-// =========================================================================
-// const serverTestIp = "http://192.168.0.113";
-// const panelServiceBaseUrl = "https://copserver.copapp.ir/api/v1";
-const panelServiceBaseUrl = "http://192.168.0.113:8075/api/v1";
-// const panelServiceBaseUrl =
-//   window.globalConfig?.mode === "production"
-//     ? "https://copserver.copapp.ir/api/v1"
-//     : `${serverTestIp}:8075/api/v1`;
+// const panelServiceBaseUrl = "http://192.168.0.113:8075/api/v1";
+const panelServiceBaseUrl = "https://repairservice.baaz.ir/api/v1";
+
 // =========================================================================
 export const proxyServerUrl = {
   copServer: "https://copserver.copapp.ir",
@@ -55,4 +49,19 @@ export const proxyServerUrl = {
 
   // user controller
   getCurrentUserAccesses: `${panelServiceBaseUrl}/UserSecurity/GetCurrentUserAccesses`,
+
+  // RepairServices controller
+  getAllRepairServices: `${panelServiceBaseUrl}/RepairServices/GetAllRepairServices`,
+  getRepairServiceById: `${panelServiceBaseUrl}/RepairServices/GetRepairServiceById`,
+  createRepairService: `${panelServiceBaseUrl}/RepairServices/CreateRepairService`,
+  updateRepairService: `${panelServiceBaseUrl}/RepairServices/UpdateRepairService`,
+  deleteRepairService: `${panelServiceBaseUrl}/RepairServices/DeleteRepairService`,
+
+  // mechanic controller
+  getActiveMechanics: `${panelServiceBaseUrl}/Mechanic/GetActiveMechanics`,
+  getAllMechanics: `${panelServiceBaseUrl}/Mechanic/GetAllMechanics`,
+  getMechanicById: `${panelServiceBaseUrl}/Mechanic/GetMechanicById`,
+  createMechanic: `${panelServiceBaseUrl}/Mechanic/CreateMechanic`,
+  updateMechanic: `${panelServiceBaseUrl}/Mechanic/UpdateMechanic`,
+  deleteMechanic: `${panelServiceBaseUrl}/Mechanic/DeleteMechanic`,
 };

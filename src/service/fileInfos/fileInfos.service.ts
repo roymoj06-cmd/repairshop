@@ -1,90 +1,98 @@
-import { convertObjectToQueryString, createFormData } from '@/utils'
-import axiosInstance from '../axiosInstance'
-import { proxyServerUrl } from '../url'
+import { convertObjectToQueryString, createFormData } from "@/utils";
+import axiosInstance from "../axiosInstance";
+import { proxyServerUrl } from "../url";
 
 export const uploadFileToFolder = async ({
   dataObject,
-  path = 'blogs'
+  path = "blogs",
 }: {
-  dataObject: File[]
-  path?: string
+  dataObject: File[];
+  path?: string;
 }) => {
-  const data = createFormData({ file: dataObject?.[0] })
-  const query = convertObjectToQueryString({
-    path
-  })
+  const data = createFormData({ file: dataObject?.[0] });
+  const queryString = convertObjectToQueryString({
+    path,
+  });
   const reqConfig = {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'multipart/form-data'
+      "Content-Type": "multipart/form-data",
     },
-    url: `${proxyServerUrl.uploadFileToFolder}${query ? `?${query}` : ''}`,
-    data
-  }
-  return await axiosInstance(reqConfig).then((res) => res.data)
-}
+    url: `${proxyServerUrl.uploadFileToFolder}${
+      queryString ? `?${queryString}` : ""
+    }`,
+    data,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
 export const uploadFile = async ({
   FormFile,
-  FileSource
+  FileSource,
 }: {
-  FormFile?: any
-  FileSource?: number
+  FormFile?: any;
+  FileSource?: number;
 }) => {
   const data = FileSource
     ? createFormData({ FormFile, FileSource })
-    : createFormData({ FormFile })
+    : createFormData({ FormFile });
   const reqConfig = {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'multipart/form-data'
+      "Content-Type": "multipart/form-data",
     },
     url: `${proxyServerUrl.uploadFile}`,
-    data
-  }
-  return await axiosInstance(reqConfig).then((res) => res.data)
-}
+    data,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
 export const getFilesWithPagination = async ({
   fileSource = 8,
   pageSize = 12,
-  pageNumber = 1
+  pageNumber = 1,
 }: {
-  pageNumber?: number | string
-  pageSize?: number | string
-  fileSource?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 255
+  pageNumber?: number | string;
+  pageSize?: number | string;
+  fileSource?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 255;
 }) => {
-  const query = convertObjectToQueryString({
+  const queryString = convertObjectToQueryString({
     fileSource,
     pageNumber,
-    pageSize
-  })
+    pageSize,
+  });
   const reqConfig = {
-    method: 'GET',
-    url: `${proxyServerUrl.getFilesWithPagination}${query ? `?${query}` : ''}`
-  }
-  return await axiosInstance(reqConfig).then((res) => res.data)
-}
+    method: "GET",
+    url: `${proxyServerUrl.getFilesWithPagination}${
+      queryString ? `?${queryString}` : ""
+    }`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
 export const removeFileFromFolderById = async ({
-  fileId
+  fileId,
 }: {
-  fileId?: number
+  fileId?: number;
 }) => {
-  const query = convertObjectToQueryString({
-    fileId
-  })
+  const queryString = convertObjectToQueryString({
+    fileId,
+  });
   const reqConfig = {
-    method: 'POST',
-    url: `${proxyServerUrl.removeFileFromFolderById}${query ? `?${query}` : ''}`
-  }
-  return await axiosInstance(reqConfig).then((res) => res.data)
-}
+    method: "POST",
+    url: `${proxyServerUrl.removeFileFromFolderById}${
+      queryString ? `?${queryString}` : ""
+    }`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
 export const getFileById = async ({ fileId }: { fileId?: number | string }) => {
-  const query = convertObjectToQueryString({
-    fileId
-  })
+  const queryString = convertObjectToQueryString({
+    fileId,
+  });
   const reqConfig = {
-    method: 'GET',
-    responseType: 'blob' as const,
-    url: `${proxyServerUrl.getFileById}${query ? `?${query}` : ''}`
-  }
-  return await axiosInstance(reqConfig).then((res) => res.data)
-}
+    method: "GET",
+    responseType: "blob" as const,
+    url: `${proxyServerUrl.getFileById}${
+      queryString ? `?${queryString}` : ""
+    }`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

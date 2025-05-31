@@ -107,10 +107,12 @@ export const getRepairReceptions = async (data: {
   customerId?: number;
   isDischarged?: boolean | null;
 }) => {
-  const query = convertObjectToQueryString(data);
+  const queryString = convertObjectToQueryString(data);
   const reqConfig: AxiosRequestConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getRepairReceptions}${query ? `?${query}` : ""}`,
+    url: `${proxyServerUrl.getRepairReceptions}${
+      queryString ? `?${queryString}` : ""
+    }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };

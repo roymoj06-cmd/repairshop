@@ -16,9 +16,9 @@ import {
 } from "@mui/material";
 
 import { convertGeorginaToJalaliWithoutTime } from "@/utils";
-import ThemeToggle from "@/components/common/ThemeToggle";
 import { useTheme } from "@/context/ThemeContext";
 import { useStore } from "@/Store/useStore";
+import { ThemeToggle } from "@/components";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -43,8 +43,8 @@ export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
     <AppBar
       className="Header-root"
       sx={{
-        bgcolor: '#ffffff',
-        color: mode === 'dark' ? 'white' : 'text.primary'
+        bgcolor: "#ffffff",
+        color: mode === "dark" ? "white" : "text.primary",
       }}
     >
       <Toolbar
@@ -73,7 +73,7 @@ export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
             startIcon={<CalendarTodayIcon sx={{ ml: 1, fontSize: 16 }} />}
             disableRipple
             className="Header-dateButton dark:text-gray-200"
-            sx={{ color: mode === 'dark' ? 'white' : 'inherit' }}
+            sx={{ color: mode === "dark" ? "white" : "inherit" }}
           >
             {persianDate}
           </Button>
@@ -109,20 +109,24 @@ export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
         className="Header-menu"
         PaperProps={{
           className: "dark:bg-gray-800",
-          sx: { bgcolor: mode === 'dark' ? '#1e1e1e' : 'white' }
+          sx: { bgcolor: mode === "dark" ? "#1e1e1e" : "white" },
         }}
       >
-        <MenuItem 
+        <MenuItem
           onClick={handleMenuClose}
           className="Header-menuItem dark:text-white"
         >
-          <Typography variant="body2" className="dark:text-white">پروفایل</Typography>
+          <Typography variant="body2" className="dark:text-white">
+            پروفایل
+          </Typography>
         </MenuItem>
-        <MenuItem 
-          onClick={() => logout()} 
+        <MenuItem
+          onClick={() => logout()}
           className="Header-logoutMenuItem dark:text-white"
         >
-          <Typography variant="body2" className="dark:text-white">خروج</Typography>
+          <Typography variant="body2" className="dark:text-white">
+            خروج
+          </Typography>
         </MenuItem>
       </Menu>
     </AppBar>

@@ -14,3 +14,7 @@ export const carCompany: SelectOption[] = [
   { value: 2, label: "هیوندا" },
   { value: 3, label: "شیلر" },
 ];
+export const expertLevelOptions: SelectOption[] = [
+  { value: 1, label: "مبتدی" },
+  { value: 2, label: "متخصص" },
+];

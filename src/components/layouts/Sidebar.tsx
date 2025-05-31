@@ -1,11 +1,13 @@
 import { useLocation, Link } from "react-router-dom";
-import { styled } from "@mui/material/styles";
 import { useEffect } from "react";
 import {
-  DirectionsCar as DirectionsCarIcon,
-  Dashboard as DashboardIcon,
-  CarRepair as CarRepairIcon,
-  Logout as LogoutIcon,
+  DirectionsCar,
+  CalendarMonth,
+  Dashboard,
+  CarRepair,
+  Logout,
+  Person,
+  Build,
 } from "@mui/icons-material";
 import {
   ListItemButton,
@@ -26,8 +28,8 @@ import { ThemeToggle } from "@/components";
 import dir from "@/Router/dir";
 
 interface NavItemProps {
-  icon: React.ReactNode;
   info?: React.ReactNode;
+  icon: React.ReactNode;
   title: string;
   path: string;
   guid: string;
@@ -36,70 +38,55 @@ const navConfig: NavItemProps[] = [
   {
     title: "داشبورد",
     path: dir.dashboard,
-    icon: <DashboardIcon />,
+    icon: <Dashboard />,
     guid: "",
   },
   {
     title: "گاراژ من",
     path: dir.vehicles,
-    icon: <DirectionsCarIcon />,
+    icon: <DirectionsCar />,
     guid: "326a7ebf-780b-4db0-9ca3-76b04fdc02f3",
   },
   {
     title: "پذیرش",
     path: dir.serviceAdmission,
-    icon: <CarRepairIcon />,
+    icon: <CarRepair />,
     guid: "5bf10848-d436-4a83-b97b-e282237fa09a",
   },
   {
     title: "مدیریت خودرو ها",
     path: dir.carsManagement,
-    icon: <CarRepairIcon />,
+    icon: <CarRepair />,
+    guid: "",
+  },
+  {
+    title: "مدیریت اجرت ها",
+    path: dir.serviceManagement,
+    icon: <Build />,
+    guid: "",
+  },
+  {
+    title: "مدیریت مکانیک ها",
+    path: dir.mechanicsManagement,
+    icon: <Person />,
+    guid: "",
+  },
+  {
+    title: "مدیریت مرخصی ها",
+    path: dir.leaveManagement,
+    icon: <CalendarMonth />,
     guid: "",
   },
 ];
-const StyledAccount = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  padding: "16px",
-  borderRadius: "12px",
-  margin: "0 12px 0px 12px",
-  justifyContent: "space-between",
-  background: "#aa8c78",
-  boxShadow:
-    theme.palette.mode === "dark"
-      ? "0px 4px 20px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1)"
-      : "0px 4px 20px rgba(31, 31, 31, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.2)",
-  position: "relative",
-  overflow: "hidden",
-  "&::before": {
-    content: '""',
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: "40%",
-    background:
-      "linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0))",
-    borderRadius: "12px 12px 0 0",
-  },
-}));
-const StyledLogo = styled(Box)({
-  padding: "0 20px 20px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  margin: "0 0 16px 0",
-});
+
 interface SidebarProps {
-  open: boolean;
   onClose: () => void;
+  open: boolean;
 }
-const SIDEBAR_WIDTH = 280;
 export const Sidebar = ({ open, onClose }: SidebarProps) => {
-  const { pathname } = useLocation();
   const { logout, userAccesses, user } = useStore();
   const { mode, toggleTheme } = useTheme();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     if (open) {
@@ -110,177 +97,75 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
 
   const renderContent = (
     <>
-      <StyledLogo>
-        <Typography
-          variant="h5"
-          sx={{
-            fontSize: "1.65rem",
-            fontWeight: "bold",
-            background:
-              mode === "dark"
-                ? "linear-gradient(45deg, #ffffff 15%, #cccccc 85%)"
-                : "linear-gradient(45deg, #1d1d1d 15%, #505050 85%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            letterSpacing: "1px",
-            textShadow:
-              mode === "dark"
-                ? "0 1px 2px rgba(0,0,0,0.2)"
-                : "0 1px 2px rgba(255,255,255,0.1)",
-            position: "relative",
-            textAlign: "center",
-            "&::after": {
-              content: '""',
-              position: "absolute",
-              bottom: "-6px",
-              left: "30%",
-              right: "30%",
-              height: "2px",
-              background:
-                "linear-gradient(90deg, transparent, #aa8c78, transparent)",
-              borderRadius: "2px",
-            },
-          }}
-        >
-          تعمیرگاه ایسوزو
-        </Typography>
-      </StyledLogo>
-      <StyledAccount>
-        <Avatar
-          src="/images/user-unknown.jpg"
-          sx={{
-            bgcolor: "#1d1d1d",
-            margin: "0 !important",
-            mr: 2,
-            width: 52,
-            height: 52,
-            border: "2px solid rgba(255, 255, 255, 0.3)",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-          }}
-        >
-          IS
-        </Avatar>
-        <Box className="flex flex-col justify-start items-start gap-1">
-          <Typography
-            variant="subtitle1"
-            sx={{
-              color: "#fff",
-              fontWeight: "bold",
-              textShadow: "0 1px 1px rgba(0,0,0,0.2)",
-              whiteSpace: "normal",
-              wordBreak: "break-word",
-              textAlign: "start",
-              paddingLeft: "8px",
-              lineHeight: 1.4,
+      <Box className="sidebar__logo">
+        <Box className="sidebar__logo-container">
+          <img 
+            src={mode === 'dark' ? '/images/logo-baaz-dark.webp' : '/images/logo-baaz-light.webp'} 
+            alt="BAAZ Logo" 
+            className="sidebar__logo-image"
+            onError={(e) => {
+              e.currentTarget.src = '/images/baaz.png';
             }}
-          >
-            {user?.fullName}
-          </Typography>
+          />
           <Typography
             variant="body2"
-            sx={{
-              color: "#fff",
-              opacity: 0.9,
-              fontSize: "0.78rem",
-              textAlign: "start",
-              paddingLeft: "8px",
-            }}
+            className={`sidebar__logo-text sidebar__logo-text--${mode}`}
           >
+            تعمیرگاه ایسوزو
+          </Typography>
+        </Box>
+      </Box>
+      <Box className={`sidebar__account sidebar__account--${mode}`}>
+        <Avatar src="/images/user-unknown.jpg" className="sidebar__avatar">
+          IS
+        </Avatar>
+        <Box className="sidebar__user-info">
+          <Typography variant="subtitle1" className="sidebar__user-name">
+            {user?.fullName}
+          </Typography>
+          <Typography variant="body2" className="sidebar__user-role">
             مدیر
           </Typography>
         </Box>
-      </StyledAccount>
-
-      <List sx={{ px: 1.5, py: 1 }}>
+      </Box>
+      <List className="sidebar__nav-list">
         {navConfig.map((item) => {
           if (!item.guid || userAccesses?.includes(item.guid)) {
+            const isActive = pathname === item.path;
             return (
-              <ListItem key={item.title} disablePadding sx={{ mb: 0.8 }}>
+              <ListItem
+                key={item.title}
+                disablePadding
+                className="sidebar__nav-item"
+              >
                 <ListItemButton
                   component={Link}
                   to={item.path}
-                  selected={pathname === item.path}
-                  sx={{
-                    minHeight: 50,
-                    px: 2.5,
-                    borderRadius: "10px",
-                    transition: "all 0.25s ease",
-                    position: "relative",
-                    overflow: "hidden",
-                    ...(pathname === item.path && {
-                      color: mode === "dark" ? "#ffffff" : "#1d1d1d",
-                      bgcolor:
-                        mode === "dark"
-                          ? "rgba(170, 140, 120, 0.25)"
-                          : "rgba(170, 140, 120, 0.15)",
-                      fontWeight: "fontWeightBold",
-                      boxShadow:
-                        mode === "dark"
-                          ? "0 2px 8px rgba(0, 0, 0, 0.15)"
-                          : "0 2px 8px rgba(31, 31, 31, 0.08)",
-                      "&::before": {
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        width: "3px",
-                        background:
-                          "linear-gradient(0deg, #98877b 0%, #aa8c78 100%)",
-                        borderRadius: "0 4px 4px 0",
-                      },
-                    }),
-                    "&:hover": {
-                      bgcolor:
-                        mode === "dark"
-                          ? pathname === item.path
-                            ? "rgba(170, 140, 120, 0.3)"
-                            : "rgba(255, 255, 255, 0.05)"
-                          : pathname === item.path
-                          ? "rgba(170, 140, 120, 0.2)"
-                          : "rgba(244, 244, 244, 0.7)",
-                    },
-                  }}
+                  selected={isActive}
+                  className={`sidebar__nav-button sidebar__nav-button--${mode} ${
+                    isActive
+                      ? `sidebar__nav-button--active sidebar__nav-button--active--${mode}`
+                      : ""
+                  }`}
                 >
                   <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      ml: 2,
-                      color:
-                        pathname === item.path
-                          ? "#aa8c78"
-                          : mode === "dark"
-                          ? "#cccccc"
-                          : "#666666",
-                      transition: "transform 0.2s ease",
-                      "& svg": {
-                        fontSize: 22,
-                        transition: "all 0.2s ease",
-                      },
-                      ...(pathname === item.path && {
-                        "& svg": {
-                          transform: "scale(1.15)",
-                        },
-                      }),
-                    }}
+                    className={`sidebar__nav-icon ${
+                      isActive
+                        ? "sidebar__nav-icon--active"
+                        : `sidebar__nav-icon--${mode}`
+                    }`}
                   >
                     {item.icon}
                   </ListItemIcon>
                   <ListItemText
                     primary={item.title}
-                    sx={{
-                      fontWeight: pathname === item.path ? "bold" : "medium",
-                      transition: "all 0.2s ease",
-                      textAlign: "start",
-                      fontSize: 15,
-                      color:
-                        mode === "dark" && pathname !== item.path
-                          ? "rgba(255, 255, 255, 0.8)"
-                          : undefined,
-                    }}
-                    style={{
-                      paddingRight: "1rem",
-                    }}
+                    className={`sidebar__nav-text ${
+                      isActive ? "sidebar__nav-text--active" : ""
+                    } ${
+                      mode === "dark" && !isActive
+                        ? "sidebar__nav-text--dark"
+                        : ""
+                    }`}
                   />
                 </ListItemButton>
               </ListItem>
@@ -289,52 +174,26 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
           return null;
         })}
       </List>
-
-      <Divider
-        sx={{
-          mt: "auto",
-          mx: 3,
-          height: "1px",
-          background:
-            "linear-gradient(90deg, transparent, rgba(152, 135, 123, 0.3), transparent)",
-        }}
-      />
-
-      <List sx={{ px: 1.5 }}>
-        <ListItem onClick={() => toggleTheme()} disablePadding sx={{ mb: 0.8 }}>
+      <Divider className="sidebar__divider" />
+      <List className="sidebar__bottom-list">
+        <ListItem
+          onClick={() => toggleTheme()}
+          disablePadding
+          className="sidebar__theme-item"
+        >
           <ListItemButton
-            sx={{
-              minHeight: 50,
-              px: 2.5,
-              borderRadius: "10px",
-              transition: "all 0.2s ease",
-              "&:hover": {
-                bgcolor: mode === "dark" ? "#222e3c" : "#fff",
-              },
-            }}
+            className={`sidebar__theme-button sidebar__theme-button--${mode}`}
           >
             <ListItemIcon
-              sx={{
-                minWidth: 0,
-                ml: 1,
-                pl: 0,
-                color: mode === "dark" ? "#cccccc" : "#666666",
-                "& svg": {
-                  fontSize: 22,
-                },
-              }}
+              className={`sidebar__theme-icon sidebar__theme-icon--${mode}`}
             >
               <ThemeToggle />
             </ListItemIcon>
             <ListItemText
               primary="حالت نمایش"
-              sx={{
-                ml: 0,
-                p: 0,
-                fontSize: 15,
-                textAlign: "start",
-                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
-              }}
+              className={`sidebar__theme-text ${
+                mode === "dark" ? "sidebar__theme-text--dark" : ""
+              }`}
             />
           </ListItemButton>
         </ListItem>
@@ -342,39 +201,12 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => logout()}
-            sx={{
-              minHeight: 50,
-              px: 2.5,
-              borderRadius: "10px",
-              transition: "all 0.2s ease",
-              "&:hover": {
-                bgcolor:
-                  mode === "dark"
-                    ? "rgba(255, 87, 87, 0.15)"
-                    : "rgba(255, 87, 87, 0.08)",
-              },
-            }}
+            className={`sidebar__logout-button sidebar__logout-button--${mode}`}
           >
-            <ListItemIcon
-              sx={{
-                minWidth: 0,
-                ml: 2,
-                color: "#ff5b5b",
-                "& svg": {
-                  fontSize: 22,
-                },
-              }}
-            >
-              <LogoutIcon className="me-3" />
+            <ListItemIcon className="sidebar__logout-icon">
+              <Logout className="me-3" />
             </ListItemIcon>
-            <ListItemText
-              primary="خروج"
-              sx={{
-                color: "#ff5b5b",
-                fontSize: 15,
-                textAlign: "start",
-              }}
-            />
+            <ListItemText primary="خروج" className="sidebar__logout-text" />
           </ListItemButton>
         </ListItem>
       </List>
@@ -382,14 +214,7 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
   );
 
   return (
-    <Box
-      component="nav"
-      sx={{
-        flexShrink: { lg: 0 },
-        width: { lg: SIDEBAR_WIDTH },
-        zIndex: 1200,
-      }}
-    >
+    <Box component="nav" className="sidebar__container">
       <Drawer
         variant="temporary"
         open={open}
@@ -398,32 +223,23 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
           keepMounted: true,
         }}
         PaperProps={{
-          sx: {
-            width: SIDEBAR_WIDTH,
-            bgcolor: mode === "dark" ? "rgb(31, 41, 55)" : "background.paper",
-            color: mode === "dark" ? "white" : "text.primary",
-          },
+          className: `sidebar__drawer-paper sidebar__drawer-paper--${mode}`,
         }}
+        className="sidebar__drawer-temporary"
       >
-        <Box sx={{ height: "100%", p: 2 }}>{renderContent}</Box>
+        <Box className="sidebar__content">{renderContent}</Box>
       </Drawer>
 
       <Drawer
         variant="permanent"
         anchor="left"
-        sx={{
-          display: { xs: "none", lg: "block" },
-          "& .MuiDrawer-paper": {
-            width: SIDEBAR_WIDTH,
-            height: "100%",
-            backgroundColor: mode === "dark" ? "#222e3c" : "background.paper",
-            borderLeft: "1px solid rgba(152, 135, 123, 0.15)",
-            borderRight: "none",
-          },
+        className="sidebar__drawer-permanent"
+        PaperProps={{
+          className: `sidebar__drawer-permanent-paper sidebar__drawer-permanent-paper--${mode}`,
         }}
         open
       >
-        <Box sx={{ height: "100%", p: 2 }}>{renderContent}</Box>
+        <Box className="sidebar__content">{renderContent}</Box>
       </Drawer>
     </Box>
   );

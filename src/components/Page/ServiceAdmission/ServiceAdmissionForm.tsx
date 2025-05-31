@@ -5,14 +5,11 @@ import AddIcon from "@mui/icons-material/Add";
 import { toast } from "react-toastify";
 import { FC, useState } from "react";
 import {
-  FormControlLabel,
   Grid2 as Grid,
-  FormControl,
   Typography,
   IconButton,
-  FormGroup,
-  FormLabel,
-  Checkbox,
+  Tabs,
+  Tab,
   Box,
 } from "@mui/material";
 
@@ -39,6 +36,7 @@ const ServiceAdmissionForm: FC = () => {
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [uploadedFileIds, setUploadedFileIds] = useState<number[]>([]);
+  const [activeTab, setActiveTab] = useState(0);
   const { upload, uploadMultiple, isUploading, uploadError } = useFileUpload({
     onSuccess: (response) => {
       if (response?.isSuccess && response?.data?.id) {
@@ -162,6 +160,9 @@ const ServiceAdmissionForm: FC = () => {
       searchCustomers(searchText);
     }
   };
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
   const onSubmit = () => {};
 
   return (
@@ -226,144 +227,134 @@ const ServiceAdmissionForm: FC = () => {
             </Button>
           </Box>
         </Grid>
-        <Grid size={{ xs: 12 }}>
-          <Box className="mb-2 flex justify-between items-center">
-            <Typography variant="subtitle1">شرح مشکلات</Typography>
-            <Button
-              startIcon={<AddIcon />}
-              variant="outlined"
-              onClick={addIssue}
-              size="small"
-            >
-              افزودن مشکل
-            </Button>
-          </Box>
-          {fields.map((item, index) => (
-            <Box key={item.id} className="flex items-start mb-3">
-              <EnhancedInput
-                helperText={
-                  errors.issues?.[index]?.description?.message as string
-                }
-                error={!!errors.issues?.[index]?.description}
-                name={`issues.${index}.description`}
-                label={`مشکل ${index + 1}`}
-                enableSpeechToText
-                isTextArea
-                fullWidth
-                rows={1}
-              />
-              {fields.length > 1 && (
-                <IconButton
-                  color="error"
-                  onClick={() => remove(index)}
-                  sx={{ ml: 1, mt: 1 }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              )}
+
+        {/* نمایش تب‌ها فقط زمانی که مشتری و پلاک انتخاب شده باشد */}
+        {watch("customerId") && selectedVehicle && (
+          <Grid size={{ xs: 12 }}>
+            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+              <Tabs
+                value={activeTab}
+                onChange={handleTabChange}
+                aria-label="service tabs"
+              >
+                <Tab label="مشکلات" />
+                <Tab label="تعمیرات" />
+                <Tab label="قطعات" />
+              </Tabs>
             </Box>
-          ))}
-        </Grid>
-        <Grid size={{ xs: 12 }}>
-          <Typography variant="subtitle1" className="mb-2">
-            آپلود فایل (اختیاری)
-          </Typography>
-          <Controller
-            name="files"
-            control={control}
-            render={({ field }) => (
-              <FileUploader
-                onFilesChange={handleFilesChange}
-                error={!!errors.files}
-                files={field.value}
-                multiple={true}
-                helperText={
-                  uploadError
-                    ? `خطا در آپلود: ${uploadError}`
-                    : (errors.files?.message as string)
-                }
-              />
+
+            {/* تب مشکلات */}
+            {activeTab === 0 && (
+              <Box>
+                <Box className="mb-2 flex justify-between items-center">
+                  <Typography variant="subtitle1">شرح مشکلات</Typography>
+                  <Button
+                    startIcon={<AddIcon />}
+                    variant="outlined"
+                    onClick={addIssue}
+                    size="small"
+                  >
+                    افزودن مشکل
+                  </Button>
+                </Box>
+                {fields.map((item, index) => (
+                  <Box key={item.id} className="flex items-start mb-3">
+                    <EnhancedInput
+                      helperText={
+                        errors.issues?.[index]?.description?.message as string
+                      }
+                      error={!!errors.issues?.[index]?.description}
+                      name={`issues.${index}.description`}
+                      label={`مشکل ${index + 1}`}
+                      enableSpeechToText
+                      isTextArea
+                      fullWidth
+                      rows={1}
+                    />
+                    {fields.length > 1 && (
+                      <IconButton
+                        color="error"
+                        onClick={() => remove(index)}
+                        sx={{ ml: 1, mt: 1 }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
+                  </Box>
+                ))}
+              </Box>
             )}
-          />
-          {uploadedFileIds.length > 0 && (
-            <Box className="mt-2">
-              <Typography variant="caption" color="success.main">
-                {uploadedFileIds.length} فایل با موفقیت آپلود شده است
-              </Typography>
-            </Box>
-          )}
+
+            {/* تب تعمیرات */}
+            {activeTab === 1 && (
+              <Box>
+                <Typography variant="h6" className="mb-4">
+                  تعمیرات
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  محتوای این بخش به زودی اضافه خواهد شد...
+                </Typography>
+              </Box>
+            )}
+
+            {/* تب قطعات */}
+            {activeTab === 2 && (
+              <Box>
+                <Typography variant="h6" className="mb-4">
+                  قطعات
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  محتوای این بخش به زودی اضافه خواهد شد...
+                </Typography>
+              </Box>
+            )}
+          </Grid>
+        )}
+        <Grid size={{ xs: 12 }}>
+          <Box className="mt-4">
+            <Typography variant="subtitle1" className="mb-2">
+              آپلود فایل
+            </Typography>
+            <Controller
+              name="files"
+              control={control}
+              render={({ field }) => (
+                <FileUploader
+                  onFilesChange={handleFilesChange}
+                  error={!!errors.files}
+                  files={field.value}
+                  multiple={true}
+                  helperText={
+                    uploadError
+                      ? `خطا در آپلود: ${uploadError}`
+                      : (errors.files?.message as string)
+                  }
+                />
+              )}
+            />
+            {uploadedFileIds.length > 0 && (
+              <Box className="mt-2">
+                <Typography variant="caption" color="success.main">
+                  {uploadedFileIds.length} فایل با موفقیت آپلود شده است
+                </Typography>
+              </Box>
+            )}
+          </Box>
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <EnhancedInput
             helperText={errors.preferredRepairTime?.message as string}
             error={!!errors.preferredRepairTime}
             enableSpeechToText={false}
             name="preferredRepairTime"
             label="زمان ترجیحی تعمیر"
-            type="datetime-local"
             icon={<span>روز</span>}
+            type="datetime-local"
             iconPosition="end"
             isTextArea
             fullWidth
             rows={1}
           />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <FormControl component="fieldset" variant="standard">
-            <FormLabel component="legend" sx={{ mb: 1 }}>
-              ارسال پیامک به:
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="notifyManagement"
-                control={control}
-                render={({ field }) => (
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        {...field}
-                        checked={field.value}
-                        color="secondary"
-                      />
-                    }
-                    label="مدیریت"
-                  />
-                )}
-              />
-              <Controller
-                name="notifyWorkshopManager"
-                control={control}
-                render={({ field }) => (
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        {...field}
-                        checked={field.value}
-                        color="secondary"
-                      />
-                    }
-                    label="مدیر کارگاه"
-                  />
-                )}
-              />
-              <Controller
-                name="notifyWarehouseManager"
-                control={control}
-                render={({ field }) => (
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        {...field}
-                        checked={field.value}
-                        color="secondary"
-                      />
-                    }
-                    label="مدیر انبار"
-                  />
-                )}
-              />
-            </FormGroup>
-          </FormControl>
         </Grid>
         <Grid
           size={{ xs: 12 }}

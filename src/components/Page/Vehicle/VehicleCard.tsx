@@ -1,4 +1,4 @@
-import { IconButton, Modal, Typography } from "@mui/material";
+import { IconButton, Modal, Paper, Typography } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import React, { useState } from "react";
 import {
@@ -29,21 +29,10 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
 
   return (
     <>
-      <div
-        className="vehicle-card cursor-pointer"
-        style={{
-          background:
-            mode === "dark"
-              ? "linear-gradient(145deg, #222e3c 0%, #1a252f 100%)"
-              : undefined,
-          boxShadow:
-            mode === "dark" ? "0 4px 20px rgba(0, 0, 0, 0.4)" : undefined,
-        }}
-      >
+      <Paper className="vehicle-card cursor-pointer">
         <div
           className="vehicle-content"
           style={{
-            background: mode === "dark" ? "rgba(34, 46, 60, 0.9)" : undefined,
             color: mode === "dark" ? "#ffffff" : undefined,
             padding: "0 8px 8px",
           }}
@@ -104,7 +93,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             </div>
           </div>
         </div>
-      </div>
+      </Paper>
       <Modal
         open={isDescriptionModalOpen}
         onClose={handleCloseDescription}

@@ -11,12 +11,12 @@
 
 /* Dark mode specific styles for Header */
 .dark .Header-root {
-  background-color: #1e1e1e !important;
+  background-color: #222e3c !important;
   color: white !important;
 }
 
 .dark .MuiAppBar-root {
-  background-color: #1e1e1e !important;
+  background-color: #222e3c !important;
 }
 
 .dark .Header-menuButton,

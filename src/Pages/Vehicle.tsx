@@ -1,4 +1,4 @@
-import { Grid2 as Grid, Pagination, Box } from "@mui/material";
+import { Grid2 as Grid, Pagination, Box, Paper } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { FC, useState } from "react";
@@ -93,7 +93,7 @@ const Vehicle: FC = () => {
   return (
     <Box className="vehicle-page">
       {isPendingRepairReceptions && <Loading />}
-      <Box className="filters-container">
+      <Paper className="filters-container">
         <Grid container spacing={2} display="flex" alignItems="end">
           <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
             <label className="font-12">شماره پلاک</label>
@@ -138,19 +138,21 @@ const Vehicle: FC = () => {
             />
           </Grid>
         </Grid>
-      </Box>
+      </Paper>
 
       <Box className="vehicle-cards-container p-2">
         <Grid container spacing={2}>
           {vehicles?.data?.values?.map((vehicle: any) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }} key={vehicle.id}>
-              <VehicleCard vehicle={vehicle} />
+              <Paper className="vehicle-card-container">
+                <VehicleCard vehicle={vehicle} />
+              </Paper>
             </Grid>
           ))}
         </Grid>
       </Box>
       {vehicles?.data?.totalPage && vehicles?.data?.totalPage > 1 && (
-        <Box className="pagination-container flex justify-center mt-12">
+        <Paper className="pagination-container flex justify-center mt-12">
           <Pagination
             count={vehicles?.data?.totalPage}
             onChange={handlePageChange}
@@ -162,7 +164,7 @@ const Vehicle: FC = () => {
             size="large"
             page={+page}
           />
-        </Box>
+        </Paper>
       )}
     </Box>
   );

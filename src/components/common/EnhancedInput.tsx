@@ -1,4 +1,7 @@
+import { Visibility, VisibilityOff, Mic, MicOff } from "@mui/icons-material";
 import { useState, forwardRef, useEffect, useRef } from "react";
+import useSpeechToText from "react-hook-speech-to-text";
+import { Controller, Control, FieldValues, Path, RegisterOptions } from "react-hook-form";
 import {
   InputAdornment,
   TextFieldProps,
@@ -6,9 +9,8 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import { Visibility, VisibilityOff, Mic, MicOff } from "@mui/icons-material";
+
 import { addCommas, removeComma, fixNumbers } from "@/utils";
-import useSpeechToText from "react-hook-speech-to-text";
 
 declare global {
   interface Window {
@@ -17,18 +19,21 @@ declare global {
   }
 }
 
-export interface EnhancedInputProps extends Omit<TextFieldProps, "variant"> {
+export interface EnhancedInputProps<T extends FieldValues = FieldValues> extends Omit<TextFieldProps, "variant" | "name"> {
   onChange?: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
   iconPosition?: "start" | "end";
   containerClassName?: string;
   enableSpeechToText?: boolean;
+  rules?: RegisterOptions<T>;
   icon?: React.ReactNode;
   formatNumber?: boolean;
   isTextArea?: boolean;
+  control?: Control<T>;
   helperText?: string;
   disabled?: boolean;
+  defaultValue?: any;
   maxRows?: number;
   error?: boolean;
   isRtl?: boolean;
@@ -36,10 +41,117 @@ export interface EnhancedInputProps extends Omit<TextFieldProps, "variant"> {
   value?: string;
   type?: string;
   rows?: number;
-  name: string;
+  name: Path<T>;
 }
 
-const EnhancedInput = forwardRef<HTMLInputElement, EnhancedInputProps>(
+const EnhancedInput = <T extends FieldValues = FieldValues>(
+  props: EnhancedInputProps<T> & { ref?: React.Ref<HTMLInputElement> }
+) => {
+  const {
+    enableSpeechToText = false,
+    containerClassName = "",
+    iconPosition = "start",
+    formatNumber = false,
+    isTextArea = false,
+    disabled = false,
+    error = false,
+    type = "text",
+    isRtl = true,
+    maxRows = 5,
+    helperText,
+    rows = 1,
+    onChange,
+    label,
+    value,
+    name,
+    icon,
+    control,
+    rules,
+    defaultValue,
+    ref,
+    ...rest
+  } = props;
+
+  // If control is provided, use Controller
+  if (control) {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        rules={rules}
+        defaultValue={defaultValue}
+        render={({ field, fieldState }) => (
+          <EnhancedInputInternal
+            {...field}
+            {...rest}
+            value={
+              type === "number" && formatNumber
+                ? addCommas(field.value?.toString() || "")
+                : type === "number"
+                ? `${field.value || ""}`
+                : field.value || ""
+            }
+            onChange={(e) => {
+              if (type === "number") {
+                const numericValue = +(removeComma(e.target.value)) || 0;
+                field.onChange(numericValue);
+              } else {
+                field.onChange(e.target.value);
+              }
+              if (onChange) {
+                onChange(e);
+              }
+            }}
+            enableSpeechToText={enableSpeechToText}
+            containerClassName={containerClassName}
+            iconPosition={iconPosition}
+            formatNumber={formatNumber}
+            isTextArea={isTextArea}
+            disabled={disabled}
+            error={error || !!fieldState.error}
+            type={type === "number" && formatNumber ? "text" : type}
+            isRtl={isRtl}
+            maxRows={maxRows}
+            helperText={fieldState.error?.message || helperText}
+            rows={rows}
+            label={label}
+            name={name}
+            icon={icon}
+            ref={ref}
+          />
+        )}
+      />
+    );
+  }
+
+  // If no control, use the component directly
+  return (
+    <EnhancedInputInternal
+      enableSpeechToText={enableSpeechToText}
+      containerClassName={containerClassName}
+      iconPosition={iconPosition}
+      formatNumber={formatNumber}
+      isTextArea={isTextArea}
+      disabled={disabled}
+      error={error}
+      type={type}
+      isRtl={isRtl}
+      maxRows={maxRows}
+      helperText={helperText}
+      rows={rows}
+      onChange={onChange}
+      label={label}
+      value={value}
+      name={name}
+      icon={icon}
+      ref={ref}
+      {...rest}
+    />
+  );
+};
+
+// Internal component that contains the actual input logic
+const EnhancedInputInternal = forwardRef<HTMLInputElement, Omit<EnhancedInputProps, "control" | "rules" | "defaultValue">>(
   (
     {
       enableSpeechToText = false,
@@ -346,5 +458,6 @@ const EnhancedInput = forwardRef<HTMLInputElement, EnhancedInputProps>(
 );
 
 EnhancedInput.displayName = "EnhancedInput";
+EnhancedInputInternal.displayName = "EnhancedInputInternal";
 
 export default EnhancedInput;

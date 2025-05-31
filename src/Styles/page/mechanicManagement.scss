@@ -1,0 +1,191 @@
+.mechanic-management {
+  padding: 1rem;
+  min-height: 100vh;
+  background: var(--background-default);
+
+  &__create-btn {
+    margin-bottom: 1.5rem;
+  }
+
+  &__loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+
+  &__content {
+    .grid {
+      gap: 1.5rem;
+    }
+  }
+
+  &__header {
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__title {
+    color: var(--text-primary);
+    word-break: break-word;
+    font-weight: 600;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  &__actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__edit-btn {
+    color: var(--primary-main);
+
+    &:hover {
+      background-color: rgba(var(--primary-main-rgb), 0.1);
+    }
+  }
+
+  &__delete-btn {
+    color: var(--error-main);
+
+    &:hover {
+      background-color: rgba(var(--error-main-rgb), 0.1);
+    }
+  }
+
+  &__status {
+    margin-bottom: 1.5rem;
+  }
+
+  &__details {
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__detail-item {
+    align-items: center;
+    flex-wrap: wrap;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__icon {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+  }
+
+  &__expert-chip {
+    margin-right: 0.5rem;
+  }
+
+  &__footer {
+    border-top: 1px solid var(--divider);
+    flex-direction: column;
+    padding-top: 1rem;
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  &__date {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+  }
+
+  .mechanic-modal {
+    .MuiDialog-paper {
+      background: var(--background-paper);
+      border-radius: 12px;
+      @media (max-width: 768px) {
+        max-height: calc(100% - 2rem);
+        width: calc(100% - 2rem);
+        margin: 1rem;
+      }
+    }
+
+    &__title {
+      border-bottom: 1px solid var(--divider);
+      color: var(--text-primary);
+      padding-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    &__content {
+      padding: 2rem;
+      
+      @media (max-width: 768px) {
+        padding: 1rem;
+      }
+    }
+
+    &__field {
+      margin-bottom: 1rem;
+      
+      .MuiInputBase-root {
+        background: var(--background-default);
+      }
+      
+      .MuiInputLabel-root {
+        color: var(--text-secondary);
+      }
+      
+      .MuiOutlinedInput-notchedOutline {
+        border-color: var(--divider);
+      }
+      
+      &:hover .MuiOutlinedInput-notchedOutline {
+        border-color: var(--primary-main);
+      }
+      
+      &.Mui-focused .MuiOutlinedInput-notchedOutline {
+        border-color: var(--primary-main);
+      }
+    }
+
+    &__switch {
+      margin-top: 1rem;
+      
+      .MuiFormControlLabel-label {
+        color: var(--text-primary);
+      }
+    }
+
+    &__actions {
+      border-top: 1px solid var(--divider);
+      padding: 1rem 2rem;
+      gap: 1rem;
+      
+      @media (max-width: 768px) {
+        padding: 1rem;
+        flex-direction: column;
+        
+        .MuiButton-root {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+// Dark mode specific styles
+[data-theme="dark"] {
+  .mechanic-management {
+    .mechanic-modal {
+      &__field {
+        .MuiInputBase-input {
+          color: var(--text-primary);
+        }
+        
+        .MuiSelect-icon {
+          color: var(--text-secondary);
+        }
+      }
+    }
+  }
+} 

@@ -23,6 +23,18 @@ export const routesConfig: RouteConfig[] = [
         path: dir.carsManagement,
         title: "مدیریت خودرو ها",
       },
+      {
+        path: dir.serviceManagement,
+        title: "مدیریت اجرت ها",
+      },
+      {
+        path: dir.mechanicsManagement,
+        title: "مدیریت مکانیک ها",
+      },
+      {
+        path: dir.leaveManagement,
+        title: "مدیریت مرخصی ها",
+      },
     ],
   },
 ];

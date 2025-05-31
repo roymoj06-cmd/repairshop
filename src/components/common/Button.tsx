@@ -3,6 +3,7 @@ import {
   ButtonProps as MuiButtonProps,
   Button as MuiButton,
 } from "@mui/material";
+
 import Loading from "./Loading";
 
 export interface ButtonProps extends Omit<MuiButtonProps, "variant"> {
@@ -10,27 +11,31 @@ export interface ButtonProps extends Omit<MuiButtonProps, "variant"> {
   variant?: "contained" | "outlined" | "text";
   size?: "small" | "medium" | "large";
   containerClassName?: string;
+  labelClassName?: string;
   startIcon?: ReactNode;
-  children: ReactNode;
+  children?: ReactNode;
   endIcon?: ReactNode;
   fullWidth?: boolean;
   loading?: boolean;
+  label?: string;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
-      children,
-      variant = "contained",
-      color = "primary",
-      size = "medium",
-      startIcon,
-      endIcon,
-      loading = false,
-      fullWidth = false,
       containerClassName = "",
-      className = "",
+      variant = "contained",
+      labelClassName = "",
+      color = "primary",
+      fullWidth = false,
       disabled = false,
+      size = "medium",
+      loading = false,
+      className = "",
+      label = "",
+      startIcon,
+      children,
+      endIcon,
       ...rest
     },
     ref
@@ -51,7 +56,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           size={size}
           {...rest}
         >
-          {children}
+          {children && children}
+          {label && <span className={labelClassName}>{label}</span>}
           {loading && <Loading />}
         </MuiButton>
       </div>
