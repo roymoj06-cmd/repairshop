@@ -1,0 +1,447 @@
+.leave-management {
+  cursor: pointer;
+  padding: 1rem;
+  min-height: 100vh;
+  background: var(--background-default);
+  &__create-btn {
+    margin-bottom: 1.5rem;
+  }
+  &__loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+  &__content {
+    .grid {
+      gap: 1.5rem;
+    }
+  }
+  &__header {
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+  }
+  &__title {
+    color: var(--text-primary);
+    word-break: break-word;
+    font-weight: 600;
+    line-height: 1.4;
+    flex: 1;
+  }
+  &__actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 0.5rem;
+  }
+  &__edit-btn {
+    color: var(--primary-main);
+
+    &:hover {
+      background-color: rgba(var(--primary-main-rgb), 0.1);
+    }
+  }
+  &__delete-btn {
+    color: var(--error-main);
+
+    &:hover {
+      background-color: rgba(var(--error-main-rgb), 0.1);
+    }
+  }
+  &__status {
+    margin-bottom: 1.5rem;
+  }
+  &__details {
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1rem;
+  }
+  &__detail-item {
+    align-items: center;
+    flex-wrap: wrap;
+    display: flex;
+    gap: 0.5rem;
+  }
+  &__icon {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+  }
+  &__footer {
+    border-top: 1px solid var(--divider);
+    flex-direction: column;
+    padding-top: 1rem;
+    display: flex;
+    gap: 0.25rem;
+  }
+  &__date {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+  }
+
+  .leave-modal {
+    .MuiDialog-paper {
+      background: var(--background-paper);
+      border-radius: 12px;
+      max-height: 90vh;
+      overflow: hidden;
+      
+      @media (max-width: 768px) {
+        max-height: calc(100% - 2rem);
+        width: calc(100% - 2rem);
+        margin: 1rem;
+      }
+    }
+    
+    // Prevent modal content from causing overflow
+    .MuiDialogContent-root {
+      overflow: visible;
+      padding: 0;
+    }
+    
+    &__title {
+      border-bottom: 1px solid var(--divider);
+      color: var(--text-primary);
+      padding-bottom: 1rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    &__content {
+      padding: 2rem;
+      overflow: visible;
+      flex: 1;
+      min-height: 0;
+
+      @media (max-width: 768px) {
+        padding: 1rem;
+      }
+    }
+    &__field {
+      margin-bottom: 1rem;
+      position: relative;
+      
+      .MuiInputBase-root {
+        background: var(--background-default);
+      }
+      .MuiInputLabel-root {
+        color: var(--text-secondary);
+      }
+      .MuiOutlinedInput-notchedOutline {
+        border-color: var(--divider);
+      }
+      &:hover .MuiOutlinedInput-notchedOutline {
+        border-color: var(--primary-main);
+      }
+      &.Mui-focused .MuiOutlinedInput-notchedOutline {
+        border-color: var(--primary-main);
+      }
+      .custom-datepicker-container {
+        width: 100%;
+        position: relative;
+        
+        .custom-datepicker-input {
+          width: 100%;
+          height: 56px;
+          padding: 16.5px 14px;
+          border: 1px solid var(--divider);
+          border-radius: 4px;
+          background: var(--background-default);
+          color: var(--text-primary);
+          font-family: inherit;
+          font-size: 16px;
+          transition: border-color 0.15s ease-in-out,
+            box-shadow 0.15s ease-in-out;
+          &:hover {
+            border-color: var(--primary-main);
+          }
+          &:focus {
+            outline: none;
+            border-color: var(--primary-main);
+            border-width: 2px;
+            padding: 15.5px 13px;
+          }
+          &::placeholder {
+            color: var(--text-secondary);
+            opacity: 1;
+          }
+        }
+        &.error .custom-datepicker-input {
+          border-color: #d32f2f;
+
+          &:hover,
+          &:focus {
+            border-color: #d32f2f;
+          }
+        }
+      }
+      
+      .rmdp-wrapper {
+        position: relative;
+        
+        .rmdp-calendar {
+          background: var(--background-paper);
+          border: 1px solid var(--divider);
+          border-radius: 8px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+          font-family: inherit;
+          position: relative;
+          z-index: 9999;
+          
+          .rmdp-header {
+            background: var(--primary-main);
+            color: white;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            .rmdp-header-values {
+              color: white;
+              font-weight: 600;
+              font-size: 14px;
+              cursor: pointer;
+              padding: 4px 8px;
+              border-radius: 4px;
+              transition: background-color 0.2s;
+              &:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+              }
+            }
+            .rmdp-arrow-container {
+              display: flex;
+              align-items: center;
+              .rmdp-arrow {
+                width: 0;
+                height: 0;
+                border: 6px solid transparent;
+                cursor: pointer;
+                margin: 0 4px;
+                transition: all 0.2s;
+                &.rmdp-right {
+                  border-left-color: white;
+
+                  &:hover {
+                    border-left-color: rgba(255, 255, 255, 0.8);
+                  }
+                }
+
+                &.rmdp-left {
+                  border-right-color: white;
+
+                  &:hover {
+                    border-right-color: rgba(255, 255, 255, 0.8);
+                  }
+                }
+              }
+            }
+          }
+
+          .rmdp-week {
+            display: flex;
+            padding: 0;
+            margin: 0;
+          }
+
+          .rmdp-week-day {
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 8px;
+            text-align: center;
+            flex: 1;
+            font-size: 12px;
+          }
+
+          .rmdp-day {
+            color: var(--text-primary);
+            border-radius: 50%;
+            margin: 2px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+            flex: 1;
+            max-width: 30px;
+
+            &:hover {
+              background: var(--primary-main);
+              color: white;
+            }
+
+            &.rmdp-selected {
+              background: var(--primary-main);
+              color: white;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+              font-weight: 600;
+            }
+
+            &.rmdp-today {
+              background: var(--background-default);
+              border: 2px solid var(--primary-main);
+              color: var(--primary-main);
+              font-weight: 600;
+            }
+
+            &.rmdp-disabled {
+              color: var(--text-secondary);
+              opacity: 0.5;
+              cursor: not-allowed;
+
+              &:hover {
+                background: transparent;
+                color: var(--text-secondary);
+              }
+            }
+          }
+
+          .rmdp-day-picker {
+            padding: 8px;
+
+            .rmdp-week {
+              &:first-child {
+                border-bottom: 1px solid var(--divider);
+                margin-bottom: 4px;
+                padding-bottom: 4px;
+              }
+            }
+          }
+        }
+      }
+    }
+    &__actions {
+      border-top: 1px solid var(--divider);
+      padding: 1rem 2rem;
+      gap: 1rem;
+      flex-shrink: 0;
+
+      @media (max-width: 768px) {
+        padding: 1rem;
+        flex-direction: column;
+
+        .MuiButton-root {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+[data-theme="dark"] {
+  .leave-management {
+    .leave-modal {
+      &__field {
+        .MuiInputBase-input {
+          color: var(--text-primary);
+        }
+        .MuiSelect-icon {
+          color: var(--text-secondary);
+        }
+        // Dark mode DatePicker styles
+        .custom-datepicker-input {
+          background: var(--background-default);
+          color: var(--text-primary);
+          &::placeholder {
+            color: var(--text-secondary);
+          }
+        }
+
+        .rmdp-wrapper {
+          .rmdp-calendar {
+            background: #c3c3c3;
+            border-color: var(--divider);
+
+            .rmdp-week-day {
+              color: var(--text-secondary);
+            }
+
+            .rmdp-day {
+              color: var(--text-primary);
+
+              &.rmdp-today {
+                background: var(--background-default);
+                color: var(--primary-main);
+              }
+
+              &.rmdp-disabled {
+                color: var(--text-secondary);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+.rmdp-input {
+  height: 56px !important;
+  width: 100% !important;
+  background-color: transparent !important;
+  border: 1px solid #c3c3c3 !important;
+}
+[data-theme="dark"] {
+  .rmdp-input {
+    border: 1px solid #616b78 !important;
+  }
+}
+
+// Fix z-index for calendar when using portal
+.rmdp-calendar {
+  z-index: 2000 !important;
+  position: fixed !important;
+  background: #c3c3c3 !important;
+  border: 1px solid var(--divider) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
+// Additional portal calendar styling
+.rmdp-wrapper .rmdp-calendar {
+  z-index: 2000 !important;
+  background: #c3c3c3 !important;
+  border: 1px solid var(--divider) !important;
+  border-radius: 8px !important;
+}
+
+// Global calendar z-index override
+.rmdp-container .rmdp-calendar {
+  z-index: 2000 !important;
+  background: var(--background-paper) !important;
+  border: 1px solid var(--divider) !important;
+  border-radius: 8px !important;
+}
+
+// Force highest z-index for Persian calendar
+div[class*="rmdp"] {
+  z-index: 2100 !important;
+}
+
+// Specific calendar background fix
+.rmdp-calendar,
+div.rmdp-calendar {
+  background-color: var(--background-paper) !important;
+  backdrop-filter: none !important;
+}
+
+// Dark mode calendar background
+[data-theme="dark"] {
+  .rmdp-calendar,
+  div.rmdp-calendar {
+    background-color: #c3c3c3 !important;
+    border-color: var(--divider) !important;
+  }
+}
+
+// Ensure modal container doesn't scroll
+.MuiDialog-container {
+  &:has(.leave-modal) {
+    .MuiDialog-paper {
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+  }
+}

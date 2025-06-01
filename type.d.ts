@@ -19,25 +19,21 @@ interface UserAccessResponse {
 interface IUpdateRepairReception {
   repairReception: {
     repairReceptionId?: number;
-    description: string;
+    description?: string;
     customerId: number;
     fileIds?: number[];
     carId: number;
-    details?:
-      | any
-      | [
-          {
-            repairReceptionDetailId: number;
-            overridedUnitPrice: number;
-            isCustomerOwner: boolean;
-            productId: number;
-            unitPrice: number;
-            barcodeId: number;
-            mechanic: string;
-            scanCode: string;
-            qty: number;
-          }
-        ];
+    details?: {
+      repairReceptionDetailId: number;
+      overridedUnitPrice: number;
+      isCustomerOwner: boolean;
+      productId: number;
+      unitPrice: number;
+      barcodeId: number;
+      mechanic: string;
+      scanCode: string;
+      qty: number;
+    }[];
   };
 }
 interface IUpdateCarRepair {
@@ -134,13 +130,13 @@ interface IServiceAdmissionForm {
   plateSection2?: string;
   plateSection3?: string;
   plateSection4?: string;
-  vehicleTypeId: number;
   customerId: number;
   carCompany: string;
   issues: IIssue[];
   carTipId: number;
   carType: string;
   files: File[];
+  carId: number;
 }
 interface IGetAllRepairServices {
   commissionPercent: number;
@@ -200,5 +196,18 @@ interface IGetMechanicById {
   userName: string;
   createDm: string;
   userId: number;
+  id: number;
+}
+interface ICreateOrUpdateMechanicLeave {
+  description?: string;
+  mechanicId?: number;
+  date?: string;
+  id?: number;
+}
+interface IGetAllMechanicLeaves {
+  mechanicFullName: string;
+  description: string;
+  mechanicId: number;
+  date: string;
   id: number;
 }

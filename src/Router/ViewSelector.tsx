@@ -9,6 +9,7 @@ import dir from "./dir";
 const MechanicsManagement = lazy(() => import("@/Pages/MechanicManagement"));
 const ServiceManagement = lazy(() => import("@/Pages/ServiceManagement"));
 const ServiceAdmission = lazy(() => import("@/Pages/ServiceAdmission"));
+const LeaveManagement = lazy(() => import("@/Pages/LeaveManagement"));    
 const CarsManagement = lazy(() => import("@/Pages/CarsManagement"));
 const Dashboard = lazy(() => import("@/Pages/Dashboard"));
 const Vehicle = lazy(() => import("@/Pages/Vehicle"));
@@ -42,6 +43,7 @@ const ViewSelector: FC = () => {
           <Route path={dir.mechanicsManagement} element={<MechanicsManagement />} />
           <Route path={dir.serviceManagement} element={<ServiceManagement />} />
           <Route path={dir.serviceAdmission} element={<ServiceAdmission />} />
+          <Route path={dir.leaveManagement} element={<LeaveManagement />} />
           <Route path={dir.carsManagement} element={<CarsManagement />} />
           <Route path={dir.dashboard} element={<Dashboard />} />
           <Route path={dir.vehicles} element={<Vehicle />} />

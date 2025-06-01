@@ -2,6 +2,8 @@ export { default as ServiceAdmissionForm } from "./Page/ServiceAdmission/Service
 export { default as MechanicModal } from "./Page/mechanicManagement/MechanicModal";
 export { default as PlateManagementDialog } from "./common/PlateManagementDialog";
 export { default as MechanicCard } from "./Page/mechanicManagement/MechanicCard";
+export { default as LeaveModal } from "./Page/leaveManagement/LeaveModal";
+export { default as LeaveCard } from "./Page/leaveManagement/LeaveCard";
 export { default as ServiceModal } from "./Page/serviceManagement/ServiceModal";
 export { default as ServiceCard } from "./Page/serviceManagement/ServiceCard";
 export { default as PlateNumberDisplay } from "./common/PlateNumberDisplay";

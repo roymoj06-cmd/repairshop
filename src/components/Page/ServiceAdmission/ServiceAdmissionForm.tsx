@@ -30,11 +30,16 @@ import {
 
 const generateId = () => `id_${Math.random().toString(36).substring(2, 11)}`;
 
-const ServiceAdmissionForm: FC = () => {
+interface IServiceAdmissionFormProps {
+  repairReceptionId?: number;
+}
+
+const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
+  repairReceptionId,
+}) => {
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
   const [showNewPlateDialog, setShowNewPlateDialog] = useState(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
-  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [uploadedFileIds, setUploadedFileIds] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState(0);
   const { upload, uploadMultiple, isUploading, uploadError } = useFileUpload({
@@ -58,13 +63,13 @@ const ServiceAdmissionForm: FC = () => {
   } = useForm<IServiceAdmissionForm>({
     defaultValues: {
       issues: [{ id: generateId(), description: "" }],
+      preferredRepairTime: undefined,
       notifyWarehouseManager: false,
       notifyWorkshopManager: true,
       isReturnedVehicle: false,
-      preferredRepairTime: "",
       notifyManagement: true,
       customerId: undefined,
-      vehicleTypeId: 0,
+      carId: undefined,
       files: [],
     },
   });
@@ -106,6 +111,7 @@ const ServiceAdmissionForm: FC = () => {
   const {
     mutateAsync: mutateAsyncCreateRepairReception,
     isPending: isPendingCreateRepairReception,
+    data: createRepairReceptionData,
   } = useMutation({
     mutationFn: createRepairReception,
     onSuccess: (data: any) => {
@@ -117,7 +123,6 @@ const ServiceAdmissionForm: FC = () => {
       }
     },
   });
-
   const addIssue = () => {
     append({ id: generateId(), description: "" });
   };
@@ -163,7 +168,14 @@ const ServiceAdmissionForm: FC = () => {
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
-  const onSubmit = () => {};
+  const onSubmit = () => {
+    mutateAsyncCreateRepairReception({
+      repairReception: {
+        customerId: watch("customerId"),
+        carId: watch("carId"),
+      },
+    });
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -196,24 +208,21 @@ const ServiceAdmissionForm: FC = () => {
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <EnhancedSelect
-            helperText={errors.vehicleTypeId?.message as string}
+            helperText={errors.carId?.message as string}
+            onInputChange={(value) => {
+              console.log("Vehicle search input:", value);
+            }}
             placeholder="جستجوی پلاک خودرو"
-            error={!!errors.vehicleTypeId}
+            error={!!errors.carId}
             loading={isPendingCustomerCars}
             options={customerVehicles}
             control={control}
             storeValueOnly={true}
-            name="vehicleTypeId"
             enableSpeechToText
             searchable={true}
             label="پلاک خودرو"
+            name="carId"
             isRtl
-            onChange={(value) => {
-              setSelectedVehicle(value);
-            }}
-            onInputChange={(value) => {
-              console.log("Vehicle search input:", value);
-            }}
           />
           <Box className="mb-2 flex justify-end mt-2 items-center">
             <Button
@@ -227,9 +236,44 @@ const ServiceAdmissionForm: FC = () => {
             </Button>
           </Box>
         </Grid>
-
+        {/* <Grid size={{ xs: 12, md: 4 }}>
+          <EnhancedInput
+            helperText={errors.preferredRepairTime?.message as string}
+            error={!!errors.preferredRepairTime}
+            enableSpeechToText={false}
+            name="preferredRepairTime"
+            label="زمان ترجیحی تعمیر"
+            icon={<span>روز</span>}
+            type="datetime-local"
+            iconPosition="end"
+            isTextArea
+            fullWidth
+            rows={1}
+          />
+        </Grid> */}
+        {!repairReceptionId && (
+          <Grid
+            size={{ xs: 12, md: 4 }}
+            sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
+          >
+            <Button
+              type="submit"
+              variant="contained"
+              color="secondary"
+              size="large"
+              disabled={
+                (!watch("carId") &&
+                  watch("carId") !== 0 &&
+                  !watch("isReturnedVehicle")) ||
+                isUploading
+              }
+            >
+              ثبت پذیرش
+            </Button>
+          </Grid>
+        )}
         {/* نمایش تب‌ها فقط زمانی که مشتری و پلاک انتخاب شده باشد */}
-        {watch("customerId") && selectedVehicle && (
+        {createRepairReceptionData?.isSuccess ? (
           <Grid size={{ xs: 12 }}>
             <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
               <Tabs
@@ -240,6 +284,7 @@ const ServiceAdmissionForm: FC = () => {
                 <Tab label="مشکلات" />
                 <Tab label="تعمیرات" />
                 <Tab label="قطعات" />
+                <Tab label="مستندات" />
               </Tabs>
             </Box>
 
@@ -308,79 +353,59 @@ const ServiceAdmissionForm: FC = () => {
                 </Typography>
               </Box>
             )}
-          </Grid>
-        )}
-        <Grid size={{ xs: 12 }}>
-          <Box className="mt-4">
-            <Typography variant="subtitle1" className="mb-2">
-              آپلود فایل
-            </Typography>
-            <Controller
-              name="files"
-              control={control}
-              render={({ field }) => (
-                <FileUploader
-                  onFilesChange={handleFilesChange}
-                  error={!!errors.files}
-                  files={field.value}
-                  multiple={true}
-                  helperText={
-                    uploadError
-                      ? `خطا در آپلود: ${uploadError}`
-                      : (errors.files?.message as string)
-                  }
-                />
-              )}
-            />
-            {uploadedFileIds.length > 0 && (
-              <Box className="mt-2">
-                <Typography variant="caption" color="success.main">
-                  {uploadedFileIds.length} فایل با موفقیت آپلود شده است
+
+            {/* تب مستندات */}
+            {activeTab === 3 && (
+              <Box>
+                <Typography variant="h6" className="mb-4">
+                  مستندات
                 </Typography>
+                <Grid size={{ xs: 12 }}>
+                  <Box className="mt-4">
+                    <Typography variant="subtitle1" className="mb-2">
+                      آپلود فایل
+                    </Typography>
+                    <Controller
+                      name="files"
+                      control={control}
+                      render={({ field }) => (
+                        <FileUploader
+                          onFilesChange={handleFilesChange}
+                          error={!!errors.files}
+                          files={field.value}
+                          multiple={true}
+                          helperText={
+                            uploadError
+                              ? `خطا در آپلود: ${uploadError}`
+                              : (errors.files?.message as string)
+                          }
+                        />
+                      )}
+                    />
+                    {uploadedFileIds.length > 0 && (
+                      <Box className="mt-2">
+                        <Typography variant="caption" color="success.main">
+                          {uploadedFileIds.length} فایل با موفقیت آپلود شده است
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                </Grid>
               </Box>
             )}
-          </Box>
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <EnhancedInput
-            helperText={errors.preferredRepairTime?.message as string}
-            error={!!errors.preferredRepairTime}
-            enableSpeechToText={false}
-            name="preferredRepairTime"
-            label="زمان ترجیحی تعمیر"
-            icon={<span>روز</span>}
-            type="datetime-local"
-            iconPosition="end"
-            isTextArea
-            fullWidth
-            rows={1}
-          />
-        </Grid>
-        <Grid
-          size={{ xs: 12 }}
-          sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
-        >
-          <Button
-            type="submit"
-            variant="contained"
-            color="secondary"
-            size="large"
-            disabled={
-              (!selectedVehicle && !watch("isReturnedVehicle")) || isUploading
-            }
-          >
-            ثبت پذیرش
-          </Button>
-        </Grid>
+          </Grid>
+        ) : (
+          <></>
+        )}
       </Grid>
       <PlateManagementDialog
-        open={showNewPlateDialog}
+        description="لطفا اطلاعات خودرو جدید را برای مشتری انتخاب شده وارد کنید."
         onClose={handleCloseNewPlateDialog}
-        mode="add"
         customerId={watch("customerId")}
         onSuccess={handlePlateSuccess}
+        open={showNewPlateDialog}
         title="ثبت پلاک جدید"
-        description="لطفا اطلاعات خودرو جدید را برای مشتری انتخاب شده وارد کنید."
+        mode="add"
       />
     </form>
   );

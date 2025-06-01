@@ -172,7 +172,10 @@ const MechanicModal: FC<MechanicModalProps> = ({
 
             <Grid size={{ xs: 12, sm: 6 }}>
               <EnhancedSelect
-                onChange={(e) => searchCustomers(e.target.value)}
+                onInputChange={searchCustomers}
+                onChange={(e) => {
+                  console.log(e);
+                }}
                 helperText={errors.mechanic?.userId?.message}
                 placeholder="نام کاربر را جستجو کنید"
                 error={!!errors.mechanic?.userId}
@@ -185,10 +188,12 @@ const MechanicModal: FC<MechanicModalProps> = ({
                 enableSpeechToText
                 searchable={true}
                 control={control}
-                defaultValue={{
-                  label: editingMechanic?.userName,
-                  value: editingMechanic?.userId,
-                }}
+                defaultValue={
+                  editingMechanic && {
+                    label: editingMechanic?.userName,
+                    value: editingMechanic?.userId,
+                  }
+                }
               />
             </Grid>
 

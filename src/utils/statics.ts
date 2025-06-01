@@ -11,8 +11,8 @@ export const carTipTypes: SelectOption[] = [
 ];
 export const carCompany: SelectOption[] = [
   { value: 1, label: "ایسوزو" },
-  { value: 2, label: "هیوندا" },
-  { value: 3, label: "شیلر" },
+  { value: 2, label: "شیلر" },
+  { value: 3, label: "هیوندا" },
 ];
 export const expertLevelOptions: SelectOption[] = [
   { value: 1, label: "مبتدی" },

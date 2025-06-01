@@ -99,12 +99,16 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
     <>
       <Box className="sidebar__logo">
         <Box className="sidebar__logo-container">
-          <img 
-            src={mode === 'dark' ? '/images/logo-baaz-dark.webp' : '/images/logo-baaz-light.webp'} 
-            alt="BAAZ Logo" 
+          <img
+            src={
+              mode === "dark"
+                ? "/images/logo-baaz-dark.webp"
+                : "/images/logo-baaz-light.webp"
+            }
+            alt="BAAZ Logo"
             className="sidebar__logo-image"
             onError={(e) => {
-              e.currentTarget.src = '/images/baaz.png';
+              e.currentTarget.src = "/images/baaz.png";
             }}
           />
           <Typography
@@ -176,15 +180,13 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
       </List>
       <Divider className="sidebar__divider" />
       <List className="sidebar__bottom-list">
-        <ListItem
-          onClick={() => toggleTheme()}
-          disablePadding
-          className="sidebar__theme-item"
-        >
+        <ListItem disablePadding className="sidebar__theme-item">
           <ListItemButton
+            onClick={() => toggleTheme()}
             className={`sidebar__theme-button sidebar__theme-button--${mode}`}
           >
             <ListItemIcon
+              onClick={() => toggleTheme()}
               className={`sidebar__theme-icon sidebar__theme-icon--${mode}`}
             >
               <ThemeToggle />

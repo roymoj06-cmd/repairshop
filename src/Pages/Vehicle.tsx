@@ -15,8 +15,8 @@ import {
 
 const Vehicle: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = searchParams.get("page") ?? 1;
   const [filter, setFilter] = useState<plateSection>({});
+  const page = searchParams.get("page") ?? 1;
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
   const statusOptions = [
     { value: null, label: "همه" },

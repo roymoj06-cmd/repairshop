@@ -64,4 +64,13 @@ export const proxyServerUrl = {
   createMechanic: `${panelServiceBaseUrl}/Mechanic/CreateMechanic`,
   updateMechanic: `${panelServiceBaseUrl}/Mechanic/UpdateMechanic`,
   deleteMechanic: `${panelServiceBaseUrl}/Mechanic/DeleteMechanic`,
+
+  // repairMechanicLeaves controller
+  getMechanicLeaveByMechanicId: `${panelServiceBaseUrl}/RepairMechanicLeaves/GetMechanicLeaveByMechanicId`,
+  geMechanicLeavetByDateRange: `${panelServiceBaseUrl}/RepairMechanicLeaves/GeMechanicLeavetByDateRange`,
+  createRepairMechanicLeave: `${panelServiceBaseUrl}/RepairMechanicLeaves/CreateRepairMechanicLeave`,
+  updateRepairMechanicLeave: `${panelServiceBaseUrl}/RepairMechanicLeaves/UpdateRepairMechanicLeave`,
+  deleteRepairMechanicLeave: `${panelServiceBaseUrl}/RepairMechanicLeaves/DeleteRepairMechanicLeave`,
+  getMechanicLeaveById: `${panelServiceBaseUrl}/RepairMechanicLeaves/GetMechanicLeaveById`,
+  getAllMechanicLeave: `${panelServiceBaseUrl}/RepairMechanicLeaves/GetAllMechanicLeave`,
 };

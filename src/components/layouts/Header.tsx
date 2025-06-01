@@ -59,7 +59,18 @@ export const Header: FC<HeaderProps> = ({ onMenuClick }) => {
           >
             <MenuIcon />
           </IconButton>
-          <img style={{ height: "30px" }} src="/images/baaz.svg" alt="logo" />
+          <img
+            onError={(e) => {
+              e.currentTarget.src = "/images/baaz.png";
+            }}
+            src={
+              mode === "dark"
+                ? "/images/logo-baaz-dark.webp"
+                : "/images/logo-baaz-light.webp"
+            }
+            style={{ height: "30px" }}
+            alt="BAAZ Logo"
+          />
         </Stack>
         <Box
           sx={{
