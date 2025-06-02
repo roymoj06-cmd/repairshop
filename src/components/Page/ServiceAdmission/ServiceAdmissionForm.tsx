@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { toast } from "react-toastify";
-import { FC, useState } from "react";
+import { FC, useState, useEffect, useRef } from "react";
 import {
   Grid2 as Grid,
   Typography,
@@ -18,6 +18,8 @@ import useFileUpload from "@/hooks/useFileUpload";
 import {
   createRepairReception,
   getCustomerCars,
+  getRepairReceptionForUpdateById,
+  updateRepairReception,
 } from "@/service/repair/repair.service";
 import {
   PlateManagementDialog,
@@ -31,17 +33,21 @@ import {
 const generateId = () => `id_${Math.random().toString(36).substring(2, 11)}`;
 
 interface IServiceAdmissionFormProps {
-  repairReceptionId?: number;
+  repairReceptionId?: string;
 }
 
 const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   repairReceptionId,
 }) => {
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
+  const [uploadedFileIds, setUploadedFileIds] = useState<number[]>([]);
   const [showNewPlateDialog, setShowNewPlateDialog] = useState(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
-  const [uploadedFileIds, setUploadedFileIds] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState(0);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const { upload, uploadMultiple, isUploading, uploadError } = useFileUpload({
     onSuccess: (response) => {
       if (response?.isSuccess && response?.data?.id) {
@@ -53,6 +59,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       toast.error("خطا در آپلود فایل");
     },
   });
+
   const {
     handleSubmit,
     setValue,
@@ -73,10 +80,39 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       files: [],
     },
   });
+
   const { fields, append, remove } = useFieldArray({
     name: "issues",
     control,
   });
+  const {
+    mutateAsync: fetchRepairReception,
+    isPending: isFetchingRepairReception,
+  } = useMutation({
+    mutationFn: getRepairReceptionForUpdateById,
+    onSuccess: (data: any) => {
+      if (data?.isSuccess && data?.data) {
+        const repairData = data.data;
+        setValue("customerId", repairData.customerId);
+        setValue("carId", repairData.carId);
+        if (repairData.customerId) {
+          mutateAsyncCustomerCars(repairData.customerId);
+        }
+        if (repairData.customerName) {
+          setCustomerOptions([
+            {
+              label: repairData.customerName,
+              value: repairData.customerId,
+            },
+          ]);
+        }
+        setInitialDataLoaded(true);
+      } else {
+        toast.error(data?.message || "خطا در دریافت اطلاعات پذیرش");
+      }
+    },
+  });
+
   const { mutateAsync: searchCustomers, isPending: isSearchingCustomers } =
     useMutation({
       mutationFn: getCustomers,
@@ -84,13 +120,11 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         const customerOptions = data?.data?.map((i: any) => ({
           label: i?.fullName,
           value: i.customerId,
-          id: `customer-${i.customerId}-${Date.now()}-${Math.random()
-            .toString(36)
-            .substr(2, 9)}`,
         }));
         setCustomerOptions(customerOptions || []);
       },
     });
+
   const {
     mutateAsync: mutateAsyncCustomerCars,
     isPending: isPendingCustomerCars,
@@ -108,6 +142,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
+
   const {
     mutateAsync: mutateAsyncCreateRepairReception,
     isPending: isPendingCreateRepairReception,
@@ -123,6 +158,50 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
+
+  const {
+    mutateAsync: mutateAsyncUpdateRepairReception,
+    isPending: isPendingUpdateRepairReception,
+  } = useMutation({
+    mutationFn: updateRepairReception,
+    onSuccess: (data: any) => {
+      if (data?.isSuccess) {
+        toast.success(data?.message || "پذیرش با موفقیت بروزرسانی شد");
+      } else {
+        toast?.error(data?.message);
+      }
+    },
+  });
+  useEffect(() => {
+    if (repairReceptionId && !isEditMode) {
+      setIsEditMode(true);
+      fetchRepairReception(Number(repairReceptionId));
+    }
+  }, [repairReceptionId]);
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+  const handleCustomerChange = (value: any) => {
+    console.log(value);
+    if (value?.value) {
+      mutateAsyncCustomerCars(value.value);
+    }
+  };
+
+  const handleCustomerSearch = (searchText: string) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    searchTimeoutRef.current = setTimeout(() => {
+      if (searchText && searchText.length >= 2) {
+        searchCustomers(searchText);
+      }
+    }, 300);
+  };
   const addIssue = () => {
     append({ id: generateId(), description: "" });
   };
@@ -160,26 +239,37 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     }
   };
-  const handleCustomerSearch = (searchText: string) => {
-    if (searchText && searchText.length >= 2) {
-      searchCustomers(searchText);
-    }
-  };
+
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
+
   const onSubmit = () => {
-    mutateAsyncCreateRepairReception({
-      repairReception: {
-        customerId: watch("customerId"),
-        carId: watch("carId"),
-      },
-    });
+    if (isEditMode && repairReceptionId) {
+      mutateAsyncUpdateRepairReception({
+        repairReception: {
+          repairReceptionId: Number(repairReceptionId),
+          customerId: watch("customerId"),
+          carId: watch("carId"),
+        },
+      });
+    } else {
+      mutateAsyncCreateRepairReception({
+        repairReception: {
+          customerId: watch("customerId"),
+          carId: watch("carId"),
+        },
+      });
+    }
   };
+  const isLoading =
+    isPendingCreateRepairReception ||
+    isPendingUpdateRepairReception ||
+    isFetchingRepairReception;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      {isPendingCreateRepairReception && <Loading />}
+      {isLoading && <Loading />}
       <Grid container spacing={4}>
         <Grid size={{ xs: 12, md: 4 }}>
           <EnhancedSelect
@@ -196,14 +286,8 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             isRtl={true}
             control={control}
             storeValueOnly={true}
-            onChange={(value) => {
-              if (value?.value) {
-                mutateAsyncCustomerCars(value?.value);
-              }
-            }}
-            onInputChange={(value) => {
-              handleCustomerSearch(value);
-            }}
+            onChange={handleCustomerChange}
+            onInputChange={handleCustomerSearch}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
@@ -251,29 +335,28 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             rows={1}
           />
         </Grid> */}
-        {!repairReceptionId && (
-          <Grid
-            size={{ xs: 12, md: 4 }}
-            sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
+        <Grid
+          size={{ xs: 12, md: 4 }}
+          sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
+        >
+          <Button
+            type="submit"
+            variant="contained"
+            color="secondary"
+            size="large"
+            disabled={
+              (!watch("carId") &&
+                watch("carId") !== 0 &&
+                !watch("isReturnedVehicle")) ||
+              isUploading ||
+              (isEditMode && !initialDataLoaded)
+            }
           >
-            <Button
-              type="submit"
-              variant="contained"
-              color="secondary"
-              size="large"
-              disabled={
-                (!watch("carId") &&
-                  watch("carId") !== 0 &&
-                  !watch("isReturnedVehicle")) ||
-                isUploading
-              }
-            >
-              ثبت پذیرش
-            </Button>
-          </Grid>
-        )}
-        {/* نمایش تب‌ها فقط زمانی که مشتری و پلاک انتخاب شده باشد */}
-        {createRepairReceptionData?.isSuccess ? (
+            {isEditMode ? "بروزرسانی پذیرش" : "ثبت پذیرش"}
+          </Button>
+        </Grid>
+        {/* نمایش تب‌ها فقط در حالت ایجاد جدید و بعد از موفقیت */}
+        {isEditMode || createRepairReceptionData?.isSuccess ? (
           <Grid size={{ xs: 12 }}>
             <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
               <Tabs

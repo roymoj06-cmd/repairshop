@@ -15,6 +15,7 @@ import {
   Button,
   Loading,
   CarCard,
+  ConfirmDialog,
 } from "@/components";
 
 const CarsManagement: FC = () => {
@@ -26,6 +27,8 @@ const CarsManagement: FC = () => {
   const [showPlateDialog, setShowPlateDialog] = useState(false);
   const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
   const [editCarData, setEditCarData] = useState<any>(undefined);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [carToDelete, setCarToDelete] = useState<number | null>(null);
   const { mutateAsync: searchCustomers, isPending: isSearchingCustomers } =
     useMutation({
       mutationFn: getCustomers,
@@ -103,9 +106,19 @@ const CarsManagement: FC = () => {
     }
   };
   const handleDeletePlate = (id: number) => {
-    if (window.confirm("آیا از حذف این پلاک اطمینان دارید؟")) {
-      removeCar(id);
+    setCarToDelete(id);
+    setShowDeleteDialog(true);
+  };
+  const handleConfirmDelete = () => {
+    if (carToDelete) {
+      removeCar(carToDelete);
+      setShowDeleteDialog(false);
+      setCarToDelete(null);
     }
+  };
+  const handleCancelDelete = () => {
+    setShowDeleteDialog(false);
+    setCarToDelete(null);
   };
 
   return (
@@ -164,6 +177,16 @@ const CarsManagement: FC = () => {
         open={showPlateDialog}
         editData={editCarData}
         mode={dialogMode}
+      />
+      <ConfirmDialog
+        open={showDeleteDialog}
+        title="حذف پلاک"
+        message="آیا از حذف این پلاک اطمینان دارید؟"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        loading={isDeletingCar}
+        confirmText="حذف"
+        cancelText="انصراف"
       />
     </Box>
   );
