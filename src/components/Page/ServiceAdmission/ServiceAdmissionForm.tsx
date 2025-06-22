@@ -1,17 +1,9 @@
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-import { toast } from "react-toastify";
+import { Controller, useForm } from "react-hook-form";
 import { FC, useState, useEffect, useRef } from "react";
-import {
-  Grid2 as Grid,
-  Typography,
-  IconButton,
-  Tabs,
-  Tab,
-  Box,
-} from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
+import { Add } from "@mui/icons-material";
+import { toast } from "react-toastify";
+import { Grid2 as Grid, Typography, Tabs, Tab, Box } from "@mui/material";
 
 import { getCustomers } from "@/service/customer/customer.service";
 import useFileUpload from "@/hooks/useFileUpload";
@@ -24,13 +16,12 @@ import {
 import {
   PlateManagementDialog,
   EnhancedSelect,
-  EnhancedInput,
   FileUploader,
   Loading,
   Button,
+  CustomerProblems,
+  RepairReceptionService,
 } from "@/components";
-
-const generateId = () => `id_${Math.random().toString(36).substring(2, 11)}`;
 
 interface IServiceAdmissionFormProps {
   repairReceptionId?: string;
@@ -59,7 +50,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       toast.error("خطا در آپلود فایل");
     },
   });
-
   const {
     handleSubmit,
     setValue,
@@ -69,7 +59,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
     formState: { errors },
   } = useForm<IServiceAdmissionForm>({
     defaultValues: {
-      issues: [{ id: generateId(), description: "" }],
       preferredRepairTime: undefined,
       notifyWarehouseManager: false,
       notifyWorkshopManager: true,
@@ -79,11 +68,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       carId: undefined,
       files: [],
     },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    name: "issues",
-    control,
   });
   const {
     mutateAsync: fetchRepairReception,
@@ -112,7 +96,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
-
   const { mutateAsync: searchCustomers, isPending: isSearchingCustomers } =
     useMutation({
       mutationFn: getCustomers,
@@ -124,7 +107,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         setCustomerOptions(customerOptions || []);
       },
     });
-
   const {
     mutateAsync: mutateAsyncCustomerCars,
     isPending: isPendingCustomerCars,
@@ -142,7 +124,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
-
   const {
     mutateAsync: mutateAsyncCreateRepairReception,
     isPending: isPendingCreateRepairReception,
@@ -158,7 +139,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
-
   const {
     mutateAsync: mutateAsyncUpdateRepairReception,
     isPending: isPendingUpdateRepairReception,
@@ -172,26 +152,12 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
-  useEffect(() => {
-    if (repairReceptionId && !isEditMode) {
-      setIsEditMode(true);
-      fetchRepairReception(Number(repairReceptionId));
-    }
-  }, [repairReceptionId]);
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, []);
   const handleCustomerChange = (value: any) => {
     console.log(value);
     if (value?.value) {
       mutateAsyncCustomerCars(value.value);
     }
   };
-
   const handleCustomerSearch = (searchText: string) => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -201,9 +167,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         searchCustomers(searchText);
       }
     }, 300);
-  };
-  const addIssue = () => {
-    append({ id: generateId(), description: "" });
   };
   const handleAddNewPlate = () => {
     setShowNewPlateDialog(true);
@@ -239,11 +202,9 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     }
   };
-
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
-
   const onSubmit = () => {
     if (isEditMode && repairReceptionId) {
       mutateAsyncUpdateRepairReception({
@@ -262,6 +223,19 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       });
     }
   };
+  useEffect(() => {
+    if (repairReceptionId && !isEditMode) {
+      setIsEditMode(true);
+      fetchRepairReception(+repairReceptionId);
+    }
+  }, [repairReceptionId, isEditMode, fetchRepairReception]);
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
   const isLoading =
     isPendingCreateRepairReception ||
     isPendingUpdateRepairReception ||
@@ -312,7 +286,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             <Button
               disabled={watch("customerId") === undefined}
               onClick={handleAddNewPlate}
-              startIcon={<AddIcon />}
+              startIcon={<Add />}
               variant="outlined"
               size="small"
             >
@@ -355,7 +329,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             {isEditMode ? "بروزرسانی پذیرش" : "ثبت پذیرش"}
           </Button>
         </Grid>
-        {/* نمایش تب‌ها فقط در حالت ایجاد جدید و بعد از موفقیت */}
         {isEditMode || createRepairReceptionData?.isSuccess ? (
           <Grid size={{ xs: 12 }}>
             <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
@@ -373,56 +346,12 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
 
             {/* تب مشکلات */}
             {activeTab === 0 && (
-              <Box>
-                <Box className="mb-2 flex justify-between items-center">
-                  <Typography variant="subtitle1">شرح مشکلات</Typography>
-                  <Button
-                    startIcon={<AddIcon />}
-                    variant="outlined"
-                    onClick={addIssue}
-                    size="small"
-                  >
-                    افزودن مشکل
-                  </Button>
-                </Box>
-                {fields.map((item, index) => (
-                  <Box key={item.id} className="flex items-start mb-3">
-                    <EnhancedInput
-                      helperText={
-                        errors.issues?.[index]?.description?.message as string
-                      }
-                      error={!!errors.issues?.[index]?.description}
-                      name={`issues.${index}.description`}
-                      label={`مشکل ${index + 1}`}
-                      enableSpeechToText
-                      isTextArea
-                      fullWidth
-                      rows={1}
-                    />
-                    {fields.length > 1 && (
-                      <IconButton
-                        color="error"
-                        onClick={() => remove(index)}
-                        sx={{ ml: 1, mt: 1 }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    )}
-                  </Box>
-                ))}
-              </Box>
+              <CustomerProblems repairReceptionId={repairReceptionId} />
             )}
 
             {/* تب تعمیرات */}
             {activeTab === 1 && (
-              <Box>
-                <Typography variant="h6" className="mb-4">
-                  تعمیرات
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  محتوای این بخش به زودی اضافه خواهد شد...
-                </Typography>
-              </Box>
+              <RepairReceptionService repairReceptionId={repairReceptionId} />
             )}
 
             {/* تب قطعات */}

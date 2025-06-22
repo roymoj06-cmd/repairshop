@@ -211,3 +211,85 @@ interface IGetAllMechanicLeaves {
   date: string;
   id: number;
 }
+interface ICreateOrUpdateCustomerProblem {
+  repairReceptionId: number | string;
+  description: string;
+  id?: number;
+}
+interface ICreateOrUpdateRepairReceptionService {
+  request: {
+    repairReceptionId: number;
+    problemServices: {
+      repairCustomerProblemId: number;
+      services: {
+        performedByMechanicId: number;
+        estimatedMinute: number;
+        serviceCount: number;
+        serviceId: number;
+      }[];
+    }[];
+  };
+}
+interface IAllGetRepairReceptionService extends IPaginationForService {
+  repairReceptionId: number | string | undefined;
+}
+interface IGetAllRepairReceptionServices {
+  problems: ProblemsService[];
+  repairReceptionId: number;
+}
+interface ProblemsService {
+  totalEstimatedMinutes: number;
+  problemDescription: string;
+  totalProblemPrice: number;
+  services: Service[];
+  problemId: number;
+}
+interface Service {
+  repairCustomerProblemDescription: string;
+  performedByMechanicName: string;
+  repairCustomerProblemId: number;
+  performedByMechanicId: number;
+  repairReceptionId: number;
+  createdByUserName: string;
+  createdByUserId: number;
+  estimatedMinute: number;
+  serviceTitle: string;
+  servicePrice: number;
+  serviceCount: number;
+  totalPrice: number;
+  serviceId: number;
+  status: number;
+  id: number;
+}
+interface getRepairProductRequestsByReceptionId extends IPaginationForService {
+  receptionId: number;
+}
+interface getRepairProductRequestsByProblemId extends IPaginationForService {
+  problemId: number;
+}
+interface ICreateBatchRepairProductRequest {
+  repairCustomerProblemId: number;
+  products: {
+    productId: number;
+    qty: number;
+  }[];
+}
+interface IBatchReviewRepairProductRequest {
+  requests: {
+    id: number;
+    status: number;
+    rejectReason: string;
+    approvedQty: number;
+  }[];
+}
+interface ICreateOrUpdateRepairProductRequest {
+  repairCustomerProblemId: number;
+  productId: number;
+  qty: number;
+}
+interface IReviewRepairProductRequest {
+  rejectReason: string;
+  approvedQty: number;
+  status: number;
+  id: number;
+}

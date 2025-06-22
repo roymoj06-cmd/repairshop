@@ -1,0 +1,243 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Box, IconButton, Typography } from "@mui/material";
+import { Add, Delete, Check } from "@mui/icons-material";
+import { FC, useState } from "react";
+import { toast } from "react-toastify";
+
+import { Button, EnhancedInput } from "@/components";
+import {
+  createCustomerProblem,
+  updateCustomerProblem,
+  deleteCustomerProblem,
+  getCustomerProblems,
+} from "@/service/repairServices/repairServices.service";
+
+interface ICustomerProblemsProps {
+  repairReceptionId?: string;
+}
+
+interface LocalProblem extends ICreateOrUpdateCustomerProblem {
+  hasChanges?: boolean;
+  isNew?: boolean;
+}
+
+const CustomerProblems: FC<ICustomerProblemsProps> = ({
+  repairReceptionId,
+}) => {
+  const queryClient = useQueryClient();
+  const [localProblems, setLocalProblems] = useState<LocalProblem[]>([]);
+
+  const { data: serverProblems = [], isLoading } = useQuery({
+    queryKey: ["customerProblems", repairReceptionId],
+    queryFn: () =>
+      getCustomerProblems({
+        repairReceptionId: repairReceptionId || "",
+        size: 100,
+        page: 1,
+      }),
+    enabled: !!repairReceptionId,
+    select: (data) => data?.data?.values || [],
+  });
+
+  const allProblems = [
+    ...serverProblems.map((problem: any) => ({
+      ...problem,
+      isNew: false,
+      hasChanges: false,
+    })),
+    ...localProblems,
+  ];
+
+  const createMutation = useMutation({
+    mutationFn: createCustomerProblem,
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({
+        queryKey: ["customerProblems", repairReceptionId],
+      });
+      if (data?.isSuccess) {
+        toast.success("مشکل با موفقیت ایجاد شد");
+        setLocalProblems((prev) => prev.slice(0, -1));
+      } else {
+        toast.error(data?.message || "خطا در ایجاد مشکل");
+      }
+    },
+    onError: () => {
+      toast.error("خطا در ایجاد مشکل");
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: updateCustomerProblem,
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({
+        queryKey: ["customerProblems", repairReceptionId],
+      });
+      if (data?.isSuccess) {
+        toast.success("مشکل با موفقیت بروزرسانی شد");
+      } else {
+        toast.error(data?.message || "خطا در بروزرسانی مشکل");
+      }
+    },
+    onError: () => {
+      toast.error("خطا در بروزرسانی مشکل");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCustomerProblem,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["customerProblems", repairReceptionId],
+      });
+      toast.success("مشکل با موفقیت حذف شد");
+    },
+    onError: () => {
+      toast.error("خطا در حذف مشکل");
+    },
+  });
+
+  const addProblem = () => {
+    const newProblem: LocalProblem = {
+      repairReceptionId: repairReceptionId || "",
+      description: "",
+      isNew: true,
+    };
+    setLocalProblems([...localProblems, newProblem]);
+  };
+
+  const updateProblemDescription = (index: number, description: string) => {
+    const isLocalProblem = index >= serverProblems.length;
+    if (isLocalProblem) {
+      const localIndex = index - serverProblems.length;
+      const newLocalProblems = [...localProblems];
+      newLocalProblems[localIndex] = {
+        ...newLocalProblems[localIndex],
+        description,
+      };
+      setLocalProblems(newLocalProblems);
+    }
+  };
+
+  const saveProblem = async (index: number) => {
+    const isLocalProblem = index >= serverProblems.length;
+    if (isLocalProblem) {
+      const localIndex = index - serverProblems.length;
+      const problem = localProblems[localIndex];
+      if (!problem.description.trim()) {
+        toast.error("لطفاً توضیحات مشکل را وارد کنید");
+        return;
+      }
+      createMutation.mutate({
+        repairReceptionId: problem.repairReceptionId,
+        description: problem.description,
+      });
+    } else {
+      const problem = allProblems[index];
+      const updatedDescription = problem.description;
+      if (!updatedDescription.trim()) {
+        toast.error("لطفاً توضیحات مشکل را وارد کنید");
+        return;
+      }
+      updateMutation.mutate({
+        ...problem,
+        description: updatedDescription,
+      });
+    }
+  };
+
+  const removeProblem = async (index: number) => {
+    const isLocalProblem = index >= serverProblems.length;
+    if (isLocalProblem) {
+      const localIndex = index - serverProblems.length;
+      const newLocalProblems = localProblems.filter((_, i) => i !== localIndex);
+      setLocalProblems(newLocalProblems);
+      return;
+    }
+    const problem = allProblems[index];
+    if (!problem.id) return;
+    if (window.confirm("آیا مطمئن هستید که می‌خواهید این مشکل را حذف کنید؟")) {
+      deleteMutation.mutate(problem.id);
+    }
+  };
+
+  return (
+    <Box>
+      <Box className="mb-2 flex justify-between items-center">
+        <Typography variant="subtitle1">شرح مشکلات</Typography>
+        <Button
+          startIcon={<Add />}
+          variant="outlined"
+          onClick={addProblem}
+          size="small"
+          disabled={
+            isLoading ||
+            createMutation.isPending ||
+            updateMutation.isPending ||
+            deleteMutation.isPending
+          }
+        >
+          افزودن مشکل
+        </Button>
+      </Box>
+      {allProblems.map((problem, index) => {
+        const isLocalProblem = index >= serverProblems.length;
+        const needsSaving = isLocalProblem
+          ? problem.description.trim()
+          : problem.hasChanges && problem.description.trim();
+        return (
+          <Box
+            key={problem.id || `new-${index}`}
+            className="flex items-start mb-3"
+          >
+            <EnhancedInput
+              name={`problem-${index}`}
+              value={problem.description}
+              onChange={(e) => updateProblemDescription(index, e.target.value)}
+              label={`مشکل ${index + 1}`}
+              enableSpeechToText
+              isTextArea
+              fullWidth
+              rows={1}
+              disabled={
+                createMutation.isPending ||
+                updateMutation.isPending ||
+                deleteMutation.isPending
+              }
+            />
+            {needsSaving && (
+              <IconButton
+                color="success"
+                onClick={() => saveProblem(index)}
+                sx={{ ml: 1, mt: 1 }}
+                disabled={
+                  createMutation.isPending ||
+                  updateMutation.isPending ||
+                  deleteMutation.isPending ||
+                  !problem.description.trim()
+                }
+              >
+                <Check />
+              </IconButton>
+            )}
+            {allProblems.length > 1 && (
+              <IconButton
+                color="error"
+                onClick={() => removeProblem(index)}
+                sx={{ ml: 1, mt: 1 }}
+                disabled={
+                  createMutation.isPending ||
+                  updateMutation.isPending ||
+                  deleteMutation.isPending
+                }
+              >
+                <Delete />
+              </IconButton>
+            )}
+          </Box>
+        );
+      })}
+    </Box>
+  );
+};
+
+export default CustomerProblems;

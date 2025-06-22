@@ -533,7 +533,7 @@ const EnhancedSelectImplementation = forwardRef<
                   isRecording && interimResult
                     ? `در حال شنیدن: ${fixNumbers(interimResult)}`
                     : speechError
-                    ? `خطا در تشخیص گفتار: ${speechError}`
+                    ? ""
                     : helperText
                 }
                 variant="outlined"
@@ -663,11 +663,11 @@ const EnhancedSelectImplementation = forwardRef<
               در حال شنیدن: {fixNumbers(interimResult)}
             </FormHelperText>
           )}
-          {speechError && (
+          {/* {speechError && (
             <FormHelperText error>
               خطا در تشخیص گفتار: {speechError}
             </FormHelperText>
-          )}
+          )} */}
         </FormControl>
       </div>
     );
