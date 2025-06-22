@@ -39,7 +39,7 @@ const ViewSelector: FC = () => {
             </AuthGuard>
           }
         >
-          <Route path="/" element={<Navigate to={dir.dashboard} replace />} />
+          <Route path="/" element={<Navigate to={dir.vehicles} replace />} />
           <Route path={dir.mechanicsManagement} element={<MechanicsManagement />} />
           <Route path={dir.serviceManagement} element={<ServiceManagement />} />
           <Route path={dir.serviceAdmission} element={<ServiceAdmission />} />

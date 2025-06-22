@@ -16,7 +16,7 @@ const panelServiceBaseUrl =
 export const proxyServerUrl = {
   copServer: "https://copserver.copapp.ir",
 
-  // authentication controller
+  // authentication Controller
   login: `${panelServiceBaseUrl}/Users/Token`,
 
   // file infos
@@ -26,7 +26,7 @@ export const proxyServerUrl = {
   getFileById: `${panelServiceBaseUrl}/FileInfos/GetFileById`,
   uploadFile: `${panelServiceBaseUrl}/FileInfos/UploadFile`,
 
-  // car controller
+  // car Controller
   deleteAddressRepair: `${panelServiceBaseUrl}/Car/DeleteAddress/`,
   getCarById: `${panelServiceBaseUrl}/Car/GetCarById/`,
   getCarsRepair: `${panelServiceBaseUrl}/Car/GetCars`,
@@ -48,20 +48,20 @@ export const proxyServerUrl = {
   salesViewByCustomerAndByCarId: `${panelServiceBaseUrl}/Repair`,
   scanProduct: `${panelServiceBaseUrl}/Repair/ScanProduct`,
 
-  // customer controller
+  // customer Controller
   getCustomers: `${panelServiceBaseUrl}/Customer/GetCustomersV2`,
 
-  // user controller
+  // user Controller
   getCurrentUserAccesses: `${panelServiceBaseUrl}/UserSecurity/GetCurrentUserAccesses`,
 
-  // RepairServices controller
+  // RepairServices Controller
   getAllRepairServices: `${panelServiceBaseUrl}/RepairServices/GetAllRepairServices`,
   getRepairServiceById: `${panelServiceBaseUrl}/RepairServices/GetRepairServiceById`,
   createRepairService: `${panelServiceBaseUrl}/RepairServices/CreateRepairService`,
   updateRepairService: `${panelServiceBaseUrl}/RepairServices/UpdateRepairService`,
   deleteRepairService: `${panelServiceBaseUrl}/RepairServices/DeleteRepairService`,
 
-  // mechanic controller
+  // mechanic Controller
   getActiveMechanics: `${panelServiceBaseUrl}/Mechanic/GetActiveMechanics`,
   getAllMechanics: `${panelServiceBaseUrl}/Mechanic/GetAllMechanics`,
   getMechanicById: `${panelServiceBaseUrl}/Mechanic/GetMechanicById`,
@@ -69,7 +69,7 @@ export const proxyServerUrl = {
   updateMechanic: `${panelServiceBaseUrl}/Mechanic/UpdateMechanic`,
   deleteMechanic: `${panelServiceBaseUrl}/Mechanic/DeleteMechanic`,
 
-  // repairMechanicLeaves controller
+  // repairMechanicLeaves Controller
   getMechanicLeaveByMechanicId: `${panelServiceBaseUrl}/RepairMechanicLeaves/GetMechanicLeaveByMechanicId`,
   geMechanicLeavetByDateRange: `${panelServiceBaseUrl}/RepairMechanicLeaves/GeMechanicLeavetByDateRange`,
   createRepairMechanicLeave: `${panelServiceBaseUrl}/RepairMechanicLeaves/CreateRepairMechanicLeave`,
@@ -77,4 +77,33 @@ export const proxyServerUrl = {
   deleteRepairMechanicLeave: `${panelServiceBaseUrl}/RepairMechanicLeaves/DeleteRepairMechanicLeave`,
   getMechanicLeaveById: `${panelServiceBaseUrl}/RepairMechanicLeaves/GetMechanicLeaveById`,
   getAllMechanicLeave: `${panelServiceBaseUrl}/RepairMechanicLeaves/GetAllMechanicLeave`,
+
+  // repairService Controller
+  getCustomerProblemById: `${panelServiceBaseUrl}/RepairServices/GetCustomerProblemById`,
+  createCustomerProblem: `${panelServiceBaseUrl}/RepairServices/CreateCustomerProblem`,
+  deleteCustomerProblem: `${panelServiceBaseUrl}/RepairServices/DeleteCustomerProblem`,
+  updateCustomerProblem: `${panelServiceBaseUrl}/RepairServices/UpdateCustomerProblem`,
+  getCustomerProblems: `${panelServiceBaseUrl}/RepairServices/GetCustomerProblems`,
+
+  // RepairReceptionService Controller
+  getAllRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServicesGroupedByProblems`,
+  createRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/CreateRepairReceptionServicesForProblems`,
+  getRepairReceptionServiceById: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServiceById`,
+  updateRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/UpdateRepairReceptionService`,
+  deleteRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/DeleteRepairReceptionService`,
+
+  // RepairProductRequest Controller
+  getRepairProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetRepairProductRequestsByReceptionId`,
+  getRepairProductRequestsByProblemId: `${panelServiceBaseUrl}/RepairProductRequest/GetRepairProductRequestsByProblemId`,
+  getPendingRepairProductRequests: `${panelServiceBaseUrl}/RepairProductRequest/GetPendingRepairProductRequests`,
+  createBatchRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/CreateBatchRepairProductRequest`,
+  batchReviewRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/BatchReviewRepairProductRequest`,
+  getRepairProductRequestSummary: `${panelServiceBaseUrl}/RepairProductRequest/GetRepairProductRequestSummary`,
+  addApprovedProductsToReception: `${panelServiceBaseUrl}/RepairProductRequest/AddApprovedProductsToReception`,
+  getRepairProductRequestById: `${panelServiceBaseUrl}/RepairProductRequest/GetRepairProductRequestById`,
+  createRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/CreateRepairProductRequest`,
+  updateRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/UpdateRepairProductRequest`,
+  deleteRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/DeleteRepairProductRequest`,
+  reviewRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/ReviewRepairProductRequest`,
+  getOutOfStockRequests: `${panelServiceBaseUrl}/RepairProductRequest/GetOutOfStockRequests`,
 };

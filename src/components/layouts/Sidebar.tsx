@@ -35,12 +35,12 @@ interface NavItemProps {
   guid: string;
 }
 const navConfig: NavItemProps[] = [
-  {
-    title: "داشبورد",
-    path: dir.dashboard,
-    icon: <Dashboard />,
-    guid: "",
-  },
+  // {
+  //   title: "داشبورد",
+  //   path: dir.dashboard,
+  //   icon: <Dashboard />,
+  //   guid: "",
+  // },
   {
     title: "گاراژ من",
     path: dir.vehicles,

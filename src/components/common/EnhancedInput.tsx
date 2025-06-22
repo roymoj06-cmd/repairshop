@@ -1,7 +1,13 @@
 import { Visibility, VisibilityOff, Mic, MicOff } from "@mui/icons-material";
 import { useState, forwardRef, useEffect, useRef } from "react";
 import useSpeechToText from "react-hook-speech-to-text";
-import { Controller, Control, FieldValues, Path, RegisterOptions } from "react-hook-form";
+import {
+  Controller,
+  Control,
+  FieldValues,
+  Path,
+  RegisterOptions,
+} from "react-hook-form";
 import {
   InputAdornment,
   TextFieldProps,
@@ -19,7 +25,8 @@ declare global {
   }
 }
 
-export interface EnhancedInputProps<T extends FieldValues = FieldValues> extends Omit<TextFieldProps, "variant" | "name"> {
+export interface EnhancedInputProps<T extends FieldValues = FieldValues>
+  extends Omit<TextFieldProps, "variant" | "name"> {
   onChange?: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
@@ -72,6 +79,10 @@ const EnhancedInput = <T extends FieldValues = FieldValues>(
     ...rest
   } = props;
 
+  // Store original type for logic consistency
+  const originalType = type;
+  const isNumberType = originalType === "number";
+
   // If control is provided, use Controller
   if (control) {
     return (
@@ -85,15 +96,16 @@ const EnhancedInput = <T extends FieldValues = FieldValues>(
             {...field}
             {...rest}
             value={
-              type === "number" && formatNumber
+              isNumberType && formatNumber
                 ? addCommas(field.value?.toString() || "")
-                : type === "number"
+                : isNumberType
                 ? `${field.value || ""}`
                 : field.value || ""
             }
             onChange={(e) => {
-              if (type === "number") {
-                const numericValue = +(removeComma(e.target.value)) || 0;
+              if (isNumberType) {
+                const cleanValue = removeComma(e.target.value);
+                const numericValue = cleanValue === "" ? "" : +cleanValue;
                 field.onChange(numericValue);
               } else {
                 field.onChange(e.target.value);
@@ -109,7 +121,7 @@ const EnhancedInput = <T extends FieldValues = FieldValues>(
             isTextArea={isTextArea}
             disabled={disabled}
             error={error || !!fieldState.error}
-            type={type === "number" && formatNumber ? "text" : type}
+            type={isNumberType && formatNumber ? "text" : originalType}
             isRtl={isRtl}
             maxRows={maxRows}
             helperText={fieldState.error?.message || helperText}
@@ -118,6 +130,7 @@ const EnhancedInput = <T extends FieldValues = FieldValues>(
             name={name}
             icon={icon}
             ref={ref}
+            originalType={originalType}
           />
         )}
       />
@@ -134,7 +147,7 @@ const EnhancedInput = <T extends FieldValues = FieldValues>(
       isTextArea={isTextArea}
       disabled={disabled}
       error={error}
-      type={type}
+      type={isNumberType && formatNumber ? "text" : originalType}
       isRtl={isRtl}
       maxRows={maxRows}
       helperText={helperText}
@@ -145,13 +158,19 @@ const EnhancedInput = <T extends FieldValues = FieldValues>(
       name={name}
       icon={icon}
       ref={ref}
+      originalType={originalType}
       {...rest}
     />
   );
 };
 
 // Internal component that contains the actual input logic
-const EnhancedInputInternal = forwardRef<HTMLInputElement, Omit<EnhancedInputProps, "control" | "rules" | "defaultValue">>(
+const EnhancedInputInternal = forwardRef<
+  HTMLInputElement,
+  Omit<EnhancedInputProps, "control" | "rules" | "defaultValue"> & {
+    originalType?: string;
+  }
+>(
   (
     {
       enableSpeechToText = false,
@@ -171,16 +190,22 @@ const EnhancedInputInternal = forwardRef<HTMLInputElement, Omit<EnhancedInputPro
       value,
       name,
       icon,
+      originalType,
       ...rest
     },
     ref
   ) => {
-    const [formattedValue, setFormattedValue] = useState(value || "");
+    const [formattedValue, setFormattedValue] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [lastProcessedResult, setLastProcessedResult] = useState<
       string | null
     >(null);
+
+    // Use originalType if provided, otherwise use type
+    const actualType = originalType || type;
+    const isNumberType = actualType === "number";
+
     const {
       error: speechError,
       interimResult,
@@ -196,10 +221,30 @@ const EnhancedInputInternal = forwardRef<HTMLInputElement, Omit<EnhancedInputPro
         lang: "fa-IR",
       },
     });
+
     const isSpeechSupported =
       typeof window !== "undefined" &&
       (typeof window.SpeechRecognition !== "undefined" ||
         typeof window.webkitSpeechRecognition !== "undefined");
+
+    // Initialize and sync formattedValue with incoming value
+    useEffect(() => {
+      if (value !== undefined && value !== null) {
+        let newValue = String(value);
+        if (
+          formatNumber &&
+          isNumberType &&
+          newValue &&
+          !isNaN(Number(removeComma(newValue)))
+        ) {
+          newValue = addCommas(removeComma(newValue));
+        }
+        setFormattedValue(newValue);
+      } else {
+        setFormattedValue("");
+      }
+    }, [value, formatNumber, isNumberType]);
+
     useEffect(() => {
       if (enableSpeechToText && results && results.length > 0) {
         const lastResult = results[results.length - 1];
@@ -221,7 +266,7 @@ const EnhancedInputInternal = forwardRef<HTMLInputElement, Omit<EnhancedInputPro
         let finalText = fixedText;
         if (
           formatNumber &&
-          type === "number" &&
+          isNumberType &&
           !isNaN(Number(removeComma(finalText)))
         ) {
           finalText = addCommas(removeComma(finalText));
@@ -237,29 +282,18 @@ const EnhancedInputInternal = forwardRef<HTMLInputElement, Omit<EnhancedInputPro
           onChange(syntheticEvent);
         }
       }
-    }, [results, enableSpeechToText]);
-    useEffect(() => {
-      if (value !== undefined && value !== formattedValue) {
-        let newValue = value;
-        if (
-          formatNumber &&
-          type === "number" &&
-          value &&
-          !isNaN(Number(removeComma(value)))
-        ) {
-          newValue = addCommas(removeComma(value));
-        }
-        setFormattedValue(newValue);
-      }
-    }, [value, formatNumber, type, formattedValue]);
+    }, [results, enableSpeechToText, formatNumber, isNumberType, formattedValue, lastProcessedResult, name, onChange]);
+
     useEffect(() => {
       if (isRecording) {
         setLastProcessedResult(null);
       }
     }, [isRecording]);
+
     const togglePasswordVisibility = () => {
       setShowPassword(!showPassword);
     };
+
     const handleSpeechToText = () => {
       if (!isSpeechSupported) {
         alert(
@@ -276,28 +310,51 @@ const EnhancedInputInternal = forwardRef<HTMLInputElement, Omit<EnhancedInputPro
         startSpeechToText();
       }
     };
+
     const handleChange = (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
       let newValue = e.target.value;
-      if (
-        formatNumber &&
-        type === "number" &&
-        newValue &&
-        !isNaN(Number(removeComma(newValue)))
-      ) {
-        newValue = addCommas(removeComma(newValue));
-        e.target.value = newValue;
+      let processedValue = newValue;
+      
+      // Handle number formatting
+      if (formatNumber && isNumberType) {
+        // Remove existing commas first
+        const cleanValue = removeComma(newValue);
+        
+        // Check if it's a valid number (including empty string)
+        if (cleanValue === "" || !isNaN(Number(cleanValue))) {
+          // Format with commas if not empty
+          if (cleanValue !== "") {
+            processedValue = addCommas(cleanValue);
+          } else {
+            processedValue = "";
+          }
+        } else {
+          // If invalid number, keep previous formatted value
+          processedValue = formattedValue;
+          return; // Don't update anything if invalid
+        }
       }
-      setFormattedValue(newValue);
+      
+      setFormattedValue(processedValue);
+      
       if (onChange) {
-        onChange(e);
+        // Create a new event with the clean value for number inputs
+        const eventValue = formatNumber && isNumberType ? removeComma(processedValue) : processedValue;
+        const syntheticEvent = {
+          ...e,
+          target: { ...e.target, value: eventValue },
+        } as React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
+        onChange(syntheticEvent);
       }
     };
+
     const inputType =
-      type === "password" ? (showPassword ? "text" : "password") : type;
+      actualType === "password" ? (showPassword ? "text" : "password") : actualType === "number" && formatNumber ? "text" : actualType;
+
     const renderPasswordIcon = () => {
-      if (type !== "password") return null;
+      if (actualType !== "password") return null;
       return (
         <InputAdornment position="end">
           <IconButton
@@ -387,8 +444,9 @@ const EnhancedInputInternal = forwardRef<HTMLInputElement, Omit<EnhancedInputPro
         </InputAdornment>
       );
     };
+
     const getEndAdornment = () => {
-      if (type === "password") {
+      if (actualType === "password") {
         return renderPasswordIcon();
       } else if (enableSpeechToText && icon && iconPosition === "end") {
         return (
@@ -404,8 +462,10 @@ const EnhancedInputInternal = forwardRef<HTMLInputElement, Omit<EnhancedInputPro
       }
       return null;
     };
+
     const showInterimResult =
       enableSpeechToText && isRecording && interimResult;
+
     return (
       <div className={`w-full ${containerClassName}`}>
         <TextField
@@ -414,12 +474,12 @@ const EnhancedInputInternal = forwardRef<HTMLInputElement, Omit<EnhancedInputPro
           label={label}
           name={name}
           type={inputType}
-          error={error || !!speechError}
+          error={error}
           helperText={
             showInterimResult
               ? `در حال شنیدن: ${fixNumbers(interimResult)}`
               : speechError
-              ? `خطا در تشخیص گفتار: ${speechError}`
+              ? ""
               : helperText
           }
           inputRef={(input) => {
