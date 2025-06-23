@@ -106,4 +106,8 @@ export const proxyServerUrl = {
   deleteRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/DeleteRepairProductRequest`,
   reviewRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/ReviewRepairProductRequest`,
   getOutOfStockRequests: `${panelServiceBaseUrl}/RepairProductRequest/GetOutOfStockRequests`,
+  // RepairReceptionFile Controller
+  getFilesByReceptionId: `${panelServiceBaseUrl}/RepairReceptionFile/GetFilesByReceptionId`,
+  uploadFileRepairReceptionFile: `${panelServiceBaseUrl}/RepairReceptionFile/UploadFile`,
+  deleteFileRepairReceptionFile: `${panelServiceBaseUrl}/RepairReceptionFile/DeleteFile`,
 };

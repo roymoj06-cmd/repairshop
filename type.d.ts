@@ -12,6 +12,11 @@ interface UserAccess {
   code: string;
   id: string;
 }
+interface IModalGlobal {
+  show: boolean;
+  data?: any;
+  type?: string;
+}
 interface UserAccessResponse {
   accesses: UserAccess[];
   role: string;
