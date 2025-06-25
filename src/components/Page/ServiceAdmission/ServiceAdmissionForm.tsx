@@ -33,7 +33,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   const [showNewPlateDialog, setShowNewPlateDialog] = useState(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState(0);
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -191,11 +191,13 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
     }
   };
   useEffect(() => {
-    if (repairReceptionId && !isEditMode) {
+    if (repairReceptionId) {
       setIsEditMode(true);
       fetchRepairReception(+repairReceptionId);
-    } else if (repairReceptionId === undefined && isEditMode) {
+    } else if (repairReceptionId === undefined) {
       setIsEditMode(false);
+      setCustomerOptions([]);
+      setCustomerVehicles([]);
     }
   }, [repairReceptionId, isEditMode, fetchRepairReception]);
   useEffect(() => {
