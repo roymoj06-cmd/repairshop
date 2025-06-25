@@ -1,6 +1,6 @@
-import Button from "@/components/common/Button";
 import Loading from "@/components/common/Loading";
 import {
+  deleteFileRepairReceptionFile,
   getFilesByReceptionId,
   uploadFileRepairReceptionFile,
 } from "@/service/repairReceptionFile/repairReceptionFile.service";
@@ -23,12 +23,8 @@ import { useDropzone } from "react-dropzone";
 import FilePreviewGrid from "./FilePreviewGrid";
 type UploadModalProps = {
   repairReceptionId?: number | string;
-  onClickAction?: (files: Array<File & { id: number }>) => void;
 };
-const UploaderDocs: FC<UploadModalProps> = ({
-  repairReceptionId,
-  onClickAction,
-}) => {
+const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
   const [files, setFiles] = useState<Array<File & { id: number }>>([]);
   const [progressMap, setProgressMap] = useState<Record<number, number>>({});
 
@@ -61,6 +57,13 @@ const UploaderDocs: FC<UploadModalProps> = ({
       setFiles(data?.data);
     },
   });
+  const { isPending: isLoadingDeleteFile, mutateAsync: mutateAsyncDeleteFile } =
+    useMutation({
+      mutationFn: deleteFileRepairReceptionFile,
+      onSuccess: () => {
+        mutateAsyncGetFilesByReceptionId();
+      },
+    });
   useEffect(() => {
     if (repairReceptionId) {
       mutateAsyncGetFilesByReceptionId();
@@ -137,13 +140,16 @@ const UploaderDocs: FC<UploadModalProps> = ({
       setProgressMap({});
     },
   });
-  const removeFile = (fileId: number) => {
-    setFiles(files.filter((file) => file?.id !== fileId));
-  };
+  const removeFile = useCallback(
+    (fileId: number) => {
+      mutateAsyncDeleteFile(fileId);
+    },
+    [mutateAsyncDeleteFile]
+  );
 
   return (
     <div className="w-full">
-      {isLoadingFiles && <Loading />}
+      {isLoadingFiles || (isLoadingDeleteFile && <Loading />)}
       <List
         sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
         component="nav"
@@ -209,21 +215,6 @@ const UploaderDocs: FC<UploadModalProps> = ({
         removeFile={removeFile}
         isLoading={isLoadingUploadFileToServerFile}
       />
-      {files.length > 0 && (
-        <div className="flex w-full my-3 justify-center">
-          <Button
-            label="ثبت"
-            onClick={() => {
-              if (onClickAction) {
-                onClickAction?.(files);
-              }
-            }}
-            variant="contained"
-            className="w-full"
-            color="secondary"
-          />
-        </div>
-      )}
     </div>
   );
 };

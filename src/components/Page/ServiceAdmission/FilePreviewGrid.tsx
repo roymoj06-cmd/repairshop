@@ -1,5 +1,9 @@
-import { Close, FolderOpen } from "@mui/icons-material";
 import { CircularProgressWithLabel } from "@/components";
+import ConfirmDeleteDialog from "@/components/common/ConfirmDeleteDialog";
+import FileDetail from "@/components/common/FileDetail";
+import { Close, FolderOpen, Visibility } from "@mui/icons-material";
+import { Dialog } from "@mui/material";
+import { useState } from "react";
 
 interface FilePreviewGridProps {
   files: Array<File & { id: number }>;
@@ -14,6 +18,9 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
   progressMap,
   isLoading,
 }) => {
+  const [modalDetail, setModalDetail] = useState<IModalGlobal>({
+    show: false,
+  });
   if (files?.length || isLoading) {
     return (
       <div
@@ -81,12 +88,58 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
 
               <Close
                 fontSize="small"
-                onClick={() => removeFile(fileObj?.id)}
+                onClick={() =>
+                  setModalDetail({
+                    show: true,
+                    type: "delete",
+                    data: fileObj,
+                  })
+                }
                 className="absolute top-0 right-0 bg-secondary-main text-white p-1  shadow"
+              />
+              <Visibility
+                fontSize="medium"
+                onClick={() =>
+                  setModalDetail({
+                    show: true,
+                    type: "detail",
+                    data: fileObj,
+                  })
+                }
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  text-2xl p-1  text-primary-light shadow"
               />
             </div>
           );
         })}
+        <Dialog
+          open={modalDetail?.show && modalDetail?.type === "detail"}
+          onClose={() =>
+            setModalDetail({
+              show: false,
+            })
+          }
+        >
+          <FileDetail
+            file={modalDetail?.data}
+            onClose={() =>
+              setModalDetail({
+                show: false,
+              })
+            }
+            removeFile={() => removeFile(modalDetail?.data?.id)}
+          />
+        </Dialog>
+        {modalDetail?.type === "delete" && modalDetail?.show && (
+          <ConfirmDeleteDialog
+            onClose={() => setModalDetail({ show: false })}
+            onConfirm={() => {
+              removeFile(modalDetail?.data?.id);
+            }}
+            open={modalDetail?.show}
+            title={`حذف فایل `}
+            content={`آیا از حذف فایل ${modalDetail?.data?.fileName} مطمئن هستید؟`}
+          />
+        )}
       </div>
     );
   } else {

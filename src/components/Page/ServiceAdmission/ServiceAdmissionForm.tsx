@@ -1,6 +1,6 @@
 import { Add } from "@mui/icons-material";
 import { Box, Grid2 as Grid, Tab, Tabs, Typography } from "@mui/material";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { FC, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -13,7 +13,6 @@ import {
   PlateManagementDialog,
   RepairReceptionService,
 } from "@/components";
-import useFileUpload from "@/hooks/useFileUpload";
 import { getCustomers } from "@/service/customer/customer.service";
 import {
   createRepairReception,
@@ -21,7 +20,6 @@ import {
   getRepairReceptionForUpdateById,
   updateRepairReception,
 } from "@/service/repair/repair.service";
-import { getFilesByReceptionId } from "@/service/repairReceptionFile/repairReceptionFile.service";
 import UploaderDocs from "./UploaderDocs";
 
 interface IServiceAdmissionFormProps {
@@ -31,9 +29,7 @@ interface IServiceAdmissionFormProps {
 const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   repairReceptionId,
 }) => {
-  console.log({ repairReceptionId });
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
-  const [uploadedFileIds, setUploadedFileIds] = useState<number[]>([]);
   const [showNewPlateDialog, setShowNewPlateDialog] = useState(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState(0);
@@ -41,22 +37,10 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { upload, uploadMultiple, isUploading, uploadError } = useFileUpload({
-    onSuccess: (response) => {
-      if (response?.isSuccess && response?.data?.id) {
-        setUploadedFileIds((prev) => [...prev, response.data.id]);
-        toast.success("فایل با موفقیت آپلود شد");
-      }
-    },
-    onError: () => {
-      toast.error("خطا در آپلود فایل");
-    },
-  });
   const {
     handleSubmit,
     setValue,
     control,
-    resetField,
     watch,
     reset,
     formState: { errors },
@@ -307,7 +291,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
               (!watch("carId") &&
                 watch("carId") !== 0 &&
                 !watch("isReturnedVehicle")) ||
-              isUploading ||
               (isEditMode && !initialDataLoaded)
             }
           >

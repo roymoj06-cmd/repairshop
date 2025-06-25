@@ -50,7 +50,7 @@ export const deleteFileRepairReceptionFile = async (fileId: number) => {
   const queryString = convertObjectToQueryString({ fileId });
   const reqConfig = {
     method: "DELETE",
-    url: `${proxyServerUrl.getRepairReceptionServiceById}${
+    url: `${proxyServerUrl.deleteFileRepairReceptionFile}${
       queryString ? `?${queryString}` : ""
     }`,
   };
