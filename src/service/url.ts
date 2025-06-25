@@ -109,4 +109,9 @@ export const proxyServerUrl = {
 
   // product Controller
   getProductsThatContainsText: `${copserverUrl}/Product/GetProductsThatContainsText`,
+
+  // RepairReceptionFile Controller
+  getFilesByReceptionId: `${panelServiceBaseUrl}/RepairReceptionFile/GetFilesByReceptionId`,
+  uploadFileRepairReceptionFile: `${panelServiceBaseUrl}/RepairReceptionFile/UploadFile`,
+  deleteFileRepairReceptionFile: `${panelServiceBaseUrl}/RepairReceptionFile/DeleteFile`,
 };

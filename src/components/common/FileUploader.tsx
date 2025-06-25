@@ -100,39 +100,74 @@ const FileUploader: FC<FileUploaderProps> = ({
       </Box>
 
       {files.length > 0 && (
-        <List className="mt-2 p-0">
+        <List className="mt-2 p-0 flex flex-wrap  ">
           {files.map((file, index) => (
-            <ListItem
+            <div
               key={`${file.name}-${index}`}
-              className="py-1 px-2 hover:bg-gray-50 rounded-md"
-              secondaryAction={
-                <IconButton
-                  edge="end"
-                  color="error"
-                  size="small"
-                  onClick={() => handleRemoveFile(index)}
-                >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              }
+              className="py-1 px-2 hover:bg-gray-50 rounded-md "
             >
               <Grid container alignItems="center" spacing={1}>
-                <Grid size={{ xs: 2 }}>
-                  <Chip
-                    label={formatFileSize(file.size)}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
-                    className="ml-2"
-                  />
-                </Grid>
-                <Grid size={{ xs: 10 }}>
-                  <Typography variant="body2" className="truncate">
-                    {file.name}
-                  </Typography>
-                </Grid>
+                {file.type.includes("mp4") ? (
+                  <div className="w-40 h-40 relative">
+                    <video className="absolute">
+                      <source src={URL.createObjectURL(file)}></source>
+                    </video>
+                    <Chip
+                      label={formatFileSize(file.size)}
+                      size="small"
+                      color="secondary"
+                      variant="filled"
+                      className="ml-2 absolute left-0 top-2 font-10 dir-ltr "
+                    />
+                    <Typography
+                      variant="body2"
+                      className="truncate font-10 bg-gradient-to-t from-secondary-main to-transparent py-4 text-center  bottom-0 left-0 absolute text-ellipsis w-full"
+                    >
+                      {file.name}
+                    </Typography>
+                    <IconButton
+                      edge="end"
+                      color="error"
+                      size="small"
+                      onClick={() => handleRemoveFile(index)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      backgroundImage: `url(${URL.createObjectURL(file)})`,
+                      backgroundSize: "contain",
+                      backgroundRepeat: "no-repeat",
+                    }}
+                    className="w-40 h-40 relative"
+                  >
+                    <Chip
+                      label={formatFileSize(file.size)}
+                      size="small"
+                      color="secondary"
+                      variant="filled"
+                      className="ml-2 absolute left-0 top-2 font-10 dir-ltr "
+                    />
+                    <Typography
+                      variant="body2"
+                      className="truncate font-10 bg-gradient-to-t from-secondary-main to-transparent py-4 text-center  bottom-0 left-0 absolute text-ellipsis w-full"
+                    >
+                      {file.name}
+                    </Typography>
+                    <IconButton
+                      edge="end"
+                      color="error"
+                      size="small"
+                      onClick={() => handleRemoveFile(index)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                )}
               </Grid>
-            </ListItem>
+            </div>
           ))}
         </List>
       )}

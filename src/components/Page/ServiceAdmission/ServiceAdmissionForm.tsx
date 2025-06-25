@@ -1,28 +1,27 @@
-import { Grid2 as Grid, Typography, Tabs, Tab, Box } from "@mui/material";
-import { FC, useState, useEffect, useRef } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
 import { Add } from "@mui/icons-material";
+import { Box, Grid2 as Grid, Tab, Tabs, Typography } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
+import { FC, useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
-import { getCustomers } from "@/service/customer/customer.service";
-import useFileUpload from "@/hooks/useFileUpload";
-import {
-  getRepairReceptionForUpdateById,
-  createRepairReception,
-  updateRepairReception,
-  getCustomerCars,
-} from "@/service/repair/repair.service";
 import {
   RepairReceptionProducts,
   RepairReceptionService,
   PlateManagementDialog,
   CustomerProblems,
   EnhancedSelect,
-  FileUploader,
   Loading,
   Button,
 } from "@/components";
+import { getCustomers } from "@/service/customer/customer.service";
+import {
+  getRepairReceptionForUpdateById,
+  createRepairReception,
+  updateRepairReception,
+  getCustomerCars,
+} from "@/service/repair/repair.service";
+import UploaderDocs from "./UploaderDocs";
 
 interface IServiceAdmissionFormProps {
   repairReceptionId?: string;
@@ -32,7 +31,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   repairReceptionId,
 }) => {
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
-  const [uploadedFileIds, setUploadedFileIds] = useState<number[]>([]);
   const [showNewPlateDialog, setShowNewPlateDialog] = useState(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState(0);
@@ -40,17 +38,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { upload, uploadMultiple, isUploading, uploadError } = useFileUpload({
-    onSuccess: (response) => {
-      if (response?.isSuccess && response?.data?.id) {
-        setUploadedFileIds((prev) => [...prev, response.data.id]);
-        toast.success("فایل با موفقیت آپلود شد");
-      }
-    },
-    onError: () => {
-      toast.error("خطا در آپلود فایل");
-    },
-  });
   const {
     handleSubmit,
     setValue,
@@ -140,6 +127,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
+
   const {
     mutateAsync: mutateAsyncUpdateRepairReception,
     isPending: isPendingUpdateRepairReception,
@@ -181,28 +169,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       mutateAsyncCustomerCars(customerId);
     }
   };
-  const handleFilesChange = async (files: File[]) => {
-    const currentFiles = watch("files") || [];
-    const newFiles = files.filter(
-      (file) =>
-        !currentFiles.some(
-          (existingFile) =>
-            existingFile.name === file.name && existingFile.size === file.size
-        )
-    );
-    setValue("files", files, { shouldValidate: true });
-    if (newFiles.length > 0) {
-      try {
-        if (newFiles.length === 1) {
-          await upload(newFiles[0]);
-        } else {
-          await uploadMultiple(newFiles);
-        }
-      } catch (error) {
-        console.error("Upload error:", error);
-      }
-    }
-  };
+
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
@@ -228,6 +195,8 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
     if (repairReceptionId && !isEditMode) {
       setIsEditMode(true);
       fetchRepairReception(+repairReceptionId);
+    } else if (repairReceptionId === undefined && isEditMode) {
+      setIsEditMode(false);
     }
   }, [repairReceptionId, isEditMode, fetchRepairReception]);
   useEffect(() => {
@@ -323,7 +292,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
               (!watch("carId") &&
                 watch("carId") !== 0 &&
                 !watch("isReturnedVehicle")) ||
-              isUploading ||
               (isEditMode && !initialDataLoaded)
             }
           >
@@ -371,30 +339,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
                     <Typography variant="subtitle1" className="mb-2">
                       آپلود فایل
                     </Typography>
-                    <Controller
-                      name="files"
-                      control={control}
-                      render={({ field }) => (
-                        <FileUploader
-                          onFilesChange={handleFilesChange}
-                          error={!!errors.files}
-                          files={field.value}
-                          multiple={true}
-                          helperText={
-                            uploadError
-                              ? `خطا در آپلود: ${uploadError}`
-                              : (errors.files?.message as string)
-                          }
-                        />
-                      )}
-                    />
-                    {uploadedFileIds.length > 0 && (
-                      <Box className="mt-2">
-                        <Typography variant="caption" color="success.main">
-                          {uploadedFileIds.length} فایل با موفقیت آپلود شده است
-                        </Typography>
-                      </Box>
-                    )}
+                    <UploaderDocs repairReceptionId={repairReceptionId} />
                   </Box>
                 </Grid>
               </Box>

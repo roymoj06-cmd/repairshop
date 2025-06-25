@@ -472,3 +472,19 @@ export const formatDuration = (minutes: number) => {
   }
   return `${remainingMinutes} دقیقه`;
 };
+export const calculateDaysPassed = (gregorianDate: string): string => {
+  const targetDate = new Date(gregorianDate);
+  const now = new Date();
+
+  // Calculate the difference in milliseconds
+  const millisecondsDiff = now.getTime() - targetDate.getTime();
+
+  // Convert milliseconds to days and round down
+  const daysPassed = Math.floor(millisecondsDiff / (1000 * 60 * 60 * 24));
+
+  return `${daysPassed} روز پیش`;
+};
+export const formatTimeWithZero = (value: string | undefined): string => {
+  if (!value) return "00";
+  return value.toString().length > 1 ? `${value}` : `0${value}`;
+};
