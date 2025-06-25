@@ -293,3 +293,28 @@ interface IReviewRepairProductRequest {
   status: number;
   id: number;
 }
+interface IProductSummery {
+  invDocDPrice?: number | string;
+  productFaragostarName?: string;
+  isCustomerOwner?: boolean;
+  scanQuantity?: number;
+  invDocDTotal?: number;
+  thumbnailPath: string;
+  productName?: string;
+  keywordsName: string;
+  multiPleQty: number;
+  productCode: string;
+  invDocDQty?: number;
+  partNumber: string;
+  isManual?: boolean;
+  productId: number;
+  brandName: string;
+  vehicles?: string;
+  quantity: number;
+  isGift: boolean;
+  country: string;
+  brand: string;
+  image: string;
+  name: string;
+  qty?: number;
+}

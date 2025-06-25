@@ -146,3 +146,15 @@ export const getRepairProductRequestById = async (id: number) => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const getAllRepairProductRequestsByReceptionId = async (
+  receptionId?: string
+) => {
+  const queryString = convertObjectToQueryString({ receptionId });
+  const reqConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getAllRepairProductRequestsByReceptionId}${
+      queryString ? `?${queryString}` : ""
+    }`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

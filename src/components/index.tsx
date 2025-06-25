@@ -1,5 +1,8 @@
+export { default as RepairReceptionProducts } from "./Page/ServiceAdmission/RepairReceptionProducts";
+export { default as RequestProductListModal } from "./Page/ServiceAdmission/RequestProductListModal";
 export { default as RepairReceptionService } from "./Page/ServiceAdmission/RepairReceptionService";
 export { default as ServiceAdmissionForm } from "./Page/ServiceAdmission/ServiceAdmissionForm";
+export { default as RequestProductModal } from "./Page/ServiceAdmission/RequestProductModal";
 export { default as CustomerProblems } from "./Page/ServiceAdmission/CustomerProblems";
 export { default as MechanicModal } from "./Page/mechanicManagement/MechanicModal";
 export { default as PlateManagementDialog } from "./common/PlateManagementDialog";

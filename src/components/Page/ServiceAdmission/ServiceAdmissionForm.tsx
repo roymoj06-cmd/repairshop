@@ -1,26 +1,27 @@
-import { Controller, useForm } from "react-hook-form";
+import { Grid2 as Grid, Typography, Tabs, Tab, Box } from "@mui/material";
 import { FC, useState, useEffect, useRef } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { Add } from "@mui/icons-material";
 import { toast } from "react-toastify";
-import { Grid2 as Grid, Typography, Tabs, Tab, Box } from "@mui/material";
 
 import { getCustomers } from "@/service/customer/customer.service";
 import useFileUpload from "@/hooks/useFileUpload";
 import {
-  createRepairReception,
-  getCustomerCars,
   getRepairReceptionForUpdateById,
+  createRepairReception,
   updateRepairReception,
+  getCustomerCars,
 } from "@/service/repair/repair.service";
 import {
+  RepairReceptionProducts,
+  RepairReceptionService,
   PlateManagementDialog,
+  CustomerProblems,
   EnhancedSelect,
   FileUploader,
   Loading,
   Button,
-  CustomerProblems,
-  RepairReceptionService,
 } from "@/components";
 
 interface IServiceAdmissionFormProps {
@@ -356,14 +357,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
 
             {/* تب قطعات */}
             {activeTab === 2 && (
-              <Box>
-                <Typography variant="h6" className="mb-4">
-                  قطعات
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  محتوای این بخش به زودی اضافه خواهد شد...
-                </Typography>
-              </Box>
+              <RepairReceptionProducts repairReceptionId={repairReceptionId} />
             )}
 
             {/* تب مستندات */}

@@ -5,8 +5,7 @@ declare global {
     };
   }
 }
-// const panelServiceBaseUrl = "http://192.168.0.113:8075/api/v1";
-// const panelServiceBaseUrl = "https://repairservice.baaz.ir/api/v1";
+const copserverUrl = "https://copserver.copapp.ir/api/v1";
 const serverTestIp = "http://192.168.0.113";
 const panelServiceBaseUrl =
   window.globalConfig?.mode === "production"
@@ -93,6 +92,7 @@ export const proxyServerUrl = {
   deleteRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/DeleteRepairReceptionService`,
 
   // RepairProductRequest Controller
+  getAllRepairProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetAllRepairProductRequestsByReceptionId`,
   getRepairProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetRepairProductRequestsByReceptionId`,
   getRepairProductRequestsByProblemId: `${panelServiceBaseUrl}/RepairProductRequest/GetRepairProductRequestsByProblemId`,
   getPendingRepairProductRequests: `${panelServiceBaseUrl}/RepairProductRequest/GetPendingRepairProductRequests`,
@@ -106,4 +106,7 @@ export const proxyServerUrl = {
   deleteRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/DeleteRepairProductRequest`,
   reviewRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/ReviewRepairProductRequest`,
   getOutOfStockRequests: `${panelServiceBaseUrl}/RepairProductRequest/GetOutOfStockRequests`,
+
+  // product Controller
+  getProductsThatContainsText: `${copserverUrl}/Product/GetProductsThatContainsText`,
 };
