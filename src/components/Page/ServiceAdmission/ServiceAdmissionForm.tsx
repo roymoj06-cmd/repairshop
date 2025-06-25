@@ -6,19 +6,20 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 import {
-  Button,
+  RepairReceptionProducts,
+  RepairReceptionService,
+  PlateManagementDialog,
   CustomerProblems,
   EnhancedSelect,
   Loading,
-  PlateManagementDialog,
-  RepairReceptionService,
+  Button,
 } from "@/components";
 import { getCustomers } from "@/service/customer/customer.service";
 import {
-  createRepairReception,
-  getCustomerCars,
   getRepairReceptionForUpdateById,
+  createRepairReception,
   updateRepairReception,
+  getCustomerCars,
 } from "@/service/repair/repair.service";
 import UploaderDocs from "./UploaderDocs";
 
@@ -326,14 +327,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
 
             {/* تب قطعات */}
             {activeTab === 2 && (
-              <Box>
-                <Typography variant="h6" className="mb-4">
-                  قطعات
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  محتوای این بخش به زودی اضافه خواهد شد...
-                </Typography>
-              </Box>
+              <RepairReceptionProducts repairReceptionId={repairReceptionId} />
             )}
 
             {/* تب مستندات */}
