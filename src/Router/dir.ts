@@ -1,6 +1,7 @@
 export default {
   mechanicsManagement: "/dashboard/mechanics-management",
   serviceManagement: "/dashboard/service-management",
+  addServiceAdmission: "/dashboard/service-admission/add",
   serviceAdmission: "/dashboard/service-admission",
   leaveManagement: "/dashboard/leave-management",
   carsManagement: "/dashboard/cars-management",

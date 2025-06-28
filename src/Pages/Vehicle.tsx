@@ -103,7 +103,10 @@ const Vehicle: FC = () => {
   };
 
   const handleCardClick = (receptionId: string | number) => {
-    navigate(`${dir.serviceAdmission}/?repairReceptionId=${receptionId}`);
+    navigate({
+      pathname: `${dir.serviceAdmission}`,
+      search: `repairReceptionId=${receptionId}`,
+    });
   };
 
   return (
@@ -178,7 +181,7 @@ const Vehicle: FC = () => {
         <Grid container spacing={2}>
           {vehicles?.data?.values?.map((vehicle: any) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }} key={vehicle.id}>
-              <Paper 
+              <Paper
                 className="vehicle-card-container cursor-pointer"
                 onClick={() => handleCardClick(vehicle.id)}
               >

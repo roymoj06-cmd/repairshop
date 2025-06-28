@@ -49,7 +49,7 @@ const navConfig: NavItemProps[] = [
   },
   {
     title: "پذیرش",
-    path: dir.serviceAdmission,
+    path: dir.addServiceAdmission,
     icon: <CarRepair />,
     guid: "5bf10848-d436-4a83-b97b-e282237fa09a",
   },

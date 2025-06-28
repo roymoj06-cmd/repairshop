@@ -6,36 +6,29 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 import {
-  RepairReceptionProducts,
-  RepairReceptionService,
-  PlateManagementDialog,
+  Button,
   CustomerProblems,
   EnhancedSelect,
   Loading,
-  Button,
+  PlateManagementDialog,
+  RepairReceptionProducts,
+  RepairReceptionService,
 } from "@/components";
 import { getCustomers } from "@/service/customer/customer.service";
 import {
-  getRepairReceptionForUpdateById,
   createRepairReception,
-  updateRepairReception,
   getCustomerCars,
+  getRepairReceptionForUpdateById,
+  updateRepairReception,
 } from "@/service/repair/repair.service";
 import UploaderDocs from "./UploaderDocs";
 
-interface IServiceAdmissionFormProps {
-  repairReceptionId?: string;
-}
-
-const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
-  repairReceptionId,
-}) => {
+const AddServiceAdmissionForm: FC = () => {
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
   const [showNewPlateDialog, setShowNewPlateDialog] = useState(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState(0);
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
+
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
@@ -57,33 +50,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       files: [],
     },
   });
-  const {
-    mutateAsync: fetchRepairReception,
-    isPending: isFetchingRepairReception,
-  } = useMutation({
-    mutationFn: getRepairReceptionForUpdateById,
-    onSuccess: (data: any) => {
-      if (data?.isSuccess && data?.data) {
-        const repairData = data.data;
-        setValue("customerId", repairData.customerId);
-        setValue("carId", repairData.carId);
-        if (repairData.customerId) {
-          mutateAsyncCustomerCars(repairData.customerId);
-        }
-        if (repairData.customerName) {
-          setCustomerOptions([
-            {
-              label: repairData.customerName,
-              value: repairData.customerId,
-            },
-          ]);
-        }
-        setInitialDataLoaded(true);
-      } else {
-        toast.error(data?.message || "خطا در دریافت اطلاعات پذیرش");
-      }
-    },
-  });
+
   const { mutateAsync: searchCustomers, isPending: isSearchingCustomers } =
     useMutation({
       mutationFn: getCustomers,
@@ -174,44 +141,14 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
     setActiveTab(newValue);
   };
   const onSubmit = () => {
-    if (isEditMode && repairReceptionId) {
-      mutateAsyncUpdateRepairReception({
-        repairReception: {
-          repairReceptionId: Number(repairReceptionId),
-          customerId: watch("customerId"),
-          carId: watch("carId"),
-        },
-      });
-    } else {
-      mutateAsyncCreateRepairReception({
-        repairReception: {
-          customerId: watch("customerId"),
-          carId: watch("carId"),
-        },
-      });
-    }
+    mutateAsyncCreateRepairReception({
+      repairReception: {
+        customerId: watch("customerId"),
+        carId: watch("carId"),
+      },
+    });
   };
-  useEffect(() => {
-    if (repairReceptionId) {
-      setIsEditMode(true);
-      fetchRepairReception(+repairReceptionId);
-    } else if (repairReceptionId === undefined) {
-      setIsEditMode(false);
-      setCustomerOptions([]);
-      setCustomerVehicles([]);
-      reset({
-        preferredRepairTime: undefined,
-        notifyWarehouseManager: false,
-        notifyWorkshopManager: true,
-        isReturnedVehicle: false,
-        notifyManagement: true,
-        customerId: undefined,
-        carId: undefined,
-        files: [],
-      });
-      setInitialDataLoaded(false);
-    }
-  }, [repairReceptionId, isEditMode, fetchRepairReception, reset]);
+
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
@@ -220,9 +157,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
     };
   }, []);
   const isLoading =
-    isPendingCreateRepairReception ||
-    isPendingUpdateRepairReception ||
-    isFetchingRepairReception;
+    isPendingCreateRepairReception || isPendingUpdateRepairReception;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -302,16 +237,15 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             color="secondary"
             size="large"
             disabled={
-              (!watch("carId") &&
-                watch("carId") !== 0 &&
-                !watch("isReturnedVehicle")) ||
-              (isEditMode && !initialDataLoaded)
+              !watch("carId") &&
+              watch("carId") !== 0 &&
+              !watch("isReturnedVehicle")
             }
           >
-            {isEditMode ? "بروزرسانی پذیرش" : "ثبت پذیرش"}
+            {"ثبت پذیرش"}
           </Button>
         </Grid>
-        {isEditMode || createRepairReceptionData?.isSuccess ? (
+        {createRepairReceptionData?.isSuccess ? (
           <Grid size={{ xs: 12 }}>
             <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
               <Tabs
@@ -327,19 +261,13 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             </Box>
 
             {/* تب مشکلات */}
-            {activeTab === 0 && (
-              <CustomerProblems repairReceptionId={repairReceptionId} />
-            )}
+            {activeTab === 0 && <CustomerProblems />}
 
             {/* تب تعمیرات */}
-            {activeTab === 1 && (
-              <RepairReceptionService repairReceptionId={repairReceptionId} />
-            )}
+            {activeTab === 1 && <RepairReceptionService />}
 
             {/* تب قطعات */}
-            {activeTab === 2 && (
-              <RepairReceptionProducts repairReceptionId={repairReceptionId} />
-            )}
+            {activeTab === 2 && <RepairReceptionProducts />}
 
             {/* تب مستندات */}
             {activeTab === 3 && (
@@ -352,7 +280,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
                     <Typography variant="subtitle1" className="mb-2">
                       آپلود فایل
                     </Typography>
-                    <UploaderDocs repairReceptionId={repairReceptionId} />
+                    <UploaderDocs />
                   </Box>
                 </Grid>
               </Box>
@@ -375,4 +303,4 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   );
 };
 
-export default ServiceAdmissionForm;
+export default AddServiceAdmissionForm;

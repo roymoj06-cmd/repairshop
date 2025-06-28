@@ -43,7 +43,6 @@ export interface EnhancedSelectProps {
   storeValueOnly?: boolean;
   options: SelectOption[];
   control?: Control<any>;
-  classNameInput?: string;
   icon?: React.ReactNode;
   placeholder?: string;
   searchable?: boolean;
@@ -69,7 +68,6 @@ const EnhancedSelect = forwardRef<HTMLDivElement, EnhancedSelectProps>(
       options,
       onChange,
       onInputChange,
-      classNameInput,
       name,
       label,
       value,
@@ -126,7 +124,6 @@ const EnhancedSelect = forwardRef<HTMLDivElement, EnhancedSelectProps>(
                 {...{
                   options,
                   onInputChange,
-                  classNameInput,
                   name,
                   label,
                   defaultValue,
@@ -180,7 +177,6 @@ const EnhancedSelect = forwardRef<HTMLDivElement, EnhancedSelectProps>(
         options={options}
         onChange={onChange}
         onInputChange={onInputChange}
-        classNameInput={classNameInput}
         name={name}
         label={label}
         value={value}
@@ -216,7 +212,6 @@ const EnhancedSelectImplementation = forwardRef<
       options,
       onChange,
       onInputChange,
-      classNameInput,
       name,
       label,
       value,
@@ -251,7 +246,7 @@ const EnhancedSelectImplementation = forwardRef<
         : null
     );
 
-    const [searchText, setSearchText] = useState("");
+    const [, setSearchText] = useState("");
     const autocompleteRef = useRef<any>(null);
     const selectRef = useRef<any>(null);
 
@@ -546,9 +541,7 @@ const EnhancedSelectImplementation = forwardRef<
                 placeholder={isRecording ? "در حال شنیدن..." : placeholder}
                 InputProps={{
                   ...params.InputProps,
-                  className: `${
-                    isRtl ? "rtl font-14" : "ltr font-14"
-                  } ${classNameInput}`,
+                  className: `${isRtl ? "rtl" : "ltr"}`,
                   endAdornment: (
                     <>
                       {params.InputProps.endAdornment}
