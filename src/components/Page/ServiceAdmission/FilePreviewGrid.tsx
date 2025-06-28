@@ -134,6 +134,7 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
             onClose={() => setModalDetail({ show: false })}
             onConfirm={() => {
               removeFile(modalDetail?.data?.id);
+              setModalDetail({ show: false });
             }}
             open={modalDetail?.show}
             title={`حذف فایل `}

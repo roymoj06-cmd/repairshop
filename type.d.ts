@@ -323,3 +323,21 @@ interface IProductSummery {
   name: string;
   qty?: number;
 }
+interface IUpdateRepairReceptionServicesForProblems {
+  request: {
+    repairReceptionId: number;
+    problemServices: {
+      repairCustomerProblemId: number;
+      services: {
+        id: number;
+        serviceId: number;
+        serviceCount: number;
+        performedByMechanicId: number;
+        price: number;
+        estimatedMinute: number;
+        status: number;
+        isDeleted: boolean;
+      }[];
+    }[];
+  };
+}
