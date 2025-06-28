@@ -43,8 +43,9 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
   const queryClient = useQueryClient();
   const [selectedProblem, setSelectedProblem] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
-  const [selectedService, setSelectedService] =
-    useState<IGetAllRepairReceptionServices | null>(null);
+  const [selectedService, setSelectedService] = useState<
+    Service | IGetAllRepairReceptionServices | null
+  >(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     serviceName: string | null;
     serviceId: number | null;
@@ -62,6 +63,8 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
       servicePrice: number | undefined;
       totalPrice: number | undefined;
       serviceCount: number;
+      originalServiceId?: number;
+      isDeleted?: boolean;
     }[]
   >([]);
 
@@ -166,12 +169,14 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
 
   const handleAddService = () => {
     const newService = {
-      serviceId: undefined,
-      mechanicId: undefined,
-      servicePrice: undefined,
-      serviceCount: 1,
-      totalPrice: undefined,
       estimatedMinute: undefined,
+      servicePrice: undefined,
+      mechanicId: undefined,
+      totalPrice: undefined,
+      serviceId: undefined,
+      serviceCount: 1,
+      originalServiceId: undefined,
+      isDeleted: false,
     };
     setCurrentServices([...currentServices, newService]);
   };
@@ -207,7 +212,23 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
   };
 
   const handleRemoveService = (index: number) => {
-    setCurrentServices(currentServices.filter((_, i) => i !== index));
+    const serviceToRemove = currentServices[index];
+
+    // If this is an existing service (has originalServiceId), mark it as deleted
+    if (serviceToRemove.originalServiceId) {
+      // Instead of removing from UI, we'll mark it for deletion
+      // The service will be marked as isDeleted: true when submitting
+      const updatedServices = [...currentServices];
+      updatedServices[index] = {
+        ...updatedServices[index],
+        isDeleted: true, // Mark for deletion
+      };
+      setCurrentServices(updatedServices);
+    } else {
+      // For new services, just remove from the array
+      const newServices = currentServices.filter((_, i) => i !== index);
+      setCurrentServices(newServices);
+    }
   };
 
   const handleSubmit = async () => {
@@ -224,9 +245,92 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
       }
 
       if (selectedService) {
-        toast.error("ویرایش سرویس در حال حاضر پشتیبانی نمی‌شود");
-        return;
+        // Edit existing service
+        const updateData: IUpdateRepairReceptionServicesForProblems = {
+          request: {
+            repairReceptionId: Number(repairReceptionId),
+            problemServices: [
+              {
+                repairCustomerProblemId: selectedProblem?.value,
+                services: currentServices.map((service) => {
+                  const serviceData: any = {
+                    serviceId: Number(service.serviceId?.value) || 0,
+                    serviceCount: service.serviceCount || 1,
+                    performedByMechanicId:
+                      Number(service.mechanicId?.value) || 0,
+                    price: Number(service.servicePrice) || 0,
+                    estimatedMinute: Number(service.estimatedMinute) || 0,
+                    status:
+                      "status" in selectedService ? selectedService.status : 0,
+                    isDeleted: false,
+                  };
+
+                  // Only add id if this is an existing service
+                  if ("id" in selectedService && selectedService.id) {
+                    serviceData.id = selectedService.id;
+                  }
+
+                  return serviceData;
+                }),
+              },
+            ],
+          },
+        };
+
+        updateMutation.mutate(updateData);
+      } else if (currentServices.some((service) => service.originalServiceId)) {
+        // Edit entire problem (multiple services)
+        const updateData: IUpdateRepairReceptionServicesForProblems = {
+          request: {
+            repairReceptionId: Number(repairReceptionId),
+            problemServices: [
+              {
+                repairCustomerProblemId: selectedProblem?.value,
+                services: currentServices
+                  .filter((service) => !service.isDeleted)
+                  .map((service) => {
+                    const serviceData: any = {
+                      serviceId: Number(service.serviceId?.value) || 0,
+                      serviceCount: service.serviceCount || 1,
+                      performedByMechanicId:
+                        Number(service.mechanicId?.value) || 0,
+                      price: Number(service.servicePrice) || 0,
+                      estimatedMinute: Number(service.estimatedMinute) || 0,
+                      status: 0,
+                      isDeleted: false,
+                    };
+                    if (service.originalServiceId) {
+                      serviceData.id = service.originalServiceId;
+                    }
+                    return serviceData;
+                  }),
+              },
+            ],
+          },
+        };
+
+        // Add deleted services to the request with isDeleted: true
+        const deletedServices = currentServices.filter(
+          (service) => service.isDeleted && service.originalServiceId
+        );
+        if (deletedServices.length > 0) {
+          updateData.request.problemServices[0].services.push(
+            ...deletedServices.map((service) => ({
+              id: service.originalServiceId || 0,
+              serviceId: Number(service.serviceId?.value) || 0,
+              serviceCount: service.serviceCount || 1,
+              performedByMechanicId: Number(service.mechanicId?.value) || 0,
+              price: Number(service.servicePrice) || 0,
+              estimatedMinute: Number(service.estimatedMinute) || 0,
+              status: 0,
+              isDeleted: true,
+            }))
+          );
+        }
+
+        updateMutation.mutate(updateData);
       } else {
+        // Create new service
         const serviceData: ICreateOrUpdateRepairReceptionService = {
           request: {
             repairReceptionId: Number(repairReceptionId),
@@ -259,10 +363,21 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
 
   const openModal = (service?: Service | IGetAllRepairReceptionServices) => {
     if (service) {
-      setSelectedService(service as IGetAllRepairReceptionServices);
+      setSelectedService(service);
 
       // Handle Service type (from the new structure)
       if ("serviceTitle" in service && "performedByMechanicId" in service) {
+        // Find the problem that contains this service
+        const problem = services?.problems?.find((p: ProblemsService) =>
+          p.services?.some((s: Service) => s.id === service.id)
+        );
+        if (problem) {
+          const problemOption = problems.find(
+            (p: any) => p.value === problem.problemId
+          );
+          setSelectedProblem(problemOption);
+        }
+
         const serviceOption = repairServices.find((s: any) =>
           s.label.includes(service.serviceTitle)
         );
@@ -278,6 +393,8 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
             serviceCount: service.serviceCount,
             totalPrice: service.totalPrice,
             estimatedMinute: service.estimatedMinute,
+            originalServiceId: service.id,
+            isDeleted: false,
           },
         ]);
       }
@@ -299,6 +416,8 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
             serviceCount: legacyService.serviceCount,
             totalPrice: legacyService.totalPrice,
             estimatedMinute: legacyService.estimatedMinute,
+            originalServiceId: legacyService.id,
+            isDeleted: false,
           },
         ]);
       }
@@ -312,9 +431,45 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
           serviceCount: 1,
           totalPrice: undefined,
           estimatedMinute: undefined,
+          originalServiceId: undefined,
+          isDeleted: false,
         },
       ]);
     }
+    setShowModal(true);
+  };
+
+  const openProblemEditModal = (problem: ProblemsService) => {
+    // Set the selected problem
+    const problemOption = problems.find(
+      (p: any) => p.value === problem.problemId
+    );
+    setSelectedProblem(problemOption);
+
+    // Convert all services in the problem to the currentServices format
+    const problemServices =
+      problem.services?.map((service: Service) => {
+        const serviceOption = repairServices.find((s: any) =>
+          s.label.includes(service.serviceTitle)
+        );
+        const mechanicOption = mechanics.find(
+          (m: any) => m.value === service.performedByMechanicId
+        );
+
+        return {
+          serviceId: serviceOption,
+          mechanicId: mechanicOption,
+          servicePrice: service.servicePrice,
+          serviceCount: service.serviceCount,
+          totalPrice: service.totalPrice,
+          estimatedMinute: service.estimatedMinute,
+          originalServiceId: service.id, // Keep track of original service ID for updates
+          isDeleted: false,
+        };
+      }) || [];
+
+    setCurrentServices(problemServices);
+    setSelectedService(null); // This indicates we're editing a problem, not a single service
     setShowModal(true);
   };
 
@@ -372,7 +527,28 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                     className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700"
                   >
                     {/* Problem Header */}
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 p-3 sm:p-4 md:p-6">
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 p-3 sm:p-4 md:p-6 relative">
+                      {/* Edit Button - Top Right Corner */}
+                      <div className="absolute top-2 right-2">
+                        <IconButton
+                          onClick={() => openProblemEditModal(problem)}
+                          sx={{
+                            backgroundColor: "rgba(255, 255, 255, 0.15)",
+                            color: "white",
+                            border: "1px solid rgba(255, 255, 255, 0.3)",
+                            "&:hover": {
+                              backgroundColor: "rgba(255, 255, 255, 0.25)",
+                              border: "1px solid rgba(255, 255, 255, 0.5)",
+                            },
+                            width: 36,
+                            height: 36,
+                          }}
+                          title="ویرایش مشکل"
+                        >
+                          <Edit sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      </div>
+
                       <div className="flex items-start sm:items-center justify-between gap-3 sm:gap-4">
                         <div className="flex items-start sm:items-center gap-2 sm:gap-3 md:gap-4 min-w-0 flex-1">
                           <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -443,17 +619,6 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                      <IconButton
-                                        onClick={() => openModal(service)}
-                                        className="!p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600"
-                                        title="ویرایش"
-                                        size="small"
-                                      >
-                                        <Edit
-                                          className="text-blue-500 dark:text-blue-400"
-                                          style={{ fontSize: 16 }}
-                                        />
-                                      </IconButton>
                                       <IconButton
                                         onClick={() =>
                                           handleDelete(
@@ -636,7 +801,11 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
         fullWidth
       >
         <DialogTitle className="service-modal__title">
-          {selectedService ? "ویرایش سرویس" : "افزودن تعمیر جدید"}
+          {selectedService
+            ? "ویرایش سرویس"
+            : selectedProblem
+            ? "ویرایش مشکل"
+            : "افزودن تعمیر جدید"}
           <IconButton
             onClick={() => setShowModal(false)}
             sx={{ position: "absolute", right: 8, top: 8 }}
@@ -658,131 +827,160 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
             />
           </div>
 
+          {selectedProblem && !selectedService && (
+            <div
+              style={{
+                marginBottom: "1rem",
+                padding: "0.5rem",
+                backgroundColor: "#e3f2fd",
+                borderRadius: "4px",
+                border: "1px solid #2196f3",
+              }}
+            >
+              <p style={{ margin: 0, fontSize: "0.875rem", color: "#1976d2" }}>
+                💡 در حال ویرایش مشکل: <strong>{selectedProblem.label}</strong>
+              </p>
+              <p
+                style={{
+                  margin: "0.25rem 0 0 0",
+                  fontSize: "0.75rem",
+                  color: "#1976d2",
+                }}
+              >
+                می‌توانید سرویس‌های موجود را ویرایش، حذف یا سرویس‌های جدید اضافه
+                کنید.
+              </p>
+            </div>
+          )}
+
           <div style={{ marginBottom: "1rem" }}>
             <h4>سرویس‌های مرتبط با این مشکل:</h4>
-            {currentServices?.map((service, index) => (
-              <Paper
-                key={index}
-                className={`service-item service-item--${
-                  index % 2 === 0 ? "even" : "odd"
-                } service-item--border-${
-                  index % 4 === 0
-                    ? "blue"
-                    : index % 4 === 1
-                    ? "green"
-                    : index % 4 === 2
-                    ? "orange"
-                    : "red"
-                }`}
-              >
-                <div className="service-item__content">
-                  <div className="service-item__header">
-                    <h5>سرویس شماره {index + 1}</h5>
-                    <IconButton
-                      onClick={() => handleRemoveService(index)}
-                      color="error"
-                      title="حذف سرویس"
-                      size="small"
-                    >
-                      <Delete />
-                    </IconButton>
-                  </div>
+            {currentServices?.map(
+              (service, index) =>
+                !service.isDeleted && (
+                  <Paper
+                    key={index}
+                    className={`service-item service-item--${
+                      index % 2 === 0 ? "even" : "odd"
+                    } service-item--border-${
+                      index % 4 === 0
+                        ? "blue"
+                        : index % 4 === 1
+                        ? "green"
+                        : index % 4 === 2
+                        ? "orange"
+                        : "red"
+                    }`}
+                  >
+                    <div className="service-item__content">
+                      <div className="service-item__header">
+                        <h5>سرویس شماره {index + 1}</h5>
+                        <IconButton
+                          onClick={() => handleRemoveService(index)}
+                          color="error"
+                          title="حذف سرویس"
+                          size="small"
+                        >
+                          <Delete />
+                        </IconButton>
+                      </div>
 
-                  <div className="service-item__grid service-item__grid--two-cols">
-                    <EnhancedSelect
-                      name={`serviceId_${index}`}
-                      label="انتخاب سرویس"
-                      options={repairServices}
-                      value={service.serviceId}
-                      onChange={(value) => {
-                        handleServiceChange(index, "serviceId", value);
-                      }}
-                      placeholder="سرویس را انتخاب کنید"
-                      searchable
-                    />
+                      <div className="service-item__grid service-item__grid--two-cols">
+                        <EnhancedSelect
+                          name={`serviceId_${index}`}
+                          label="انتخاب سرویس"
+                          options={repairServices}
+                          value={service.serviceId}
+                          onChange={(value) => {
+                            handleServiceChange(index, "serviceId", value);
+                          }}
+                          placeholder="سرویس را انتخاب کنید"
+                          searchable
+                        />
 
-                    <EnhancedSelect
-                      name={`mechanicId_${index}`}
-                      label="انتخاب مکانیک"
-                      options={mechanics}
-                      value={service.mechanicId}
-                      onChange={(value) =>
-                        handleServiceChange(index, "mechanicId", value)
-                      }
-                      placeholder="مکانیک را انتخاب کنید"
-                      searchable
-                    />
-                  </div>
+                        <EnhancedSelect
+                          name={`mechanicId_${index}`}
+                          label="انتخاب مکانیک"
+                          options={mechanics}
+                          value={service.mechanicId}
+                          onChange={(value) =>
+                            handleServiceChange(index, "mechanicId", value)
+                          }
+                          placeholder="مکانیک را انتخاب کنید"
+                          searchable
+                        />
+                      </div>
 
-                  <div className="service-item__grid service-item__grid--four-cols">
-                    <EnhancedInput
-                      value={service.servicePrice?.toString() || ""}
-                      name={`servicePrice_${index}`}
-                      label="قیمت پیشنهادی"
-                      type="number"
-                      formatNumber={true}
-                      onChange={(e) =>
-                        handleServiceChange(
-                          index,
-                          "servicePrice",
-                          Number(e.target.value)
-                        )
-                      }
-                      placeholder={
-                        service.serviceId
-                          ? "ویرایش قیمت"
-                          : "ابتدا سرویس را انتخاب کنید"
-                      }
-                      disabled={!service.serviceId}
-                    />
-                    <EnhancedInput
-                      value={service.estimatedMinute?.toString() || ""}
-                      name={`estimatedMinute_${index}`}
-                      label="تخمین زمان"
-                      type="number"
-                      formatNumber={true}
-                      onChange={(e) =>
-                        handleServiceChange(
-                          index,
-                          "estimatedMinute",
-                          Number(e.target.value)
-                        )
-                      }
-                      placeholder={
-                        service.serviceId
-                          ? "ویرایش زمان"
-                          : "ابتدا سرویس را انتخاب کنید"
-                      }
-                      disabled={!service.serviceId}
-                    />
+                      <div className="service-item__grid service-item__grid--four-cols">
+                        <EnhancedInput
+                          value={service.servicePrice?.toString() || ""}
+                          name={`servicePrice_${index}`}
+                          label="قیمت پیشنهادی"
+                          type="number"
+                          formatNumber={true}
+                          onChange={(e) =>
+                            handleServiceChange(
+                              index,
+                              "servicePrice",
+                              Number(e.target.value)
+                            )
+                          }
+                          placeholder={
+                            service.serviceId
+                              ? "ویرایش قیمت"
+                              : "ابتدا سرویس را انتخاب کنید"
+                          }
+                          disabled={!service.serviceId}
+                        />
+                        <EnhancedInput
+                          value={service.estimatedMinute?.toString() || ""}
+                          name={`estimatedMinute_${index}`}
+                          label="تخمین زمان"
+                          type="number"
+                          formatNumber={true}
+                          onChange={(e) =>
+                            handleServiceChange(
+                              index,
+                              "estimatedMinute",
+                              Number(e.target.value)
+                            )
+                          }
+                          placeholder={
+                            service.serviceId
+                              ? "ویرایش زمان"
+                              : "ابتدا سرویس را انتخاب کنید"
+                          }
+                          disabled={!service.serviceId}
+                        />
 
-                    <EnhancedInput
-                      value={service.serviceCount.toString()}
-                      name={`serviceCount_${index}`}
-                      label="تعداد"
-                      type="number"
-                      onChange={(e) =>
-                        handleServiceChange(
-                          index,
-                          "serviceCount",
-                          Number(e.target.value)
-                        )
-                      }
-                      inputProps={{ min: 1 }}
-                    />
+                        <EnhancedInput
+                          value={service.serviceCount.toString()}
+                          name={`serviceCount_${index}`}
+                          label="تعداد"
+                          type="number"
+                          onChange={(e) =>
+                            handleServiceChange(
+                              index,
+                              "serviceCount",
+                              Number(e.target.value)
+                            )
+                          }
+                          inputProps={{ min: 1 }}
+                        />
 
-                    <EnhancedInput
-                      value={service.totalPrice?.toString() || "0"}
-                      name={`totalPrice_${index}`}
-                      formatNumber={true}
-                      label="قیمت کل"
-                      disabled={true}
-                      type="number"
-                    />
-                  </div>
-                </div>
-              </Paper>
-            ))}
+                        <EnhancedInput
+                          value={service.totalPrice?.toString() || "0"}
+                          name={`totalPrice_${index}`}
+                          formatNumber={true}
+                          label="قیمت کل"
+                          disabled={true}
+                          type="number"
+                        />
+                      </div>
+                    </div>
+                  </Paper>
+                )
+            )}
 
             <Button
               onClick={handleAddService}
