@@ -18,6 +18,12 @@ import {
   Paper,
   IconButton,
   TextField,
+  useMediaQuery,
+  useTheme,
+  Card,
+  CardContent,
+  Stack,
+  Chip,
 } from "@mui/material";
 import { Add, Remove, Delete } from "@mui/icons-material";
 
@@ -43,6 +49,10 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
   setShowModal,
   showModal,
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>(
     []
   );
@@ -148,17 +158,182 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
     mutateCreateBatchRepairProductRequest(requestData);
   };
 
+  const renderProductList = () => {
+    if (isMobile) {
+      return (
+        <Stack spacing={2}>
+          {selectedProducts?.map((product) => (
+            <Card key={product.productId} variant="outlined">
+              <CardContent sx={{ p: 2 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ mb: 1, fontWeight: "bold" }}
+                >
+                  {product.productName}
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        handleQuantityChange(
+                          product.productId,
+                          product.quantity + 1
+                        )
+                      }
+                    >
+                      <Add fontSize="small" />
+                    </IconButton>
+                    <TextField
+                      size="small"
+                      value={product.quantity}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 1;
+                        handleQuantityChange(product.productId, value);
+                      }}
+                      sx={{ width: 60 }}
+                      inputProps={{
+                        min: 1,
+                        style: { textAlign: "center", fontSize: "14px" },
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        handleQuantityChange(
+                          product.productId,
+                          product.quantity - 1
+                        )
+                      }
+                      disabled={product.quantity <= 1}
+                    >
+                      <Remove fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  <IconButton
+                    color="error"
+                    size="small"
+                    onClick={() => handleRemoveProduct(product.productId)}
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </Box>
+              </CardContent>
+            </Card>
+          ))}
+        </Stack>
+      );
+    }
+
+    return (
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead sx={{ backgroundColor: "#f0f0f0" }}>
+            <TableRow>
+              <TableCell>نام کالا</TableCell>
+              <TableCell sx={{ textAlign: "center" }}>تعداد</TableCell>
+              <TableCell sx={{ textAlign: "center" }}>عملیات</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {selectedProducts?.map((product) => (
+              <TableRow key={product.productId}>
+                <TableCell sx={{ textAlign: "left" }}>
+                  {product.productName}
+                </TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        handleQuantityChange(
+                          product.productId,
+                          product.quantity + 1
+                        )
+                      }
+                    >
+                      <Add />
+                    </IconButton>
+                    <TextField
+                      size="small"
+                      value={product.quantity}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 1;
+                        handleQuantityChange(product.productId, value);
+                      }}
+                      sx={{ width: 80 }}
+                      inputProps={{
+                        min: 1,
+                        style: { textAlign: "center" },
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        handleQuantityChange(
+                          product.productId,
+                          product.quantity - 1
+                        )
+                      }
+                      disabled={product.quantity <= 1}
+                    >
+                      <Remove />
+                    </IconButton>
+                  </Box>
+                </TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  <IconButton
+                    color="error"
+                    onClick={() => handleRemoveProduct(product.productId)}
+                  >
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  };
+
   return (
     <Dialog
-      onClose={() => setShowModal(false)}
+      // onClose={() => setShowModal(false)}
       open={showModal}
       fullWidth
-      maxWidth="md"
+      maxWidth={isMobile ? "xs" : isTablet ? "sm" : "md"}
+      fullScreen={isMobile}
     >
       {isPendingCreateBatchRepairProductRequest && <Loading />}
-      <DialogTitle>درخواست قطعه</DialogTitle>
-      <DialogContent sx={{ pt: "10px !important" }}>
-        <Box sx={{ py: 2 }}>
+      <DialogTitle
+        sx={{
+          pb: isMobile ? 1 : 2,
+          fontSize: isMobile ? "1.1rem" : "1.25rem",
+        }}
+      >
+        درخواست قطعه
+      </DialogTitle>
+      <DialogContent
+        sx={{
+          pt: isMobile ? "5px !important" : "10px !important",
+          px: isMobile ? 2 : 3,
+        }}
+      >
+        <Box sx={{ py: isMobile ? 1 : 2 }}>
           <EnhancedSelect
             onChange={(value) => setSelectedProblem(value)}
             placeholder="مشکل مورد نظر را انتخاب کنید"
@@ -169,13 +344,13 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
             searchable
           />
         </Box>
-        <Box sx={{ py: 2 }}>
+        <Box sx={{ py: isMobile ? 1 : 2 }}>
           <EnhancedSelect
             onChange={handleProductSelection}
             loading={isPendingGetProductsThatContainsText}
             onInputChange={handleSearchProduct}
             placeholder="جست و جوی کالا"
-            containerClassName="mb-5"
+            containerClassName={isMobile ? "mb-3" : "mb-5"}
             storeValueOnly={true}
             label="جست و جوی کالا"
             className="font-12"
@@ -188,89 +363,28 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
         </Box>
 
         {selectedProducts.length > 0 && (
-          <Box sx={{ mt: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
+          <Box sx={{ mt: isMobile ? 2 : 3 }}>
+            <Typography
+              variant={isMobile ? "subtitle1" : "h6"}
+              sx={{
+                mb: isMobile ? 1 : 2,
+                fontWeight: "bold",
+              }}
+            >
               کالاهای انتخاب شده
             </Typography>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead sx={{ backgroundColor: "#f0f0f0" }}>
-                  <TableRow>
-                    <TableCell>نام کالا</TableCell>
-                    <TableCell sx={{ textAlign: "center" }}>تعداد</TableCell>
-                    <TableCell sx={{ textAlign: "center" }}>عملیات</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {selectedProducts?.map((product) => (
-                    <TableRow key={product.productId}>
-                      <TableCell sx={{ textAlign: "left" }}>
-                        {product.productName}
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "center" }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: 1,
-                          }}
-                        >
-                          <IconButton
-                            size="small"
-                            onClick={() =>
-                              handleQuantityChange(
-                                product.productId,
-                                product.quantity + 1
-                              )
-                            }
-                          >
-                            <Add />
-                          </IconButton>
-                          <TextField
-                            size="small"
-                            value={product.quantity}
-                            onChange={(e) => {
-                              const value = parseInt(e.target.value) || 1;
-                              handleQuantityChange(product.productId, value);
-                            }}
-                            sx={{ width: 80 }}
-                            inputProps={{
-                              min: 1,
-                              style: { textAlign: "center" },
-                            }}
-                          />
-                          <IconButton
-                            size="small"
-                            onClick={() =>
-                              handleQuantityChange(
-                                product.productId,
-                                product.quantity - 1
-                              )
-                            }
-                            disabled={product.quantity <= 1}
-                          >
-                            <Remove />
-                          </IconButton>
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "center" }}>
-                        <IconButton
-                          color="error"
-                          onClick={() => handleRemoveProduct(product.productId)}
-                        >
-                          <Delete />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            {renderProductList()}
           </Box>
         )}
       </DialogContent>
-      <DialogActions>
+      <DialogActions
+        sx={{
+          px: isMobile ? 2 : 3,
+          pb: isMobile ? 2 : 3,
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? 1 : 0,
+        }}
+      >
         <Button
           onClick={handleSubmit}
           variant="contained"
@@ -278,10 +392,17 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
             selectedProducts.length === 0 ||
             isPendingCreateBatchRepairProductRequest
           }
+          fullWidth={isMobile}
+          size={isMobile ? "large" : "medium"}
         >
           ثبت درخواست
         </Button>
-        <Button onClick={() => setShowModal(false)} variant="outlined">
+        <Button
+          onClick={() => setShowModal(false)}
+          variant="outlined"
+          fullWidth={isMobile}
+          size={isMobile ? "large" : "medium"}
+        >
           انصراف
         </Button>
       </DialogActions>
