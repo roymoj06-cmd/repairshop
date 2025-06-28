@@ -14,6 +14,7 @@ import {
 import { IconButton, Typography } from "@mui/material";
 import { FC, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { useTheme } from "@/context/ThemeContext";
 import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
 
 type FileDetailProps = {
@@ -33,6 +34,7 @@ type FileDetailProps = {
 };
 
 const FileDetail: FC<FileDetailProps> = ({ file, removeFile, onClose }) => {
+  const { mode } = useTheme();
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [showModal, setShowModal] = useState<IModalGlobal>({
@@ -114,16 +116,37 @@ const FileDetail: FC<FileDetailProps> = ({ file, removeFile, onClose }) => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <VideoLibrary sx={{ width: "64px", height: "64px" }} />
+              <VideoLibrary
+                sx={{
+                  width: "64px",
+                  height: "64px",
+                  color:
+                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                }}
+              />
             </div>
           )}
         </div>
       );
     } else if (file?.mimeType?.includes("audio")) {
       return (
-        <div className="w-full bg-gray-50 rounded-lg p-4 flex flex-col items-center">
-          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
-            <MusicNote sx={{ width: "48px", height: "48px" }} />
+        <div
+          className={`w-full rounded-lg p-4 flex flex-col items-center ${
+            mode === "dark" ? "bg-gray-800" : "bg-gray-50"
+          }`}
+        >
+          <div
+            className={`w-24 h-24 rounded-full flex items-center justify-center mb-4 shadow-sm ${
+              mode === "dark" ? "bg-gray-700" : "bg-white"
+            }`}
+          >
+            <MusicNote
+              sx={{
+                width: "48px",
+                height: "48px",
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              }}
+            />
           </div>
           <audio
             ref={audioRef}
@@ -135,12 +158,16 @@ const FileDetail: FC<FileDetailProps> = ({ file, removeFile, onClose }) => {
       );
     } else if (file?.mimeType?.includes("image")) {
       return (
-        <div className="w-8/12 mx-auto  bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
+        <div
+          className={`w-8/12 mx-auto rounded-lg flex items-center justify-center overflow-hidden ${
+            mode === "dark" ? "bg-gray-800" : "bg-gray-50"
+          }`}
+        >
           {file?.downloadUrl ? (
             <img
               src={file.downloadUrl}
               alt={file.fileName}
-              className="w-auto h-auto max-w-full  object-contain"
+              className="w-auto h-auto max-w-full object-contain"
             />
           ) : (
             <img style={{ width: "64px", height: "64px" }} />
@@ -149,36 +176,63 @@ const FileDetail: FC<FileDetailProps> = ({ file, removeFile, onClose }) => {
       );
     } else {
       return (
-        <div className="w-full aspect-square bg-gray-50 rounded-lg flex items-center justify-center">
-          <FileCopy sx={{ width: "64px", height: "64px" }} />
+        <div
+          className={`w-full aspect-square rounded-lg flex items-center justify-center ${
+            mode === "dark" ? "bg-gray-800" : "bg-gray-50"
+          }`}
+        >
+          <FileCopy
+            sx={{
+              width: "64px",
+              height: "64px",
+              color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+            }}
+          />
         </div>
       );
     }
   };
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div
+      className={`flex flex-col h-full ${
+        mode === "dark" ? "bg-gray-900" : "bg-white"
+      }`}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b">
+      <div
+        className={`flex items-center justify-between p-3 border-b ${
+          mode === "dark" ? "border-gray-700" : "border-gray-200"
+        }`}
+      >
         <div className="flex items-center gap-2">
-          <IconButton size="small" className="text-gray-600" onClick={onClose}>
+          <IconButton
+            size="small"
+            className={mode === "dark" ? "text-gray-300" : "text-gray-600"}
+            onClick={onClose}
+          >
             <ArrowBack />
           </IconButton>
-          <Typography variant="subtitle1" className="font-medium">
+          <Typography
+            variant="subtitle1"
+            className={`font-medium ${
+              mode === "dark" ? "text-white" : "text-gray-900"
+            }`}
+          >
             جزئیات فایل
           </Typography>
         </div>
         <div className="flex gap-1">
           <IconButton
             size="small"
-            className="text-gray-600"
+            className={mode === "dark" ? "text-gray-300" : "text-gray-600"}
             onClick={handleDownload}
           >
             <Download />
           </IconButton>
           <IconButton
             size="small"
-            className="text-gray-600"
+            className={mode === "dark" ? "text-gray-300" : "text-gray-600"}
             onClick={handleShare}
           >
             <Share />
@@ -201,20 +255,48 @@ const FileDetail: FC<FileDetailProps> = ({ file, removeFile, onClose }) => {
           {/* File Preview */}
           <div className="w-full">{renderMediaPlayer()}</div>
 
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="font-12 mb-4">{file?.fileName}</div>
+          <div
+            className={`rounded-lg p-3 ${
+              mode === "dark" ? "bg-gray-800" : "bg-gray-50"
+            }`}
+          >
+            <div
+              className={`font-12 mb-4 ${
+                mode === "dark" ? "text-white" : "text-gray-900"
+              }`}
+            >
+              {file?.fileName}
+            </div>
 
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="flex items-center gap-2">
-                <Storage className="text-gray-500" fontSize="small" />
-                <span className="text-gray-600 font-english font-12 dir-ltr">
+                <Storage
+                  className={
+                    mode === "dark" ? "text-gray-400" : "text-gray-500"
+                  }
+                  fontSize="small"
+                />
+                <span
+                  className={`font-english font-12 dir-ltr ${
+                    mode === "dark" ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
                   {file?.fileSize}
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
-                <AccessTime className="text-gray-500" fontSize="small" />
-                <span className="text-gray-600">
+                <AccessTime
+                  className={
+                    mode === "dark" ? "text-gray-400" : "text-gray-500"
+                  }
+                  fontSize="small"
+                />
+                <span
+                  className={
+                    mode === "dark" ? "text-gray-300" : "text-gray-600"
+                  }
+                >
                   {calculateDaysPassed(file?.uploadDate ?? "")}
                 </span>
               </div>
@@ -225,6 +307,10 @@ const FileDetail: FC<FileDetailProps> = ({ file, removeFile, onClose }) => {
                     sx={{
                       width: "20px",
                       height: "20px",
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
                     }}
                   />
                 )}
@@ -233,6 +319,10 @@ const FileDetail: FC<FileDetailProps> = ({ file, removeFile, onClose }) => {
                     sx={{
                       width: "20px",
                       height: "20px",
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
                     }}
                   />
                 )}
@@ -241,6 +331,10 @@ const FileDetail: FC<FileDetailProps> = ({ file, removeFile, onClose }) => {
                     sx={{
                       width: "20px",
                       height: "20px",
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
                     }}
                   />
                 )}
@@ -249,10 +343,18 @@ const FileDetail: FC<FileDetailProps> = ({ file, removeFile, onClose }) => {
                     sx={{
                       width: "20px",
                       height: "20px",
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
                     }}
                   />
                 )}
-                <span className="text-gray-600">
+                <span
+                  className={
+                    mode === "dark" ? "text-gray-300" : "text-gray-600"
+                  }
+                >
                   {file?.mimeType?.includes("video") && "ویدیو"}
                   {file?.mimeType?.includes("image") && "تصویر"}
                   {file?.mimeType?.includes("audio") && "صوت"}
