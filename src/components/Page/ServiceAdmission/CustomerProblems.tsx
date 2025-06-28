@@ -21,11 +21,20 @@ interface LocalProblem extends ICreateOrUpdateCustomerProblem {
   isNew?: boolean;
 }
 
+interface ServerProblemChange {
+  id: string;
+  originalDescription: string;
+  currentDescription: string;
+}
+
 const CustomerProblems: FC<ICustomerProblemsProps> = ({
   repairReceptionId,
 }) => {
   const queryClient = useQueryClient();
   const [localProblems, setLocalProblems] = useState<LocalProblem[]>([]);
+  const [serverProblemChanges, setServerProblemChanges] = useState<
+    ServerProblemChange[]
+  >([]);
 
   const { data: serverProblems = [], isLoading } = useQuery({
     queryKey: ["customerProblems", repairReceptionId],
@@ -74,6 +83,10 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
       });
       if (data?.isSuccess) {
         toast.success("مشکل با موفقیت بروزرسانی شد");
+        // Clear the change tracking for this problem
+        setServerProblemChanges((prev) =>
+          prev.filter((change) => change.id !== data.data?.id)
+        );
       } else {
         toast.error(data?.message || "خطا در بروزرسانی مشکل");
       }
@@ -115,6 +128,61 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
         description,
       };
       setLocalProblems(newLocalProblems);
+    } else {
+      // Handle server problem changes
+      const problem = serverProblems[index];
+      const existingChange = serverProblemChanges.find(
+        (change) => change.id === problem.id
+      );
+
+      if (existingChange) {
+        // Update existing change
+        setServerProblemChanges((prev) =>
+          prev.map((change) =>
+            change.id === problem.id
+              ? { ...change, currentDescription: description }
+              : change
+          )
+        );
+      } else {
+        // Create new change tracking
+        setServerProblemChanges((prev) => [
+          ...prev,
+          {
+            id: problem.id,
+            originalDescription: problem.description,
+            currentDescription: description,
+          },
+        ]);
+      }
+    }
+  };
+
+  const getProblemDescription = (index: number) => {
+    const isLocalProblem = index >= serverProblems.length;
+    if (isLocalProblem) {
+      const localIndex = index - serverProblems.length;
+      return localProblems[localIndex]?.description || "";
+    } else {
+      const problem = serverProblems[index];
+      const change = serverProblemChanges.find((c) => c.id === problem.id);
+      return change ? change.currentDescription : problem.description;
+    }
+  };
+
+  const hasChanges = (index: number) => {
+    const isLocalProblem = index >= serverProblems.length;
+    if (isLocalProblem) {
+      const localIndex = index - serverProblems.length;
+      return localProblems[localIndex]?.description?.trim() || false;
+    } else {
+      const problem = serverProblems[index];
+      const change = serverProblemChanges.find((c) => c.id === problem.id);
+      return (
+        change &&
+        change.currentDescription.trim() &&
+        change.currentDescription !== change.originalDescription
+      );
     }
   };
 
@@ -132,12 +200,17 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
         description: problem.description,
       });
     } else {
-      const problem = allProblems[index];
-      const updatedDescription = problem.description;
+      const problem = serverProblems[index];
+      const change = serverProblemChanges.find((c) => c.id === problem.id);
+      const updatedDescription = change
+        ? change.currentDescription
+        : problem.description;
+
       if (!updatedDescription.trim()) {
         toast.error("لطفاً توضیحات مشکل را وارد کنید");
         return;
       }
+
       updateMutation.mutate({
         ...problem,
         description: updatedDescription,
@@ -153,7 +226,7 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
       setLocalProblems(newLocalProblems);
       return;
     }
-    const problem = allProblems[index];
+    const problem = serverProblems[index];
     if (!problem.id) return;
     if (window.confirm("آیا مطمئن هستید که می‌خواهید این مشکل را حذف کنید؟")) {
       deleteMutation.mutate(problem.id);
@@ -180,10 +253,7 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
         </Button>
       </Box>
       {allProblems.map((problem, index) => {
-        const isLocalProblem = index >= serverProblems.length;
-        const needsSaving = isLocalProblem
-          ? problem.description.trim()
-          : problem.hasChanges && problem.description.trim();
+        const needsSaving = hasChanges(index);
         return (
           <Box
             key={problem.id || `new-${index}`}
@@ -191,7 +261,7 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
           >
             <EnhancedInput
               name={`problem-${index}`}
-              value={problem.description}
+              value={getProblemDescription(index)}
               onChange={(e) => updateProblemDescription(index, e.target.value)}
               label={`مشکل ${index + 1}`}
               enableSpeechToText
@@ -213,7 +283,7 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
                   createMutation.isPending ||
                   updateMutation.isPending ||
                   deleteMutation.isPending ||
-                  !problem.description.trim()
+                  !getProblemDescription(index).trim()
                 }
               >
                 <Check />
