@@ -20,11 +20,15 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { useTheme } from "@/context/ThemeContext";
 import FilePreviewGrid from "./FilePreviewGrid";
+
 type UploadModalProps = {
   repairReceptionId?: number | string;
 };
+
 const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
+  const { mode } = useTheme();
   const [files, setFiles] = useState<Array<File & { id: number }>>([]);
   const [progressMap, setProgressMap] = useState<Record<number, number>>({});
 
@@ -151,39 +155,150 @@ const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
     <div className="w-full">
       {isLoadingFiles || (isLoadingDeleteFile && <Loading />)}
       <List
-        sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+        sx={{
+          width: "100%",
+          maxWidth: 360,
+          bgcolor: mode === "dark" ? "#222e3c" : "background.paper",
+          borderRadius: 1,
+          overflow: "hidden",
+        }}
         component="nav"
         aria-labelledby="nested-list-subheader"
       >
-        <ListItemButton onClick={openImagePicker}>
+        <ListItemButton
+          onClick={openImagePicker}
+          sx={{
+            "&:hover": {
+              bgcolor:
+                mode === "dark"
+                  ? "rgba(255, 255, 255, 0.05)"
+                  : "rgba(0, 0, 0, 0.04)",
+            },
+          }}
+        >
           <ListItemIcon>
-            <Image />
+            <Image
+              sx={{
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              }}
+            />
           </ListItemIcon>
-          <ListItemText primary="تصاویر" />
+          <ListItemText
+            primary="تصاویر"
+            sx={{
+              "& .MuiListItemText-primary": {
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              },
+            }}
+          />
         </ListItemButton>
-        <ListItemButton onClick={openVideoPicker}>
+        <ListItemButton
+          onClick={openVideoPicker}
+          sx={{
+            "&:hover": {
+              bgcolor:
+                mode === "dark"
+                  ? "rgba(255, 255, 255, 0.05)"
+                  : "rgba(0, 0, 0, 0.04)",
+            },
+          }}
+        >
           <ListItemIcon>
-            <VideoLibrary />
+            <VideoLibrary
+              sx={{
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              }}
+            />
           </ListItemIcon>
-          <ListItemText primary="فیلم ها" />
+          <ListItemText
+            primary="فیلم ها"
+            sx={{
+              "& .MuiListItemText-primary": {
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              },
+            }}
+          />
         </ListItemButton>
-        <ListItemButton onClick={openCamera}>
+        <ListItemButton
+          onClick={openCamera}
+          sx={{
+            "&:hover": {
+              bgcolor:
+                mode === "dark"
+                  ? "rgba(255, 255, 255, 0.05)"
+                  : "rgba(0, 0, 0, 0.04)",
+            },
+          }}
+        >
           <ListItemIcon>
-            <CameraAlt />
+            <CameraAlt
+              sx={{
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              }}
+            />
           </ListItemIcon>
-          <ListItemText primary="دوربین" />
+          <ListItemText
+            primary="دوربین"
+            sx={{
+              "& .MuiListItemText-primary": {
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              },
+            }}
+          />
         </ListItemButton>
-        <ListItemButton onClick={openVideoCamera}>
+        <ListItemButton
+          onClick={openVideoCamera}
+          sx={{
+            "&:hover": {
+              bgcolor:
+                mode === "dark"
+                  ? "rgba(255, 255, 255, 0.05)"
+                  : "rgba(0, 0, 0, 0.04)",
+            },
+          }}
+        >
           <ListItemIcon>
-            <Videocam />
+            <Videocam
+              sx={{
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              }}
+            />
           </ListItemIcon>
-          <ListItemText primary="فیلمبرداری" />
+          <ListItemText
+            primary="فیلمبرداری"
+            sx={{
+              "& .MuiListItemText-primary": {
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              },
+            }}
+          />
         </ListItemButton>
-        <ListItemButton onClick={openDocPicker}>
+        <ListItemButton
+          onClick={openDocPicker}
+          sx={{
+            "&:hover": {
+              bgcolor:
+                mode === "dark"
+                  ? "rgba(255, 255, 255, 0.05)"
+                  : "rgba(0, 0, 0, 0.04)",
+            },
+          }}
+        >
           <ListItemIcon>
-            <FolderOpen />
+            <FolderOpen
+              sx={{
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              }}
+            />
           </ListItemIcon>
-          <ListItemText primary="فایل" />
+          <ListItemText
+            primary="فایل"
+            sx={{
+              "& .MuiListItemText-primary": {
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              },
+            }}
+          />
         </ListItemButton>
       </List>
       <div {...getImageRootProps({ className: "hidden" })}>

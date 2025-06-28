@@ -18,8 +18,6 @@ import { getCustomers } from "@/service/customer/customer.service";
 import {
   createRepairReception,
   getCustomerCars,
-  getRepairReceptionForUpdateById,
-  updateRepairReception,
 } from "@/service/repair/repair.service";
 import UploaderDocs from "./UploaderDocs";
 
@@ -33,7 +31,6 @@ const AddServiceAdmissionForm: FC = () => {
 
   const {
     handleSubmit,
-    setValue,
     control,
     watch,
     reset,
@@ -95,19 +92,6 @@ const AddServiceAdmissionForm: FC = () => {
     },
   });
 
-  const {
-    mutateAsync: mutateAsyncUpdateRepairReception,
-    isPending: isPendingUpdateRepairReception,
-  } = useMutation({
-    mutationFn: updateRepairReception,
-    onSuccess: (data: any) => {
-      if (data?.isSuccess) {
-        toast.success(data?.message || "پذیرش با موفقیت بروزرسانی شد");
-      } else {
-        toast?.error(data?.message);
-      }
-    },
-  });
   const handleCustomerChange = (value: any) => {
     console.log(value);
     if (value?.value) {
@@ -156,8 +140,7 @@ const AddServiceAdmissionForm: FC = () => {
       }
     };
   }, []);
-  const isLoading =
-    isPendingCreateRepairReception || isPendingUpdateRepairReception;
+  const isLoading = isPendingCreateRepairReception;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
