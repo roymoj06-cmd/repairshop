@@ -89,7 +89,7 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
         {isMobile ? (
           // Mobile Card Layout
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            {selectedProblem?.repairProductRequestDto?.map((product, index) => (
+            {selectedProblem?.repairProductRequestDto?.map((product) => (
               <Paper
                 key={product.requestedId}
                 elevation={2}

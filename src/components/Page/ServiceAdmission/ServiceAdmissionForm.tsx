@@ -30,13 +30,13 @@ interface IServiceAdmissionFormProps {
 const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   repairReceptionId,
 }) => {
-  const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
-  const [showNewPlateDialog, setShowNewPlateDialog] = useState(false);
-  const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState(0);
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showNewPlateDialog, setShowNewPlateDialog] = useState<boolean>(false);
+  const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
+  const [initialDataLoaded, setInitialDataLoaded] = useState<boolean>(false);
+  const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<number>(0);
 
   const {
     handleSubmit,
@@ -344,12 +344,9 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             {/* تب مستندات */}
             {activeTab === 3 && (
               <Box>
-                <Typography variant="h6" className="mb-4">
-                  مستندات
-                </Typography>
                 <Grid size={{ xs: 12 }}>
                   <Box className="mt-4">
-                    <Typography variant="subtitle1" className="mb-2">
+                    <Typography variant="h6" className="mb-2">
                       آپلود فایل
                     </Typography>
                     <UploaderDocs repairReceptionId={repairReceptionId} />

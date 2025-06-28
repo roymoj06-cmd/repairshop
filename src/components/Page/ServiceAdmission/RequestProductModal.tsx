@@ -1,36 +1,35 @@
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Add, Remove, Delete } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import {
+  TableContainer,
   DialogActions,
   DialogContent,
+  useMediaQuery,
   DialogTitle,
-  Button,
-  Dialog,
-  Box,
+  CardContent,
   Typography,
-  Table,
+  IconButton,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
-  TableRow,
-  Paper,
-  IconButton,
   TextField,
-  useMediaQuery,
+  TableRow,
   useTheme,
-  Card,
-  CardContent,
+  Button,
+  Dialog,
+  Table,
+  Paper,
   Stack,
-  Chip,
+  Card,
+  Box,
 } from "@mui/material";
-import { Add, Remove, Delete } from "@mui/icons-material";
 
 import { createBatchRepairProductRequest } from "@/service/repairProductRequest/repairProductRequest.service";
+import { getCustomerProblems } from "@/service/repairServices/repairServices.service";
 import { getProductsThatContainsText } from "@/service/Product/Product.service";
 import { EnhancedSelect, Loading } from "@/components";
-import { getCustomerProblems } from "@/service/repairServices/repairServices.service";
 
 interface IRequestProductModalProps {
   setShowModal: Dispatch<SetStateAction<boolean | undefined>>;

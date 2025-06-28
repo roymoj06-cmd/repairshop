@@ -54,3 +54,13 @@ export const deleteRepairReceptionService = async (id: number) => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const updateRepairReceptionServicesForProblems = async (
+  data: IUpdateRepairReceptionServicesForProblems
+) => {
+  const reqConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.updateRepairReceptionServicesForProblems}`,
+    data: data,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

@@ -12,34 +12,31 @@ import {
   Chip,
 } from "@mui/material";
 
-import {
-  EnhancedSelect,
-  Button,
-  Loading,
-  EnhancedInput,
-  ConfirmDialog,
-} from "@/components";
 import { getAllRepairServices } from "@/service/repairServices/repairServices.service";
 import { getCustomerProblems } from "@/service/repairServices/repairServices.service";
 import {
+  updateRepairReceptionServicesForProblems,
   getAllRepairReceptionServices,
   deleteRepairReceptionService,
   createRepairReceptionService,
-  updateRepairReceptionService,
 } from "@/service/repairReceptionService/repairReceptionService.service";
 import { getActiveMechanics } from "@/service/mechanic/mechanic.service";
 import { addCommas } from "@/utils";
-import "@/Styles/components/repairReceptionService.scss";
+import {
+  EnhancedSelect,
+  EnhancedInput,
+  ConfirmDialog,
+  Loading,
+  Button,
+} from "@/components";
 
 interface IRepairReceptionServiceProps {
   repairReceptionId?: string;
 }
-
 interface ExtendedSelectOption extends SelectOption {
   estimatedMinute?: number;
   price?: number;
 }
-
 const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
   repairReceptionId,
 }) => {
@@ -49,22 +46,22 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
   const [selectedService, setSelectedService] =
     useState<IGetAllRepairReceptionServices | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
-    open: boolean;
-    serviceId: number | null;
     serviceName: string | null;
+    serviceId: number | null;
+    open: boolean;
   }>({
-    open: false,
-    serviceId: null,
     serviceName: null,
+    serviceId: null,
+    open: false,
   });
   const [currentServices, setCurrentServices] = useState<
     {
-      serviceId: SelectOption | undefined;
       mechanicId: SelectOption | undefined;
-      servicePrice: number | undefined;
-      serviceCount: number;
-      totalPrice: number | undefined;
+      serviceId: SelectOption | undefined;
       estimatedMinute: number | undefined;
+      servicePrice: number | undefined;
+      totalPrice: number | undefined;
+      serviceCount: number;
     }[]
   >([]);
 
@@ -74,7 +71,6 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
     enabled: !!repairReceptionId,
     select: (data) => data?.data || [],
   });
-
   const { data: repairServices = [] } = useQuery({
     queryKey: ["repairServices"],
     queryFn: () => getAllRepairServices({ page: 1, size: 100 }),
@@ -86,7 +82,6 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
         estimatedMinute: service.estimatedMinute,
       })) || [],
   });
-
   const { data: mechanics = [] } = useQuery({
     queryKey: ["activeMechanics"],
     queryFn: getActiveMechanics,
@@ -96,7 +91,6 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
         label: mechanic.fullName,
       })) || [],
   });
-
   const { data: problems = [] } = useQuery({
     queryKey: ["customerProblems", repairReceptionId],
     queryFn: () =>
@@ -112,7 +106,6 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
         label: problem.description,
       })) || [],
   });
-
   const createMutation = useMutation({
     mutationFn: createRepairReceptionService,
     onSuccess: (data: any) => {
@@ -131,9 +124,8 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
       toast.error("خطا در ایجاد سرویس");
     },
   });
-
   const updateMutation = useMutation({
-    mutationFn: updateRepairReceptionService,
+    mutationFn: updateRepairReceptionServicesForProblems,
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({
         queryKey: ["repairReceptionServices", repairReceptionId],
@@ -150,7 +142,6 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
       toast.error("خطا در بروزرسانی سرویس");
     },
   });
-
   const deleteMutation = useMutation({
     mutationFn: deleteRepairReceptionService,
     onSuccess: () => {
@@ -163,11 +154,9 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
       toast.error("خطا در حذف سرویس");
     },
   });
-
   const handleDelete = (id: number, serviceName: string) => {
     setDeleteConfirm({ open: true, serviceId: id, serviceName });
   };
-
   const confirmDelete = () => {
     if (deleteConfirm.serviceId) {
       deleteMutation.mutate(deleteConfirm.serviceId);
