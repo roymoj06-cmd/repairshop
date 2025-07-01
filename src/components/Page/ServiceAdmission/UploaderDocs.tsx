@@ -10,6 +10,8 @@ import {
   Image,
   Videocam,
   VideoLibrary,
+  Audiotrack,
+  Mic,
 } from "@mui/icons-material";
 import {
   List,
@@ -78,6 +80,8 @@ const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
   const onDropVideo = useCallback(handleFileUpload, []);
   const onDropCamera = useCallback(handleFileUpload, []);
   const onDropVideoCamera = useCallback(handleFileUpload, []);
+  const onDropAudio = useCallback(handleFileUpload, []);
+  const onDropAudioRecording = useCallback(handleFileUpload, []);
   const {
     getRootProps: getImageRootProps,
     getInputProps: getImageInputProps,
@@ -134,6 +138,28 @@ const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
     noKeyboard: true,
     accept: { "video/*": [] },
     onDrop: onDropVideoCamera,
+  });
+  const {
+    getRootProps: getAudioRootProps,
+    getInputProps: getAudioInputProps,
+    open: openAudioPicker,
+  } = useDropzone({
+    accept: { "audio/*": [] },
+    multiple: true,
+    noClick: true,
+    noKeyboard: true,
+    onDrop: onDropAudio,
+  });
+  const {
+    getRootProps: getAudioRecordingRootProps,
+    getInputProps: getAudioRecordingInputProps,
+    open: openAudioRecording,
+  } = useDropzone({
+    accept: { "audio/*": [] },
+    multiple: false,
+    noClick: true,
+    noKeyboard: true,
+    onDrop: onDropAudioRecording,
   });
   const {
     mutateAsync: mutateAsyncUploadFileToServerFile,
@@ -300,6 +326,60 @@ const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
             }}
           />
         </ListItemButton>
+        <ListItemButton
+          onClick={openAudioPicker}
+          sx={{
+            "&:hover": {
+              bgcolor:
+                mode === "dark"
+                  ? "rgba(255, 255, 255, 0.05)"
+                  : "rgba(0, 0, 0, 0.04)",
+            },
+          }}
+        >
+          <ListItemIcon>
+            <Audiotrack
+              sx={{
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              }}
+            />
+          </ListItemIcon>
+          <ListItemText
+            primary="فایل صدا"
+            sx={{
+              "& .MuiListItemText-primary": {
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              },
+            }}
+          />
+        </ListItemButton>
+        <ListItemButton
+          onClick={openAudioRecording}
+          sx={{
+            "&:hover": {
+              bgcolor:
+                mode === "dark"
+                  ? "rgba(255, 255, 255, 0.05)"
+                  : "rgba(0, 0, 0, 0.04)",
+            },
+          }}
+        >
+          <ListItemIcon>
+            <Mic
+              sx={{
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              }}
+            />
+          </ListItemIcon>
+          <ListItemText
+            primary="ضبط صدا"
+            sx={{
+              "& .MuiListItemText-primary": {
+                color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+              },
+            }}
+          />
+        </ListItemButton>
       </List>
       <div {...getImageRootProps({ className: "hidden" })}>
         <input {...getImageInputProps()} accept="image/*" />
@@ -322,6 +402,16 @@ const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
           {...getVideoCameraInputProps()}
           accept="video/*"
           capture="environment"
+        />
+      </div>
+      <div {...getAudioRootProps({ className: "hidden" })}>
+        <input {...getAudioInputProps()} accept="audio/*" />
+      </div>
+      <div {...getAudioRecordingRootProps({ className: "hidden" })}>
+        <input
+          {...getAudioRecordingInputProps()}
+          accept="audio/*"
+          capture="user"
         />
       </div>
       <FilePreviewGrid
