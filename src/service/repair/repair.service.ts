@@ -126,3 +126,13 @@ export const changeIsCancelled = async (data: {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const createRepairFactorRequest = async (
+  data: ICreateRepairFactorRequest
+) => {
+  const reqConfig: AxiosRequestConfig = {
+    method: "POST",
+    url: `${proxyServerUrl.createRepairFactorRequest}`,
+    data,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

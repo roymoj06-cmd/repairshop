@@ -71,14 +71,12 @@ export const getRepairProductRequestSummary = async (
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
 export const addApprovedProductsToReception = async (
-  repairReceptionId: number
+  data: IAddApprovedProductsToReception
 ) => {
-  const queryString = convertObjectToQueryString({ repairReceptionId });
   const reqConfig = {
     method: "POST",
-    url: `${proxyServerUrl.addApprovedProductsToReception}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.addApprovedProductsToReception}`,
+    data,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -155,6 +153,26 @@ export const getAllRepairProductRequestsByReceptionId = async (
     url: `${proxyServerUrl.getAllRepairProductRequestsByReceptionId}${
       queryString ? `?${queryString}` : ""
     }`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+export const getAllProductRequestsByReceptionId = async (
+  receptionId?: string
+) => {
+  const queryString = convertObjectToQueryString({ receptionId });
+  const reqConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getAllProductRequestsByReceptionId}${
+      queryString ? `?${queryString}` : ""
+    }`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+export const buyRequest = async (data: IBuyRequest) => {
+  const reqConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.buyRequest}`,
+    data,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };

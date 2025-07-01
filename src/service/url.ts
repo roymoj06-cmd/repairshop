@@ -34,8 +34,9 @@ export const proxyServerUrl = {
   getCars: `${panelServiceBaseUrl}/Car/GetCars`,
 
   // repair Controller
-  getRepairReceptionForUpdateById: `${panelServiceBaseUrl}/Repair/GetRepairReceptionForUpdateById/`,
+  getRepairReceptionForUpdateById: `${panelServiceBaseUrl}/Repair/GetRepairReceptionProductById/`,
   generateRepairReceptionFactors: `${panelServiceBaseUrl}/Repair/GenerateRepairReceptionFactors`,
+  createRepairFactorRequest: `${panelServiceBaseUrl}/Repair/CreateRepairFactorRequest`,
   dischargeRepairReception: `${panelServiceBaseUrl}/Repair/DischargeRepairReception`,
   repairReceptionSummary: `${panelServiceBaseUrl}/Repair/repair-reception-summary`,
   createRepairReception: `${panelServiceBaseUrl}/Repair/CreateRepairReception`,
@@ -96,6 +97,7 @@ export const proxyServerUrl = {
   getAllRepairProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetAllRepairProductRequestsByReceptionId`,
   getRepairProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetRepairProductRequestsByReceptionId`,
   getRepairProductRequestsByProblemId: `${panelServiceBaseUrl}/RepairProductRequest/GetRepairProductRequestsByProblemId`,
+  getAllProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetAllProductRequestsByReceptionId`,
   getPendingRepairProductRequests: `${panelServiceBaseUrl}/RepairProductRequest/GetPendingRepairProductRequests`,
   createBatchRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/CreateBatchRepairProductRequest`,
   batchReviewRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/BatchReviewRepairProductRequest`,
@@ -107,6 +109,7 @@ export const proxyServerUrl = {
   deleteRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/DeleteRepairProductRequest`,
   reviewRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/ReviewRepairProductRequest`,
   getOutOfStockRequests: `${panelServiceBaseUrl}/RepairProductRequest/GetOutOfStockRequests`,
+  buyRequest: `${panelServiceBaseUrl}/RepairProductRequest/BuyRequest`,
 
   // product Controller
   getProductsThatContainsText: `${copserverUrl}/Product/GetProductsThatContainsText`,

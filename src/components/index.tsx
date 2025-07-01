@@ -1,4 +1,5 @@
 export { default as RequestProductDetailsModal } from "./Page/ServiceAdmission/RequestProductDetailsModal";
+export { default as CreateFactorForReception } from "./Page/ServiceAdmission/CreateFactorForReception";
 export { default as RepairReceptionProducts } from "./Page/ServiceAdmission/RepairReceptionProducts";
 export { default as RequestProductListModal } from "./Page/ServiceAdmission/RequestProductListModal";
 export { default as RepairReceptionService } from "./Page/ServiceAdmission/RepairReceptionService";
@@ -25,6 +26,8 @@ export { default as FileUploader } from "./common/FileUploader";
 export { default as ThemeToggle } from "./common/ThemeToggle";
 export { default as GlobalModal } from "./Modal/GlobalModal";
 export { default as Breadcrumb } from "./common/Breadcrumb";
+export { default as EmptyList } from "./common/EmptyList";
+export { default as Checkbox } from "./common/Checkbox";
 export { default as LoginForm } from "./auth/LoginForm";
 export { default as Sidebar } from "./layouts/Sidebar";
 export { default as Loading } from "./common/Loading";

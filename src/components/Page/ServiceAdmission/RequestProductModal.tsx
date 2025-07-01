@@ -65,13 +65,12 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
     mutationFn: getProductsThatContainsText,
     onSuccess: (data: any) => {
       const temp = data?.data?.map((brand: IProductSummery) => ({
-        label: `${brand?.productName}`,
+        label: `${brand?.productName} - ${brand?.productCode}`,
         value: brand?.productId,
       }));
       setProducts([...temp]);
     },
   });
-
   const {
     isPending: isPendingCreateBatchRepairProductRequest,
     mutateAsync: mutateCreateBatchRepairProductRequest,
@@ -107,7 +106,6 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
       mutateGetProductsThatContainsText(value);
     }
   };
-
   const handleProductSelection = (selectedOptions: SelectOption[]) => {
     const newProducts = selectedOptions.map((option) => ({
       productId: Number(option.value),
@@ -116,7 +114,6 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
     }));
     setSelectedProducts(newProducts);
   };
-
   const handleQuantityChange = (productId: number, newQuantity: number) => {
     if (newQuantity < 1) return;
 
@@ -128,13 +125,11 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
       )
     );
   };
-
   const handleRemoveProduct = (productId: number) => {
     setSelectedProducts((prev) =>
       prev.filter((product) => product.productId !== productId)
     );
   };
-
   const handleSubmit = () => {
     if (selectedProducts.length === 0) {
       toast.error("لطفا حداقل یک کالا انتخاب کنید");
@@ -156,7 +151,6 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
 
     mutateCreateBatchRepairProductRequest(requestData);
   };
-
   const renderProductList = () => {
     if (isMobile) {
       return (

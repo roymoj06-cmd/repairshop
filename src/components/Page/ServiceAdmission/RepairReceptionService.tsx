@@ -527,28 +527,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                     className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700"
                   >
                     {/* Problem Header */}
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 p-3 sm:p-4 md:p-6 relative">
-                      {/* Edit Button - Top Right Corner */}
-                      <div className="absolute top-2 right-2">
-                        <IconButton
-                          onClick={() => openProblemEditModal(problem)}
-                          sx={{
-                            backgroundColor: "rgba(255, 255, 255, 0.15)",
-                            color: "white",
-                            border: "1px solid rgba(255, 255, 255, 0.3)",
-                            "&:hover": {
-                              backgroundColor: "rgba(255, 255, 255, 0.25)",
-                              border: "1px solid rgba(255, 255, 255, 0.5)",
-                            },
-                            width: 36,
-                            height: 36,
-                          }}
-                          title="ویرایش مشکل"
-                        >
-                          <Edit sx={{ fontSize: 18 }} />
-                        </IconButton>
-                      </div>
-
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 p-3 sm:p-4 md:p-6">
                       <div className="flex items-start sm:items-center justify-between gap-3 sm:gap-4">
                         <div className="flex items-start sm:items-center gap-2 sm:gap-3 md:gap-4 min-w-0 flex-1">
                           <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -570,12 +549,34 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                             </div>
                           </div>
                         </div>
-                        <div className="text-left sm:text-right flex-shrink-0">
-                          <div className="text-white text-xs sm:text-sm opacity-90 mb-1 whitespace-nowrap">
-                            قیمت کل مشکل
-                          </div>
-                          <div className="text-sm sm:text-lg md:text-2xl font-bold text-white">
-                            {addCommas(problem.totalProblemPrice)} ریال
+                        <div className="flex items-center gap-3">
+                          <Button
+                            onClick={() => openProblemEditModal(problem)}
+                            variant="contained"
+                            size="small"
+                            startIcon={<Edit />}
+                            sx={{
+                              backgroundColor: "white",
+                              color: "#1976d2",
+                              "&:hover": {
+                                backgroundColor: "#f5f5f5",
+                              },
+                              fontWeight: "bold",
+                              fontSize: "0.7rem",
+                              padding: "4px 8px",
+                              minWidth: "auto",
+                              height: "28px",
+                            }}
+                          >
+                            ویرایش
+                          </Button>
+                          <div className="text-left sm:text-right flex-shrink-0">
+                            <div className="text-white text-xs sm:text-sm opacity-90 mb-1 whitespace-nowrap">
+                              قیمت کل مشکل
+                            </div>
+                            <div className="text-sm sm:text-lg md:text-2xl font-bold text-white">
+                              {addCommas(problem.totalProblemPrice)} ریال
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -826,32 +827,6 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
               searchable
             />
           </div>
-
-          {selectedProblem && !selectedService && (
-            <div
-              style={{
-                marginBottom: "1rem",
-                padding: "0.5rem",
-                backgroundColor: "#e3f2fd",
-                borderRadius: "4px",
-                border: "1px solid #2196f3",
-              }}
-            >
-              <p style={{ margin: 0, fontSize: "0.875rem", color: "#1976d2" }}>
-                💡 در حال ویرایش مشکل: <strong>{selectedProblem.label}</strong>
-              </p>
-              <p
-                style={{
-                  margin: "0.25rem 0 0 0",
-                  fontSize: "0.75rem",
-                  color: "#1976d2",
-                }}
-              >
-                می‌توانید سرویس‌های موجود را ویرایش، حذف یا سرویس‌های جدید اضافه
-                کنید.
-              </p>
-            </div>
-          )}
 
           <div style={{ marginBottom: "1rem" }}>
             <h4>سرویس‌های مرتبط با این مشکل:</h4>

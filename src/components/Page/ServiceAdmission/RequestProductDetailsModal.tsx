@@ -1,370 +1,592 @@
-import { FC } from "react";
+import { FC, useState, useRef, useEffect, useCallback } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QrCode as QrCodeIcon } from "@mui/icons-material";
+import { toast } from "react-toastify";
 import {
+  CircularProgress,
+  TableContainer,
   DialogActions,
   DialogContent,
+  useMediaQuery,
   DialogTitle,
-  Dialog,
+  Typography,
   TableHead,
   TableBody,
-  TableRow,
   TableCell,
-  Table,
-  Button,
-  TableContainer,
-  Paper,
   useTheme,
-  useMediaQuery,
+  TableRow,
+  Button,
+  Dialog,
+  Table,
+  Paper,
   Box,
 } from "@mui/material";
+
+import {
+  buyRequest,
+  addApprovedProductsToReception,
+} from "../../../service/repairProductRequest/repairProductRequest.service";
 
 interface IRequestProductDetailsModalProps {
   setShowDetailsModal: (show: boolean) => void;
   showDetailsModal: boolean;
-  selectedProblem: {
-    repairCustomerProblemId: number;
-    problemDescription: string;
-    repairProductRequestDto: Array<{
-      repairCustomerProblemId: number;
-      requestedByUserName: string;
-      problemDescription: string;
-      reviewedByUserName: string;
-      statusDescription: string;
-      requestedByUserId: number;
-      reviewedByUserId: number;
-      reviewedDate: string;
-      rejectReason: string;
-      productCode: string;
-      productName: string;
-      requestedId: number;
-      createDate: string;
-      productId: number;
-      isAccepted: boolean;
-      country: string;
-      status: number;
-      brand: string;
-      qty: number;
-    }>;
-  } | null;
+  selectedProblem: IGetAllRepairProductRequestsByReceptionId | null;
+  onSuccess?: () => void;
 }
 
+// Extracted component for mobile card
+const MobileProductCard: FC<{
+  product: any;
+  onActionClick: (requestId: number, status: number) => void;
+}> = ({ product, onActionClick }) => {
+  const getStatusClass = (isAccepted: boolean) => {
+    return isAccepted
+      ? "request-product-details-modal__status--accepted"
+      : "request-product-details-modal__status--rejected";
+  };
+  const handleKasriClick = () => {
+    onActionClick(product.requestedId, 1);
+  };
+  const handleRejectClick = () => {
+    onActionClick(product.requestedId, 4);
+  };
+
+  // اگر تعداد کالاهای درخواستی با تعداد مصرفی یکسان شد باید دکمه های رد و کسری غیر فعال شود
+  // همینطور اگر تعداد کالاهای مصرفی بیشتر از 0 بود دکمه رد غیر فعال شود
+  const isKasriDisabled =
+    product.statusId === 1 ||
+    product.statusId === 4 ||
+    product.requestedQty === product.usedQty;
+  const isRejectDisabled =
+    product.statusId === 1 ||
+    product.statusId === 4 ||
+    product.usedQty > 0 ||
+    product.requestedQty === product.usedQty;
+
+  return (
+    <Paper
+      key={product.requestedId}
+      elevation={2}
+      className="request-product-details-modal__mobile-card"
+    >
+      <Box className="request-product-details-modal__mobile-card-content">
+        <Box className="request-product-details-modal__mobile-text">
+          <strong>نام کالا :</strong> {product.productName}
+        </Box>
+        <Box className="request-product-details-modal__mobile-text">
+          <strong>کد کالا :</strong> {product.productCode}
+        </Box>
+        <Box className="request-product-details-modal__mobile-text">
+          <strong>موجودی :</strong> {product.realQty}
+        </Box>
+        <Box className="request-product-details-modal__mobile-text">
+          <strong>تعداد درخواستی :</strong> {product?.requestedQty}
+        </Box>
+        <Box className="request-product-details-modal__mobile-text">
+          <strong>تعداد مصرفی :</strong> {product.usedQty}
+        </Box>
+        <Box className="request-product-details-modal__mobile-text">
+          <strong>برند / کشور :</strong> {product?.brandName} /{" "}
+          {product?.countryName}
+        </Box>
+        <Box className="request-product-details-modal__mobile-text">
+          <strong>وضعیت :</strong> {product.statusDescription}
+        </Box>
+
+        <Box className="request-product-details-modal__mobile-card-actions">
+          <Button
+            variant="contained"
+            color="secondary"
+            size="small"
+            className="request-product-details-modal__mobile-button"
+            onClick={handleKasriClick}
+            disabled={isKasriDisabled}
+          >
+            کسری
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            size="small"
+            className="request-product-details-modal__mobile-button"
+            onClick={handleRejectClick}
+            disabled={isRejectDisabled}
+          >
+            رد
+          </Button>
+        </Box>
+      </Box>
+    </Paper>
+  );
+};
+const ActionButtons: FC<{
+  isTablet: boolean;
+  requestId: number;
+  statusId: number;
+  requestedQty: number;
+  usedQty: number;
+  onActionClick: (requestId: number, status: number) => void;
+}> = ({
+  isTablet,
+  requestId,
+  statusId,
+  requestedQty,
+  usedQty,
+  onActionClick,
+}) => {
+  const buttonClass = isTablet
+    ? "request-product-details-modal__action-button--tablet"
+    : "request-product-details-modal__action-button--desktop";
+
+  const containerClass = isTablet
+    ? "request-product-details-modal__action-buttons-container--tablet"
+    : "request-product-details-modal__action-buttons-container";
+
+  const handleKasriClick = () => {
+    onActionClick(requestId, 1);
+  };
+
+  const handleRejectClick = () => {
+    onActionClick(requestId, 4);
+  };
+
+  // اگر تعداد کالاهای درخواستی با تعداد مصرفی یکسان شد باید دکمه های رد و کسری غیر فعال شود
+  // همینطور اگر تعداد کالاهای مصرفی بیشتر از 0 بود دکمه رد غیر فعال شود
+  const isKasriDisabled =
+    statusId === 1 || statusId === 4 || requestedQty === usedQty;
+  const isRejectDisabled =
+    statusId === 1 || statusId === 4 || usedQty > 0 || requestedQty === usedQty;
+
+  return (
+    <Box className={containerClass}>
+      <Button
+        variant="contained"
+        color="secondary"
+        size="small"
+        className={buttonClass}
+        onClick={handleKasriClick}
+        disabled={isKasriDisabled}
+      >
+        کسری
+      </Button>
+      <Button
+        variant="contained"
+        color="secondary"
+        size="small"
+        className={buttonClass}
+        onClick={handleRejectClick}
+        disabled={isRejectDisabled}
+      >
+        رد
+      </Button>
+    </Box>
+  );
+};
+const tableColumns = [
+  { key: "row", label: "ردیف", minWidth: 50, align: "left" as const },
+  {
+    key: "productName",
+    label: "نام کالا",
+    minWidth: 150,
+    maxWidth: 200,
+    align: "center" as const,
+  },
+  {
+    key: "productCode",
+    label: "کد کالا",
+    minWidth: 120,
+    maxWidth: 140,
+    align: "center" as const,
+  },
+  {
+    key: "realQty",
+    label: "موجودی",
+    minWidth: 80,
+    maxWidth: 100,
+    align: "center" as const,
+  },
+  {
+    key: "requestedQty",
+    label: "تعداد درخواستی",
+    minWidth: 70,
+    maxWidth: 90,
+    align: "center" as const,
+  },
+  {
+    key: "usedQty",
+    label: "تعداد مصرفی",
+    minWidth: 70,
+    maxWidth: 90,
+    align: "center" as const,
+  },
+  {
+    key: "brandCountry",
+    label: "برند / کشور",
+    minWidth: 120,
+    maxWidth: 160,
+    align: "center" as const,
+  },
+  {
+    key: "status",
+    label: "وضعیت",
+    minWidth: 100,
+    maxWidth: 120,
+    align: "center" as const,
+  },
+  {
+    key: "actions",
+    label: "عملیات",
+    minWidth: 160,
+    maxWidth: 200,
+    align: "center" as const,
+  },
+];
 const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
   setShowDetailsModal,
   showDetailsModal,
   selectedProblem,
+  onSuccess,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+  const barcodeInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
+  const [showBarcodeSection, setShowBarcodeSection] = useState<boolean>(false);
+  const [currentBarcode, setCurrentBarcode] = useState<string>("");
+  const [isScanning, setIsScanning] = useState<boolean>(false);
+
+  const addApprovedProductMutation = useMutation({
+    mutationFn: addApprovedProductsToReception,
+    onSuccess: (data: any) => {
+      if (data?.isSuccess) {
+        toast.success(data?.message || "کالا با موفقیت اضافه شد");
+        queryClient.invalidateQueries({
+          queryKey: [
+            "repairReceptionId",
+            selectedProblem?.repairCustomerProblemId,
+          ],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["getAllProductRequestsByReceptionId"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["getAllRepairProductRequestsByReceptionId"],
+        });
+
+        // Call onSuccess to refresh parent component data
+        onSuccess?.();
+      } else {
+        toast.error(data?.message || "خطا در اضافه کردن کالا");
+      }
+
+      setCurrentBarcode("");
+      setIsScanning(false);
+    },
+    onError: (_: any) => {
+      toast.error("خطا در ارتباط با سرور");
+      setCurrentBarcode("");
+      setIsScanning(false);
+    },
+  });
+  const handleScanBarcode = useCallback(
+    (barcode: string) => {
+      if (!selectedProblem?.repairCustomerProblemId) {
+        toast.error("مشکل انتخاب نشده است");
+        return;
+      }
+      const matchingProduct = {
+        barcode: barcode,
+        problemId: selectedProblem?.repairCustomerProblemId,
+      };
+      if (!matchingProduct) {
+        toast.error("کالای مربوط به این بارکد یافت نشد");
+        return;
+      }
+      setCurrentBarcode(barcode);
+      setIsScanning(true);
+      addApprovedProductMutation.mutate({
+        problemId: selectedProblem?.repairCustomerProblemId,
+        barcode: barcode,
+      });
+    },
+    [selectedProblem, addApprovedProductMutation]
+  );
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (!showBarcodeSection || isScanning) return;
+      if (event.key === "Enter") {
+        const barcode = currentBarcode.trim();
+        if (barcode) {
+          handleScanBarcode(barcode);
+          setCurrentBarcode("");
+        }
+      } else if (event.key.length === 1) {
+        setCurrentBarcode((prev) => prev + event.key);
+      }
+    },
+    [showBarcodeSection, isScanning, currentBarcode, handleScanBarcode]
+  );
+  useEffect(() => {
+    if (showBarcodeSection) {
+      document.addEventListener("keydown", handleKeyPress);
+      return () => {
+        document.removeEventListener("keydown", handleKeyPress);
+      };
+    }
+  }, [showBarcodeSection, handleKeyPress]);
+  const buyRequestMutation = useMutation({
+    mutationFn: buyRequest,
+    onSuccess: (data: any) => {
+      if (data.isSuccess) {
+        toast.success(data?.message);
+
+        // Invalidate and refetch related queries to refresh the data
+        queryClient.invalidateQueries({
+          queryKey: [
+            "repairReceptionId",
+            selectedProblem?.repairCustomerProblemId,
+          ],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["getAllProductRequestsByReceptionId"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["getAllRepairProductRequestsByReceptionId"],
+        });
+
+        // Call onSuccess to refresh parent component data
+        onSuccess?.();
+      } else {
+        toast.error(data?.message);
+      }
+    },
+  });
+  useEffect(() => {
+    if (showBarcodeSection && barcodeInputRef.current) {
+      setTimeout(() => {
+        barcodeInputRef.current?.focus();
+      }, 100);
+    }
+  }, [showBarcodeSection]);
+  useEffect(() => {
+    if (!showDetailsModal) {
+      setCurrentBarcode("");
+      setIsScanning(false);
+      setShowBarcodeSection(false);
+    }
+  }, [showDetailsModal]);
+  const handleActionClick = (requestId: number, status: number) => {
+    const requestData = {
+      requestId: requestId,
+      status: status,
+      rejectReason: status === 4 ? "درخواست رد شد" : "",
+    };
+
+    buyRequestMutation.mutate(requestData);
+  };
+  const renderBarcodeSection = () => (
+    <Box sx={{ mb: 3, p: 2, border: "1px solid #e0e0e0", borderRadius: 1 }}>
+      {isScanning ? (
+        <Box sx={{ textAlign: "center" }}>
+          <CircularProgress size={24} sx={{ mb: 1 }} />
+          <Typography variant="body2" color="text.secondary">
+            در حال پردازش بارکد...
+          </Typography>
+        </Box>
+      ) : (
+        <Box sx={{ textAlign: "center" }}>
+          <QrCodeIcon sx={{ fontSize: 48, color: "text.secondary", mb: 1 }} />
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            آماده برای اسکن بارکد
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            بارکد کالا را اسکن کنید
+          </Typography>
+        </Box>
+      )}
+    </Box>
+  );
+  const getDialogClass = () => {
+    if (isMobile) return "request-product-details-modal__dialog--mobile";
+    if (isTablet) return "request-product-details-modal__dialog--tablet";
+    return "request-product-details-modal__dialog--desktop";
+  };
+  const getTitleClass = () => {
+    if (isMobile) return "request-product-details-modal__title--mobile";
+    if (isTablet) return "request-product-details-modal__title--tablet";
+    return "request-product-details-modal__title--desktop";
+  };
+  const getContentClass = () => {
+    if (isMobile) return "request-product-details-modal__content--mobile";
+    if (isTablet) return "request-product-details-modal__content--tablet";
+    return "request-product-details-modal__content--desktop";
+  };
+  const getActionsClass = () => {
+    if (isMobile) return "request-product-details-modal__actions--mobile";
+    if (isTablet) return "request-product-details-modal__actions--tablet";
+    return "request-product-details-modal__actions--desktop";
+  };
+  const getTableClass = () => {
+    return isTablet
+      ? "request-product-details-modal__table--tablet"
+      : "request-product-details-modal__table--desktop";
+  };
+  const getTableCellHeaderClass = () => {
+    return isTablet
+      ? "request-product-details-modal__table-cell--header--tablet"
+      : "request-product-details-modal__table-cell--header--desktop";
+  };
+  const getTableCellBodyClass = () => {
+    return isTablet
+      ? "request-product-details-modal__table-cell--body--tablet"
+      : "request-product-details-modal__table-cell--body--desktop";
+  };
+  const getTableCellPaddingClass = () => {
+    return isTablet
+      ? "request-product-details-modal__table-cell-padding--tablet"
+      : "request-product-details-modal__table-cell-padding--desktop";
+  };
+  const renderMobileLayout = () => (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {selectedProblem?.repairProductRequestDto?.map((product) => (
+        <MobileProductCard
+          key={product.requestedId}
+          product={product}
+          onActionClick={handleActionClick}
+        />
+      ))}
+    </Box>
+  );
+  const renderDesktopLayout = () => (
+    <TableContainer
+      component={Paper}
+      className="request-product-details-modal__table-container"
+    >
+      <Table size={isTablet ? "small" : "medium"} className={getTableClass()}>
+        <TableHead className="request-product-details-modal__table-head">
+          <TableRow>
+            {tableColumns.map((column) => (
+              <TableCell
+                key={column.key}
+                className={getTableCellHeaderClass()}
+                style={{
+                  minWidth: column.minWidth,
+                  maxWidth: column.maxWidth,
+                  textAlign: column.align,
+                }}
+              >
+                {column.label}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {selectedProblem?.repairProductRequestDto?.map((product, index) => (
+            <TableRow key={product.requestedId}>
+              <TableCell
+                className={`${getTableCellBodyClass()} request-product-details-modal__table-cell--body--left`}
+                style={{ textAlign: "center" }}
+              >
+                {index + 1}
+              </TableCell>
+              <TableCell
+                className={`${getTableCellBodyClass()} request-product-details-modal__table-cell--body--word-break`}
+                style={{ textAlign: "center" }}
+              >
+                {product.productName}
+              </TableCell>
+              <TableCell
+                className={getTableCellBodyClass()}
+                style={{ textAlign: "center" }}
+              >
+                {product.productCode}
+              </TableCell>
+              <TableCell
+                className={getTableCellBodyClass()}
+                style={{ textAlign: "center" }}
+              >
+                {product.realQty}
+              </TableCell>
+              <TableCell
+                className={getTableCellBodyClass()}
+                style={{ textAlign: "center" }}
+              >
+                {product?.requestedQty}
+              </TableCell>
+              <TableCell
+                className={getTableCellBodyClass()}
+                style={{ textAlign: "center" }}
+              >
+                {product?.usedQty}
+              </TableCell>
+              <TableCell
+                className={getTableCellBodyClass()}
+                style={{ textAlign: "center" }}
+              >
+                {product?.brandName} / {product?.countryName}
+              </TableCell>
+              <TableCell
+                className={getTableCellBodyClass()}
+                style={{ textAlign: "center" }}
+              >
+                {product.statusDescription}
+              </TableCell>
+              <TableCell className={getTableCellPaddingClass()}>
+                <ActionButtons
+                  isTablet={isTablet}
+                  requestId={product.requestedId}
+                  statusId={product.statusId}
+                  requestedQty={product.requestedQty}
+                  usedQty={product.usedQty}
+                  onActionClick={handleActionClick}
+                />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 
   return (
     <Dialog
-      // onClose={() => setShowDetailsModal(false)}
       maxWidth={isMobile ? "xs" : "xl"}
       open={showDetailsModal}
       fullWidth
-      sx={{
-        "& .MuiDialog-paper": {
-          margin: isMobile ? 1 : isTablet ? 1 : 2,
-          maxHeight: isMobile ? "90vh" : "95vh",
-        },
-      }}
+      className={`request-product-details-modal ${getDialogClass()}`}
     >
-      <DialogTitle
-        sx={{
-          fontSize: isMobile ? "1rem" : "1.25rem",
-          padding: isMobile ? "12px 16px" : "16px 24px",
-          lineHeight: 1.2,
-        }}
-      >
-        جزئیات درخواست قطعه برای مشکل
-        {` : ${selectedProblem?.problemDescription}`}
-      </DialogTitle>
-      <DialogContent
-        sx={{
-          pt: "10px !important",
-          padding: isMobile ? "8px" : "16px",
-          overflow: "auto",
-        }}
-      >
-        {isMobile ? (
-          // Mobile Card Layout
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            {selectedProblem?.repairProductRequestDto?.map((product) => (
-              <Paper
-                key={product.requestedId}
-                elevation={2}
-                sx={{
-                  p: 2,
-                  padding: "8px 10px",
-                  borderRadius: 2,
-                  backgroundColor: "#f9f9f9",
-                }}
-              >
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    {/* <Box sx={{ fontWeight: "bold", fontSize: "0.9rem" }}>
-                      ردیف {index + 1}
-                    </Box> */}
-                    <Box
-                      sx={{
-                        color: product.isAccepted ? "green" : "red",
-                        fontWeight: "bold",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      {product.statusDescription}
-                    </Box>
-                  </Box>
-                  <Box sx={{ fontSize: "0.85rem" }}>
-                    <strong>نام کالا :</strong> {product.productName}
-                  </Box>
-                  <Box sx={{ fontSize: "0.85rem" }}>
-                    <strong>کد کالا :</strong> {product.productCode}
-                  </Box>
-                  <Box sx={{ fontSize: "0.85rem" }}>
-                    <strong>موجودی :</strong> _
-                  </Box>
-                  <Box sx={{ fontSize: "0.85rem" }}>
-                    <strong>تعداد :</strong> {product.qty}
-                  </Box>
-                  <Box sx={{ fontSize: "0.85rem" }}>
-                    <strong>برند / کشور :</strong> {product?.brand} /{" "}
-                    {product?.country}
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      gap: 1,
-                      marginTop: 1.5,
-                      justifyContent: "flex-start",
-                    }}
-                  >
-                    <Button
-                      // onClick={() => setShowProductRequestModal(true)}
-                      variant="contained"
-                      color="secondary"
-                      size="small"
-                      sx={{ fontSize: "0.75rem", minWidth: "60px" }}
-                    >
-                      کسری
-                    </Button>
-                    <Button
-                      // onClick={() => setShowProductRequestListModal(true)}
-                      variant="contained"
-                      color="secondary"
-                      size="small"
-                      sx={{ fontSize: "0.75rem", minWidth: "60px" }}
-                    >
-                      رد
-                    </Button>
-                  </Box>
-                </Box>
-              </Paper>
-            ))}
-          </Box>
-        ) : (
-          // Desktop/Tablet Table Layout
-          <TableContainer
-            component={Paper}
-            sx={{
-              maxHeight: "60vh",
-              overflow: "auto",
-              width: "100%",
-            }}
+      <DialogTitle className={getTitleClass()}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography>
+            جزئیات درخواست قطعه برای مشکل: {selectedProblem?.problemDescription}
+          </Typography>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => setShowBarcodeSection(!showBarcodeSection)}
+            startIcon={<QrCodeIcon />}
           >
-            <Table
-              size={isTablet ? "small" : "medium"}
-              sx={{
-                minWidth: isTablet ? 650 : 750,
-                tableLayout: "auto",
-              }}
-            >
-              <TableHead sx={{ backgroundColor: "#f0f0f0" }}>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      fontSize: isTablet ? "0.8rem" : "0.875rem",
-                      minWidth: 50,
-                    }}
-                  >
-                    ردیف
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      textAlign: "center",
-                      fontSize: isTablet ? "0.8rem" : "0.875rem",
-                      minWidth: isTablet ? 100 : 150,
-                      maxWidth: isTablet ? 140 : 200,
-                    }}
-                  >
-                    نام کالا
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      textAlign: "center",
-                      fontSize: isTablet ? "0.8rem" : "0.875rem",
-                      minWidth: isTablet ? 80 : 120,
-                      maxWidth: isTablet ? 100 : 140,
-                    }}
-                  >
-                    کد کالا
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      textAlign: "center",
-                      fontSize: isTablet ? "0.8rem" : "0.875rem",
-                      minWidth: isTablet ? 60 : 80,
-                      maxWidth: isTablet ? 80 : 100,
-                    }}
-                  >
-                    موجودی
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      textAlign: "center",
-                      fontSize: isTablet ? "0.8rem" : "0.875rem",
-                      minWidth: isTablet ? 50 : 70,
-                      maxWidth: isTablet ? 70 : 90,
-                    }}
-                  >
-                    تعداد
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      textAlign: "center",
-                      fontSize: isTablet ? "0.8rem" : "0.875rem",
-                      minWidth: isTablet ? 100 : 120,
-                      maxWidth: isTablet ? 130 : 160,
-                    }}
-                  >
-                    برند / کشور
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      textAlign: "center",
-                      fontSize: isTablet ? "0.8rem" : "0.875rem",
-                      minWidth: isTablet ? 140 : 160,
-                      maxWidth: isTablet ? 160 : 200,
-                    }}
-                  >
-                    عملیات
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {selectedProblem?.repairProductRequestDto?.map(
-                  (product, index) => (
-                    <TableRow key={product.requestedId}>
-                      <TableCell
-                        sx={{
-                          textAlign: "left",
-                          fontSize: isTablet ? "0.75rem" : "0.875rem",
-                        }}
-                      >
-                        {index + 1}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "center",
-                          fontSize: isTablet ? "0.75rem" : "0.875rem",
-                          wordBreak: "break-word",
-                        }}
-                      >
-                        {product.productName}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "center",
-                          fontSize: isTablet ? "0.75rem" : "0.875rem",
-                        }}
-                      >
-                        {product.productCode}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "center",
-                          fontSize: isTablet ? "0.75rem" : "0.875rem",
-                        }}
-                      >
-                        _
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "center",
-                          fontSize: isTablet ? "0.75rem" : "0.875rem",
-                        }}
-                      >
-                        {product.qty}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "center",
-                          fontSize: isTablet ? "0.75rem" : "0.875rem",
-                        }}
-                      >
-                        {product?.brand} / {product?.country}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: "center",
-                          padding: isTablet ? "4px" : "16px",
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: "flex",
-                            gap: isTablet ? 0.5 : 1,
-                            justifyContent: "center",
-                            flexWrap: isTablet ? "wrap" : "nowrap",
-                          }}
-                        >
-                          <Button
-                            // onClick={() => setShowProductRequestModal(true)}
-                            variant="contained"
-                            color="secondary"
-                            size={isTablet ? "small" : "small"}
-                            sx={{
-                              fontSize: isTablet ? "0.7rem" : "0.75rem",
-                              minWidth: isTablet ? "50px" : "60px",
-                              padding: isTablet ? "4px 8px" : "6px 12px",
-                            }}
-                          >
-                            کسری
-                          </Button>
-                          <Button
-                            // onClick={() => setShowProductRequestListModal(true)}
-                            variant="contained"
-                            color="secondary"
-                            size={isTablet ? "small" : "small"}
-                            sx={{
-                              fontSize: isTablet ? "0.7rem" : "0.75rem",
-                              minWidth: isTablet ? "50px" : "60px",
-                              padding: isTablet ? "4px 8px" : "6px 12px",
-                            }}
-                          >
-                            رد
-                          </Button>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  )
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+            {showBarcodeSection ? "پنهان کردن اسکنر" : "نمایش اسکنر بارکد"}
+          </Button>
+        </Box>
+      </DialogTitle>
+
+      <DialogContent className={getContentClass()}>
+        {/* Barcode Scanner Section */}
+        {showBarcodeSection && renderBarcodeSection()}
+
+        {/* Existing Content */}
+        {isMobile ? renderMobileLayout() : renderDesktopLayout()}
       </DialogContent>
-      <DialogActions
-        sx={{
-          padding: isMobile ? "8px 16px" : "16px 24px",
-        }}
-      >
+
+      <DialogActions className={getActionsClass()}>
         <Button
           onClick={() => setShowDetailsModal(false)}
           variant="outlined"

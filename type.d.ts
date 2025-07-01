@@ -97,6 +97,24 @@ interface IGenerateRepairRecaptionFactors {
     ];
   };
 }
+
+interface IGetReceptionForShowToSales {
+  productId: number;
+  productCode: string;
+  productName: string;
+  qty: number;
+  brand: string;
+  countryName: string;
+  lastPurchasePrice: number;
+  priceValue: number;
+  overridePrice?: number;
+  isSelectedForFactor: boolean;
+  isSelectedForFactorLocal: boolean;
+  isSelectedForRequest: boolean;
+  isCustomerOwner: boolean;
+  status?: boolean;
+  receptionDetailId?: number;
+}
 interface ISaleViewByCustomerAndByCarId {
   customerId: number;
   carId: number;
@@ -339,5 +357,128 @@ interface IUpdateRepairReceptionServicesForProblems {
         isDeleted: boolean;
       }[];
     }[];
+  };
+}
+interface IBuyRequest {
+  rejectReason: string;
+  requestId: number;
+  status: number;
+}
+interface IGetAllRepairProductRequestsByReceptionId {
+  repairCustomerProblemId: number;
+  problemDescription: string;
+  repairProductRequestDto: [
+    {
+      repairCustomerProblemId: number;
+      requestedByUserName: string;
+      problemDescription: string;
+      reviewedByUserName: string;
+      statusDescription: string;
+      requestedByUserId: number;
+      reviewedByUserId: number;
+      reviewedDate: string;
+      rejectReason: string;
+      requestedQty: number;
+      productCode: string;
+      productName: string;
+      requestedId: number;
+      isAccepted: boolean;
+      countryName: string;
+      createDate: string;
+      productId: number;
+      brandName: string;
+      statusId: number;
+      usedQty: number;
+      realQty: number;
+      status: number;
+    }
+  ];
+}
+interface IAddApprovedProductsToReception {
+  problemId: number;
+  barcode: string;
+}
+interface IGetRepairProductRequestSummary {
+  buyCompletedRequests: number;
+  buyRequestedRequests: number;
+  cancelledRequests: number;
+  repairReceptionId: number;
+  notFoundRequests: number;
+  totalRequests: number;
+  items: [
+    {
+      buyRequestedByUserFullname: string;
+      repairCustomerProblemId: number;
+      requestedByUserFullname: string;
+      buyRequestedByUserId: number;
+      problemDescription: string;
+      requestedByUserId: number;
+      statusDescription: string;
+      buyRejectReason: string;
+      requestedQty: number;
+      requestedId: number;
+      productCode: string;
+      productName: string;
+      countryName: string;
+      buyDateTime: string;
+      createDate: string;
+      productId: number;
+      brandName: string;
+      statusId: number;
+      realQty: number;
+      usedQty: number;
+      status: number;
+    }
+  ];
+}
+interface IGetReceptionProductRequestsById {
+  plateSection1: string;
+  plateSection2: string;
+  plateSection3: string;
+  plateSection4: string;
+  receptionDate: string;
+  receptionTime: string;
+  customerName: string;
+  plateNumber: string;
+  description: string;
+  customerId: number;
+  totalPrice: number;
+  status: boolean;
+  carId: number;
+  code: number;
+  id: number;
+  details: {
+    repairReceptionDetailId: number;
+    isCustomerOwner: boolean;
+    productCode: string;
+    barcodeCode: string;
+    countryName: string;
+    productName: string;
+    partNumber: string;
+    productId: number;
+    barcodeId: number;
+    mechanic: string;
+    partName: string;
+    title: string;
+    brand: string;
+  }[];
+}
+interface ICreateRepairFactorRequest {
+  repairFactorRequest: {
+    repairReceptionId: number;
+    customerId: number;
+    files?: { id: number; title: string }[];
+    selectedDetails: [
+      {
+        isSelectedForFactorLocal?: boolean;
+        isSelectedForRequest?: boolean;
+        isSelectedForFactor?: boolean;
+        overrideProductName: string;
+        isCustomerOwner: boolean;
+        overridePrice: number;
+        productId: number;
+        qty: number;
+      }
+    ];
   };
 }

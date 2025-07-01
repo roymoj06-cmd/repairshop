@@ -1,5 +1,5 @@
 import { Dispatch, FC, SetStateAction, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DialogActions,
   DialogContent,
@@ -28,38 +28,14 @@ interface IRequestProductListModalProps {
   setShowModal: Dispatch<SetStateAction<boolean | undefined>>;
   repairReceptionId?: string;
   showModal: boolean;
+  onRefresh?: () => void;
 }
-interface IGetAllRepairProductRequestsByReceptionId {
-  repairCustomerProblemId: number;
-  problemDescription: string;
-  repairProductRequestDto: [
-    {
-      repairCustomerProblemId: number;
-      requestedByUserName: string;
-      problemDescription: string;
-      reviewedByUserName: string;
-      statusDescription: string;
-      requestedByUserId: number;
-      reviewedByUserId: number;
-      reviewedDate: string;
-      rejectReason: string;
-      productCode: string;
-      productName: string;
-      requestedId: number;
-      createDate: string;
-      productId: number;
-      isAccepted: true;
-      country: string;
-      status: number;
-      brand: string;
-      qty: number;
-    }
-  ];
-}
+
 const RequestProductListModal: FC<IRequestProductListModalProps> = ({
   repairReceptionId,
   setShowModal,
   showModal,
+  onRefresh,
 }) => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedProblem, setSelectedProblem] =
@@ -68,6 +44,7 @@ const RequestProductListModal: FC<IRequestProductListModalProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+  const queryClient = useQueryClient();
 
   const {
     isLoading: isLoadingGetAllRepairProductRequestsByReceptionId,
@@ -83,6 +60,35 @@ const RequestProductListModal: FC<IRequestProductListModalProps> = ({
   ) => {
     setSelectedProblem(problem);
     setShowDetailsModal(true);
+  };
+
+  const handleSuccess = async () => {
+    // Invalidate and refetch all related queries to refresh the data
+    queryClient.invalidateQueries({
+      queryKey: ["repairReceptionId", repairReceptionId],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["getAllProductRequestsByReceptionId", repairReceptionId],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["getAllRepairProductRequestsByReceptionId", repairReceptionId],
+    });
+    const newData = await queryClient.fetchQuery({
+      queryKey: ["repairReceptionId", repairReceptionId],
+      queryFn: () =>
+        getAllRepairProductRequestsByReceptionId(repairReceptionId),
+    });
+    if (selectedProblem && newData?.data) {
+      const updatedProblem = newData.data.find(
+        (problem: IGetAllRepairProductRequestsByReceptionId) =>
+          problem.repairCustomerProblemId ===
+          selectedProblem.repairCustomerProblemId
+      );
+      if (updatedProblem) {
+        setSelectedProblem(updatedProblem);
+      }
+    }
+    onRefresh?.();
   };
 
   const renderMobileCard = (
@@ -270,6 +276,7 @@ const RequestProductListModal: FC<IRequestProductListModalProps> = ({
         showDetailsModal={showDetailsModal}
         setShowDetailsModal={setShowDetailsModal}
         selectedProblem={selectedProblem}
+        onSuccess={handleSuccess}
       />
     </>
   );
