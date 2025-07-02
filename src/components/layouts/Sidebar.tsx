@@ -44,13 +44,13 @@ const navConfig: NavItemProps[] = [
     title: "گاراژ من",
     path: dir.vehicles,
     icon: <DirectionsCar />,
-    guid: "326a7ebf-780b-4db0-9ca3-76b04fdc02f3",
+    guid: "",
   },
   {
     title: "پذیرش",
     path: dir.addServiceAdmission,
     icon: <CarRepair />,
-    guid: "5bf10848-d436-4a83-b97b-e282237fa09a",
+    guid: "",
   },
   {
     title: "مدیریت خودرو ها",

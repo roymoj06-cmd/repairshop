@@ -1,28 +1,27 @@
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { ExpandMore, FilterList } from "@mui/icons-material";
+import { toast } from "react-toastify";
+import { FC, useState } from "react";
 import {
-  Grid2 as Grid,
-  Pagination,
-  Box,
-  Paper,
-  Accordion,
   AccordionSummary,
   AccordionDetails,
-  Typography,
+  Grid2 as Grid,
+  Pagination,
+  Accordion,
+  Paper,
+  Box,
 } from "@mui/material";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { FC, useState } from "react";
-import { toast } from "react-toastify";
-import { ExpandMore, FilterList } from "@mui/icons-material";
 
 import { getRepairReceptions } from "@/service/repair/repair.service";
 import { getCustomers } from "@/service/customer/customer.service";
+import dir from "@/Router/dir";
 import {
   PlateNumberDisplay,
   EnhancedSelect,
   VehicleCard,
   Loading,
 } from "@/components";
-import dir from "@/Router/dir";
 
 const Vehicle: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
