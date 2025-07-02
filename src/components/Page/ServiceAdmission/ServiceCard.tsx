@@ -6,6 +6,7 @@ import {
   getStatusColor,
   getStatusText,
   addCommas,
+  formatDateTime,
 } from "@/utils";
 
 interface ServiceCardProps {
@@ -110,6 +111,26 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               {service.serviceCount}
             </span>
+          </div>
+        </div>
+
+        {/* Date Section */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-3">
+            <div className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-1">
+              تاریخ شروع
+            </div>
+            <div className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+              {formatDateTime(service.startDate)}
+            </div>
+          </div>
+          <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-3">
+            <div className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-1">
+              تاریخ پایان
+            </div>
+            <div className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+              {formatDateTime(service.endDate)}
+            </div>
           </div>
         </div>
 

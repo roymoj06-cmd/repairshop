@@ -1,26 +1,30 @@
 import { Paper } from "@mui/material";
+import DatePicker, { DateObject } from "react-multi-date-picker";
+import TimePicker from "react-multi-date-picker/plugins/time_picker";
+import persian_fa from "react-date-object/locales/persian_fa";
+import persian from "react-date-object/calendars/persian";
 
 import { EnhancedSelect, EnhancedInput } from "@/components";
 import { formatTimeDisplay, ServiceFormData } from "@/utils";
 
 interface ServiceFormProps {
-  problems: SelectOption[];
-  repairServices: SelectOption[];
-  mechanics: SelectOption[];
+  onServiceChange: (index: number, field: string, value: any) => void;
+  onProblemChange: (value: SelectOption | null) => void;
   selectedProblem: SelectOption | null;
   currentServices: ServiceFormData[];
-  onProblemChange: (value: SelectOption | null) => void;
-  onServiceChange: (index: number, field: string, value: any) => void;
+  repairServices: SelectOption[];
+  mechanics: SelectOption[];
+  problems: SelectOption[];
 }
 
 const ServiceForm: React.FC<ServiceFormProps> = ({
-  problems,
-  repairServices,
-  mechanics,
   selectedProblem,
   currentServices,
   onProblemChange,
   onServiceChange,
+  repairServices,
+  mechanics,
+  problems,
 }) => {
   return (
     <>
@@ -146,6 +150,85 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                       disabled={true}
                       type="number"
                     />
+                  </div>
+
+                  {/* Date/Time Section */}
+                  <div className="service-item__grid service-item__grid--two-cols mt-4">
+                    <div className="flex flex-col">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        تاریخ و ساعت شروع
+                      </label>
+                      <DatePicker
+                        className="custom-datepicker"
+                        containerClassName="w-full custom-datepicker-container"
+                        value={
+                          service.startDate
+                            ? new DateObject({
+                                calendar: persian,
+                                date: new Date(service.startDate),
+                              })
+                            : null
+                        }
+                        onChange={(date: DateObject) => {
+                          onServiceChange(
+                            index,
+                            "startDate",
+                            date ? date.toDate().toISOString() : ""
+                          );
+                        }}
+                        plugins={[<TimePicker position="bottom" />]}
+                        placeholder="انتخاب تاریخ و ساعت شروع"
+                        calendarPosition="bottom"
+                        onOpenPickNewDate={false}
+                        format="YYYY/MM/DD HH:mm"
+                        locale={persian_fa}
+                        calendar={persian}
+                        portal={true}
+                        zIndex={2001}
+                        style={{
+                          width: "100%",
+                          height: "56px",
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        تاریخ و ساعت پایان
+                      </label>
+                      <DatePicker
+                        className="custom-datepicker"
+                        containerClassName="w-full custom-datepicker-container"
+                        value={
+                          service.endDate
+                            ? new DateObject({
+                                calendar: persian,
+                                date: new Date(service.endDate),
+                              })
+                            : null
+                        }
+                        onChange={(date: DateObject) => {
+                          onServiceChange(
+                            index,
+                            "endDate",
+                            date ? date.toDate().toISOString() : ""
+                          );
+                        }}
+                        placeholder="انتخاب تاریخ و ساعت پایان"
+                        calendarPosition="bottom-left"
+                        onOpenPickNewDate={false}
+                        locale={persian_fa}
+                        calendar={persian}
+                        format="YYYY/MM/DD HH:mm"
+                        plugins={[<TimePicker position="bottom" />]}
+                        portal={true}
+                        zIndex={2001}
+                        style={{
+                          width: "100%",
+                          height: "56px",
+                        }}
+                      />
+                    </div>
                   </div>
 
                   {/* Time Display Helper */}

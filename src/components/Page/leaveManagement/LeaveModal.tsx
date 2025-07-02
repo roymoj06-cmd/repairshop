@@ -6,6 +6,7 @@ import gregorian from "react-date-object/calendars/gregorian";
 import persian from "react-date-object/calendars/persian";
 import { FC, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import {
   DialogContent,
   DialogActions,
@@ -21,7 +22,6 @@ import {
   createRepairMechanicLeave,
   updateRepairMechanicLeave,
 } from "@/service/repairMechanicLeaves/repairMechanicLeaves.service";
-import { toast } from "react-toastify";
 
 interface LeaveModalProps {
   editingLeave?: IGetAllMechanicLeaves | null;
@@ -201,7 +201,7 @@ const LeaveModal: FC<LeaveModalProps> = ({
                   zIndex={2001}
                   style={{
                     width: "100%",
-                    height: "56px"
+                    height: "56px",
                   }}
                 />
               </Box>

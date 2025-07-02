@@ -282,6 +282,8 @@ interface Service {
   serviceCount: number;
   totalPrice: number;
   serviceId: number;
+  startDate: string;
+  endDate: string;
   status: number;
   id: number;
 }

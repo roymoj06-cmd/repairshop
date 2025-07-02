@@ -533,6 +533,31 @@ export const getStatusColor = (
   }
 };
 
+// Format datetime for display
+export const formatDateTime = (dateString: string): string => {
+  if (!dateString) return "تعیین نشده";
+
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "تاریخ نامعتبر";
+
+    const persianDate = date.toLocaleDateString("fa-IR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    const persianTime = date.toLocaleTimeString("fa-IR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    return `${persianDate} ساعت ${persianTime}`;
+  } catch (error) {
+    return "تاریخ نامعتبر";
+  }
+};
+
 // Service form data interface
 export interface ServiceFormData {
   mechanicId: SelectOption | undefined;
@@ -541,6 +566,8 @@ export interface ServiceFormData {
   servicePrice: number | undefined;
   totalPrice: number | undefined;
   serviceCount: number;
+  startDate?: string;
+  endDate?: string;
   originalServiceId?: number;
   isDeleted?: boolean;
 }

@@ -11,33 +11,33 @@ import { Button, ServiceForm } from "@/components";
 import { ServiceFormData } from "@/utils";
 
 interface ServiceManagementModalProps {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: () => void;
+  onServiceChange: (index: number, field: string, value: any) => void;
   selectedService: Service | IGetAllRepairReceptionServices | null;
+  onProblemChange: (value: SelectOption | null) => void;
   selectedProblem: SelectOption | null;
   currentServices: ServiceFormData[];
-  problems: SelectOption[];
   repairServices: SelectOption[];
   mechanics: SelectOption[];
+  problems: SelectOption[];
+  onSubmit: () => void;
+  onClose: () => void;
   isLoading: boolean;
-  onProblemChange: (value: SelectOption | null) => void;
-  onServiceChange: (index: number, field: string, value: any) => void;
+  open: boolean;
 }
 
 const ServiceManagementModal: React.FC<ServiceManagementModalProps> = ({
-  open,
-  onClose,
-  onSubmit,
   selectedService,
   selectedProblem,
   currentServices,
-  problems,
+  onProblemChange,
+  onServiceChange,
   repairServices,
   mechanics,
   isLoading,
-  onProblemChange,
-  onServiceChange,
+  problems,
+  onSubmit,
+  onClose,
+  open,
 }) => {
   const getModalTitle = () => {
     if (selectedService) {
