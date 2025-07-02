@@ -1,30 +1,33 @@
-import { Add } from "@mui/icons-material";
 import { Box, Grid2 as Grid, Tab, Tabs, Typography } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import { FC, useEffect, useRef, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { Add } from "@mui/icons-material";
 import { toast } from "react-toastify";
 
-import {
-  Button,
-  CustomerProblems,
-  EnhancedSelect,
-  Loading,
-  PlateManagementDialog,
-  RepairReceptionProducts,
-  RepairReceptionService,
-} from "@/components";
 import { getCustomers } from "@/service/customer/customer.service";
 import {
   createRepairReception,
   getCustomerCars,
 } from "@/service/repair/repair.service";
 import UploaderDocs from "./UploaderDocs";
+import {
+  RepairReceptionProducts,
+  RepairReceptionService,
+  PlateManagementDialog,
+  CustomerProblems,
+  EnhancedSelect,
+  Loading,
+  Button,
+} from "@/components";
 
 const AddServiceAdmissionForm: FC = () => {
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
   const [showNewPlateDialog, setShowNewPlateDialog] = useState(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
+  const [repairReceptionId, setRepairReceptionId] = useState<
+    string | undefined
+  >();
   const [activeTab, setActiveTab] = useState(0);
 
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -85,6 +88,7 @@ const AddServiceAdmissionForm: FC = () => {
     onSuccess: (data: any) => {
       if (data?.isSuccess) {
         toast.success(data?.message);
+        setRepairReceptionId(data?.data?.id);
         reset();
       } else {
         toast?.error(data?.message);
@@ -244,26 +248,29 @@ const AddServiceAdmissionForm: FC = () => {
             </Box>
 
             {/* تب مشکلات */}
-            {activeTab === 0 && <CustomerProblems />}
+            {activeTab === 0 && (
+              <CustomerProblems repairReceptionId={repairReceptionId} />
+            )}
 
             {/* تب تعمیرات */}
-            {activeTab === 1 && <RepairReceptionService />}
+            {activeTab === 1 && (
+              <RepairReceptionService repairReceptionId={repairReceptionId} />
+            )}
 
             {/* تب قطعات */}
-            {activeTab === 2 && <RepairReceptionProducts />}
+            {activeTab === 2 && (
+              <RepairReceptionProducts repairReceptionId={repairReceptionId} />
+            )}
 
             {/* تب مستندات */}
             {activeTab === 3 && (
               <Box>
-                <Typography variant="h6" className="mb-4">
-                  مستندات
-                </Typography>
                 <Grid size={{ xs: 12 }}>
                   <Box className="mt-4">
-                    <Typography variant="subtitle1" className="mb-2">
+                    <Typography variant="h6" className="mb-2">
                       آپلود فایل
                     </Typography>
-                    <UploaderDocs />
+                    <UploaderDocs repairReceptionId={repairReceptionId} />
                   </Box>
                 </Grid>
               </Box>
