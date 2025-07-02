@@ -488,3 +488,65 @@ export const formatTimeWithZero = (value: string | undefined): string => {
   if (!value) return "00";
   return value.toString().length > 1 ? `${value}` : `0${value}`;
 };
+// Utility function to convert minutes to hours and minutes
+export const formatTimeDisplay = (minutes: number): string => {
+  if (!minutes || minutes <= 0) return "0 ساعت";
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (hours === 0) {
+    return `${remainingMinutes} دقیقه`;
+  } else if (remainingMinutes === 0) {
+    return `${hours} ساعت`;
+  } else {
+    return `${hours} ساعت و ${remainingMinutes} دقیقه`;
+  }
+};
+
+// Status helpers
+export const getStatusText = (status: number): string => {
+  switch (status) {
+    case 0:
+      return "در انتظار";
+    case 1:
+      return "در حال انجام";
+    case 2:
+      return "تکمیل شده";
+    default:
+      return "نامشخص";
+  }
+};
+
+export const getStatusColor = (
+  status: number
+): "warning" | "info" | "success" | "default" => {
+  switch (status) {
+    case 0:
+      return "warning";
+    case 1:
+      return "info";
+    case 2:
+      return "success";
+    default:
+      return "default";
+  }
+};
+
+// Service form data interface
+export interface ServiceFormData {
+  mechanicId: SelectOption | undefined;
+  serviceId: SelectOption | undefined;
+  estimatedMinute: number | undefined;
+  servicePrice: number | undefined;
+  totalPrice: number | undefined;
+  serviceCount: number;
+  originalServiceId?: number;
+  isDeleted?: boolean;
+}
+
+// Extended select option interface
+export interface ExtendedSelectOption extends SelectOption {
+  estimatedMinute?: number;
+  price?: number;
+}

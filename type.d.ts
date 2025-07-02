@@ -71,7 +71,7 @@ interface IGetRepairReceptions {
   receptionDate: string;
   receptionTime: string;
   customerName: string;
-  carTipeTitle: string;
+  carTipTitle: string;
   vehicleName: string;
   plateNumber: string;
   description: string;

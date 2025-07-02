@@ -3,19 +3,14 @@ import { Add } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import { FC, useState } from "react";
 
+import { ConfirmDialog, ServiceModal, Loading, Button } from "@/components";
+import ServiceCard from "@/components/Page/serviceManagement/ServiceCard";
 import {
   getAllRepairServices,
   createRepairService,
   UpdateRepairService,
   deleteRepairService,
 } from "@/service/repairServices/repairServices.service";
-import {
-  ConfirmDialog,
-  ServiceModal,
-  ServiceCard,
-  Loading,
-  Button,
-} from "@/components";
 
 const ServiceManagement: FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

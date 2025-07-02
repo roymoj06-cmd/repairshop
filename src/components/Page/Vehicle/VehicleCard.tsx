@@ -61,7 +61,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
                 style={{ color: mode === "dark" ? "#60a5fa" : undefined }}
               />
               <span style={{ color: mode === "dark" ? "#e0e0e0" : undefined }}>
-                {vehicle?.carTipeTitle}
+                {vehicle?.carTipTitle}
               </span>
             </div>
             <div className="info-item">
