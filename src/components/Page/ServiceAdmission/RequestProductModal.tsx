@@ -339,11 +339,11 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
         </Box>
         <Box sx={{ py: isMobile ? 1 : 2 }}>
           <EnhancedSelect
-            onChange={handleProductSelection}
+            containerClassName={isMobile ? "mb-3" : "mb-5"}
             loading={isPendingGetProductsThatContainsText}
             onInputChange={handleSearchProduct}
+            onChange={handleProductSelection}
             placeholder="جست و جوی کالا"
-            containerClassName={isMobile ? "mb-3" : "mb-5"}
             storeValueOnly={true}
             label="جست و جوی کالا"
             className="font-12"

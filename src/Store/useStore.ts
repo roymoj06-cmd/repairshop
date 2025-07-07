@@ -53,7 +53,7 @@ export const useStore = create<StoreState>()(
             set({
               userAccesses: accessData.data,
             });
-            window.location.replace("/");
+            window.location.replace("/dashboard/vehicles");
           } else {
             set({ isLoading: false });
             toast?.error(userData?.message);
@@ -66,8 +66,8 @@ export const useStore = create<StoreState>()(
       },
       logout: () => {
         // Save theme preference before clearing localStorage
-        const savedTheme = localStorage.getItem('theme');
-        
+        const savedTheme = localStorage.getItem("theme");
+
         set({
           user: null,
           isAuthenticated: false,
@@ -75,15 +75,14 @@ export const useStore = create<StoreState>()(
         });
         Cookies.remove("token");
         localStorage.clear();
-        
+
         // Restore theme preference after clearing localStorage
         if (savedTheme) {
-          localStorage.setItem('theme', savedTheme);
+          localStorage.setItem("theme", savedTheme);
         }
-        
-        window.location.replace("/login");
-      },
 
+        window.location.replace("/#/login");
+      },
       userAccesses: [],
       clearAuth: () => {
         set({

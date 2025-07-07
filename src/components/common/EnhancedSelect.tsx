@@ -463,7 +463,10 @@ const EnhancedSelectImplementation = forwardRef<
 
     if (searchable) {
       return (
-        <div className={`w-full ${containerClassName}`} ref={autocompleteRef}>
+        <div
+          className={`w-full cursor-pointer ${containerClassName}`}
+          ref={autocompleteRef}
+        >
           <Autocomplete
             ref={(elem: any) => {
               if (ref) {
@@ -476,6 +479,7 @@ const EnhancedSelectImplementation = forwardRef<
             }}
             options={options}
             multiple={multiple}
+            disableCloseOnSelect={multiple}
             value={selectedValue}
             onChange={(_, newValue) => handleChange(newValue)}
             onInputChange={(_, newInputValue) => {
@@ -575,7 +579,10 @@ const EnhancedSelectImplementation = forwardRef<
     }
 
     return (
-      <div className={`w-full ${containerClassName}`} ref={selectRef}>
+      <div
+        className={`w-full cursor-pointer ${containerClassName}`}
+        ref={selectRef}
+      >
         <FormControl
           fullWidth={fullWidth}
           className={className}

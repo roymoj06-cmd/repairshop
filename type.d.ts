@@ -23,11 +23,11 @@ interface UserAccessResponse {
 }
 interface IUpdateRepairReception {
   repairReception: {
-    repairReceptionId?: number;
+    repairReceptionId: number;
     description?: string;
-    customerId: number;
+    customerId?: number;
     fileIds?: number[];
-    carId: number;
+    carId?: number;
     details?: {
       repairReceptionDetailId: number;
       overridedUnitPrice: number;

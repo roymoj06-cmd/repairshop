@@ -30,6 +30,7 @@ import {
   RequestProductModal,
   Loading,
   CreateFactorForReception,
+  RequestProductFromCustomerModal,
 } from "@/components";
 import ConfirmDeleteDialog from "@/components/common/ConfirmDeleteDialog";
 
@@ -53,6 +54,10 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
     useState<boolean>();
   const [selectedProductForDelete, setSelectedProductForDelete] =
     useState<any>(null);
+  const [
+    showProductRequestFromCustomerModal,
+    setShowProductRequestFromCustomerModal,
+  ] = useState<boolean>();
 
   const { data: repairReception, isLoading: isLoadingRepairReception } =
     useQuery({
@@ -277,6 +282,15 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
         >
           ایجاد فاکتور
         </Button>
+        <Button
+          onClick={() => setShowProductRequestFromCustomerModal(true)}
+          variant="contained"
+          color="secondary"
+          size="large"
+          fullWidth={isMobile}
+        >
+          رسید کالا از مشتری
+        </Button>
       </Box>
       {repairReception?.details && repairReception.details.length > 0 ? (
         <Box>
@@ -343,6 +357,14 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
             receptionDate: repairReception.receptionDate || "",
           }}
           onSuccess={handleRefreshData}
+        />
+      )}
+      {showProductRequestFromCustomerModal && (
+        <RequestProductFromCustomerModal
+          setShowModal={setShowProductRequestFromCustomerModal}
+          showModal={showProductRequestFromCustomerModal}
+          repairReceptionId={repairReceptionId}
+          onRefresh={handleRefreshData}
         />
       )}
     </div>

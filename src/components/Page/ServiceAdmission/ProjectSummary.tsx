@@ -25,7 +25,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({ problems }) => {
   return (
     <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
       <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 text-center">
-        خلاصه کل پروژه
+        خلاصه کل خدمات
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-blue-100 dark:bg-blue-900/30 rounded-lg p-4 text-center">
