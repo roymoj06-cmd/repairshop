@@ -500,3 +500,28 @@ interface ICreateMechanicProductRequest {
   problemId: number;
   fileId: number;
 }
+interface IMechanicPerformance {
+  serviceId?: number;
+  fromDate?: string;
+  userId: number;
+  toDate?: string;
+}
+interface IMechanicPerformanceResponse {
+  totalTimeSpentMinutes: number;
+  mechanicName: string;
+  totalProfit: number;
+  fromDate: string;
+  userId: number;
+  toDate: string;
+  services: {
+    commissionPercent: number;
+    timeSpentMinutes: number;
+    servicePrice: number;
+    serviceName: string;
+    serviceId: number;
+    startDate: string;
+    basePrice: number;
+    endDate: string;
+    profit: number;
+  }[];
+}

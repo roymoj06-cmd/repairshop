@@ -93,8 +93,9 @@ const MechanicLedger: FC<IMechanicLedgerProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="lg"
-      fullWidth
+      // maxWidth="lg"
+      // fullWidth
+      fullScreen
       PaperProps={{
         sx: {
           minHeight: "80vh",

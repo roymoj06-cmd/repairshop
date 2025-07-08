@@ -35,6 +35,10 @@ export const routesConfig: RouteConfig[] = [
         path: dir.leaveManagement,
         title: "مدیریت مرخصی ها",
       },
+      {
+        path: dir.mechanicPerformance,
+        title: "گزارش عملکرد",
+      },
     ],
   },
 ];

@@ -127,4 +127,7 @@ export const proxyServerUrl = {
   createMechanicProductRequest: `${panelServiceBaseUrl}/RepairMechanicProductRequest/CreateMechanicProductRequest`,
   deleteMechanicProductRequest: `${panelServiceBaseUrl}/RepairMechanicProductRequest/DeleteMechanicProductRequest`,
   getMechanicProductRequest: `${panelServiceBaseUrl}/RepairMechanicProductRequest/GetMechanicProductRequest`,
+
+  // MechanicPerformance Controller
+  getMechanicPerformance: `${panelServiceBaseUrl}/MechanicPerformance/GetMechanicPerformance`,
 };
