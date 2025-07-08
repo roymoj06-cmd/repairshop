@@ -260,14 +260,15 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
             className="flex items-start mb-3"
           >
             <EnhancedInput
-              name={`problem-${index}`}
-              value={getProblemDescription(index)}
               onChange={(e) => updateProblemDescription(index, e.target.value)}
+              value={getProblemDescription(index)}
               label={`مشکل ${index + 1}`}
+              name={`problem-${index}`}
               enableSpeechToText
               isTextArea
               fullWidth
-              rows={1}
+              minRows={1}
+              maxRows={8}
               disabled={
                 createMutation.isPending ||
                 updateMutation.isPending ||

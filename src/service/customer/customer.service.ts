@@ -16,3 +16,10 @@ export const getCustomers = async (searchText: string) => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const getCustomerAccountBalance = async (userId: number) => {
+  const reqConfig: AxiosRequestConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getCustomerAccountBalance}?userId=${userId}`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

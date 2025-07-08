@@ -1,6 +1,8 @@
 import { IconButton, Modal, Paper, Typography } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
+import { Delete as DeleteIcon } from "@mui/icons-material";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import {
   DirectionsCar,
   CalendarToday,
@@ -8,11 +10,14 @@ import {
   AttachMoney,
 } from "@mui/icons-material";
 
+import { deleteRepairReception } from "@/service/repair/repair.service";
+import { PlateNumberDisplay, ConfirmDeleteDialog } from "@/components";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "@/context/ThemeContext";
-import { PlateNumberDisplay } from "@/components";
 
 interface VehicleCardProps {
   vehicle: IGetRepairReceptions;
+  onRefresh?: () => void;
 }
 const getStatusText = (status: boolean) => {
   return status ? "فاکتور شده" : "فاکتور نشده";
@@ -20,11 +25,48 @@ const getStatusText = (status: boolean) => {
 const formatPrice = (price: number) => {
   return price.toLocaleString();
 };
-const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
+const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
   const { mode } = useTheme();
+  const queryClient = useQueryClient();
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
   const handleCloseDescription = () => {
     setIsDescriptionModalOpen(false);
+  };
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteRepairReception,
+    onSuccess: (data: any) => {
+      if (data?.isSuccess) {
+        toast.success(data?.message);
+        queryClient.invalidateQueries({
+          queryKey: ["repairReceptions"],
+        });
+        onRefresh?.();
+      } else {
+        toast.error(data?.message);
+      }
+      setShowDeleteDialog(false);
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "خطا در حذف پذیرش");
+      setShowDeleteDialog(false);
+    },
+  });
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteMutation.mutate({ repairReceptionId: vehicle.id });
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteDialog(false);
   };
 
   return (
@@ -37,6 +79,29 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             padding: "0 8px 8px",
           }}
         >
+          {/* Delete button in top-right corner */}
+          <div className="delete-button">
+            <IconButton
+              onClick={handleDeleteClick}
+              size="small"
+              sx={{
+                backgroundColor:
+                  mode === "dark"
+                    ? "rgba(239, 68, 68, 0.1)"
+                    : "rgba(239, 68, 68, 0.1)",
+                color: "#ef4444",
+                "&:hover": {
+                  backgroundColor:
+                    mode === "dark"
+                      ? "rgba(239, 68, 68, 0.2)"
+                      : "rgba(239, 68, 68, 0.2)",
+                },
+              }}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </div>
+
           <div className="py-2 w-full mx-auto">
             <PlateNumberDisplay
               plateSection1={vehicle.plateSection1}
@@ -94,6 +159,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
           </div>
         </div>
       </Paper>
+
       <Modal
         open={isDescriptionModalOpen}
         onClose={handleCloseDescription}
@@ -120,6 +186,14 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
           </div>
         </div>
       </Modal>
+
+      <ConfirmDeleteDialog
+        open={showDeleteDialog}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="حذف پذیرش"
+        content={`آیا مطمئن هستید که می‌خواهید پذیرش مشتری "${vehicle.customerName}" را حذف کنید؟`}
+      />
     </>
   );
 };

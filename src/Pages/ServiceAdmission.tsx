@@ -1,8 +1,8 @@
+import { useSearchParams } from "react-router-dom";
 import { Box, Paper } from "@mui/material";
 import { FC } from "react";
 
 import { ServiceAdmissionForm } from "@/components";
-import { useSearchParams } from "react-router-dom";
 
 const ServiceAdmission: FC = () => {
   const [searchParams] = useSearchParams();
@@ -10,7 +10,7 @@ const ServiceAdmission: FC = () => {
 
   return (
     <Box className="py-6">
-      <Paper className="p-6">
+      <Paper className="p-4">
         <ServiceAdmissionForm repairReceptionId={repairReceptionId} />
       </Paper>
     </Box>

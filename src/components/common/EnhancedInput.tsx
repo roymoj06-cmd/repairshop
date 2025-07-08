@@ -42,6 +42,7 @@ export interface EnhancedInputProps<T extends FieldValues = FieldValues>
   disabled?: boolean;
   defaultValue?: any;
   maxRows?: number;
+  minRows?: number;
   error?: boolean;
   isRtl?: boolean;
   label?: string;
@@ -64,17 +65,18 @@ const EnhancedInput = <T extends FieldValues = FieldValues>(
     error = false,
     type = "text",
     isRtl = true,
-    maxRows = 5,
+    defaultValue,
+    maxRows = 10,
+    minRows = 1,
     helperText,
     rows = 1,
     onChange,
+    control,
     label,
+    rules,
     value,
     name,
     icon,
-    control,
-    rules,
-    defaultValue,
     ref,
     ...rest
   } = props;
@@ -124,6 +126,7 @@ const EnhancedInput = <T extends FieldValues = FieldValues>(
             type={isNumberType && formatNumber ? "text" : originalType}
             isRtl={isRtl}
             maxRows={maxRows}
+            minRows={minRows}
             helperText={fieldState.error?.message || helperText}
             rows={rows}
             label={label}
@@ -150,6 +153,7 @@ const EnhancedInput = <T extends FieldValues = FieldValues>(
       type={isNumberType && formatNumber ? "text" : originalType}
       isRtl={isRtl}
       maxRows={maxRows}
+      minRows={minRows}
       helperText={helperText}
       rows={rows}
       onChange={onChange}
@@ -182,7 +186,8 @@ const EnhancedInputInternal = forwardRef<
       error = false,
       type = "text",
       isRtl = true,
-      maxRows = 5,
+      maxRows = 10,
+      minRows = 1,
       helperText,
       rows = 1,
       onChange,
@@ -282,7 +287,16 @@ const EnhancedInputInternal = forwardRef<
           onChange(syntheticEvent);
         }
       }
-    }, [results, enableSpeechToText, formatNumber, isNumberType, formattedValue, lastProcessedResult, name, onChange]);
+    }, [
+      results,
+      enableSpeechToText,
+      formatNumber,
+      isNumberType,
+      formattedValue,
+      lastProcessedResult,
+      name,
+      onChange,
+    ]);
 
     useEffect(() => {
       if (isRecording) {
@@ -316,12 +330,12 @@ const EnhancedInputInternal = forwardRef<
     ) => {
       let newValue = e.target.value;
       let processedValue = newValue;
-      
+
       // Handle number formatting
       if (formatNumber && isNumberType) {
         // Remove existing commas first
         const cleanValue = removeComma(newValue);
-        
+
         // Check if it's a valid number (including empty string)
         if (cleanValue === "" || !isNaN(Number(cleanValue))) {
           // Format with commas if not empty
@@ -336,12 +350,15 @@ const EnhancedInputInternal = forwardRef<
           return; // Don't update anything if invalid
         }
       }
-      
+
       setFormattedValue(processedValue);
-      
+
       if (onChange) {
         // Create a new event with the clean value for number inputs
-        const eventValue = formatNumber && isNumberType ? removeComma(processedValue) : processedValue;
+        const eventValue =
+          formatNumber && isNumberType
+            ? removeComma(processedValue)
+            : processedValue;
         const syntheticEvent = {
           ...e,
           target: { ...e.target, value: eventValue },
@@ -351,7 +368,13 @@ const EnhancedInputInternal = forwardRef<
     };
 
     const inputType =
-      actualType === "password" ? (showPassword ? "text" : "password") : actualType === "number" && formatNumber ? "text" : actualType;
+      actualType === "password"
+        ? showPassword
+          ? "text"
+          : "password"
+        : actualType === "number" && formatNumber
+        ? "text"
+        : actualType;
 
     const renderPasswordIcon = () => {
       if (actualType !== "password") return null;
@@ -494,7 +517,7 @@ const EnhancedInputInternal = forwardRef<
           onChange={handleChange}
           className={`${isRtl ? "rtl:text-right" : "ltr:text-left"} w-full`}
           multiline={isTextArea}
-          rows={isTextArea ? rows : undefined}
+          minRows={isTextArea ? minRows : undefined}
           maxRows={isTextArea ? maxRows : undefined}
           disabled={disabled}
           InputProps={{

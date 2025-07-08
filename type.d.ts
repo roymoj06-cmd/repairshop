@@ -21,9 +21,19 @@ interface UserAccessResponse {
   accesses: UserAccess[];
   role: string;
 }
+interface IUpdateRepairReceptionByProblem {
+  repairReception: {
+    repairCustomerProblemId: number;
+    details: {
+      isCustomerOwner: boolean;
+      productId: number;
+      qty: number;
+    }[];
+  };
+}
 interface IUpdateRepairReception {
   repairReception: {
-    repairReceptionId: number;
+    repairReceptionId?: number;
     description?: string;
     customerId?: number;
     fileIds?: number[];
@@ -484,4 +494,9 @@ interface ICreateRepairFactorRequest {
       }
     ];
   };
+}
+interface ICreateMechanicProductRequest {
+  productTitle: string;
+  problemId: number;
+  fileId: number;
 }

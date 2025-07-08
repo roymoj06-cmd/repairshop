@@ -28,8 +28,8 @@ export const createRepairReceptionService = async (
   data: ICreateOrUpdateRepairReceptionService
 ) => {
   const reqConfig = {
-    method: "POST",
-    url: `${proxyServerUrl.createRepairReceptionService}`,
+    method: "PUT",
+    url: `${proxyServerUrl.saveRepairReceptionServices}`,
     data: data,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
@@ -59,7 +59,7 @@ export const updateRepairReceptionServicesForProblems = async (
 ) => {
   const reqConfig = {
     method: "PUT",
-    url: `${proxyServerUrl.updateRepairReceptionServicesForProblems}`,
+    url: `${proxyServerUrl.saveRepairReceptionServices}`,
     data: data,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);

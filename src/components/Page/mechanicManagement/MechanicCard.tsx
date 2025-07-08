@@ -1,14 +1,20 @@
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, AccountBalance } from "@mui/icons-material";
 import { IconButton, Paper } from "@mui/material";
 import { FC } from "react";
 
 interface MechanicCardProps {
   onEdit: (mechanic: IGetAllMechanics) => void;
   onDelete: (id: string) => void;
+  onViewLedger: (mechanic: IGetAllMechanics) => void;
   mechanic: IGetAllMechanics;
 }
 
-const MechanicCard: FC<MechanicCardProps> = ({ mechanic, onEdit, onDelete }) => {
+const MechanicCard: FC<MechanicCardProps> = ({
+  mechanic,
+  onEdit,
+  onDelete,
+  onViewLedger,
+}) => {
   const getExpertLevelText = (level: number) => {
     switch (level) {
       case 1:
@@ -38,55 +44,83 @@ const MechanicCard: FC<MechanicCardProps> = ({ mechanic, onEdit, onDelete }) => 
           </h3>
           <div className="flex items-center gap-2">
             <IconButton
+              onClick={() => onViewLedger(mechanic)}
+              className="!p-1 hover:bg-gray-200 dark:hover:bg-gray-700"
+              title="دفتر حساب"
+            >
+              <AccountBalance
+                className="text-green-500 dark:text-green-400"
+                style={{ fontSize: 18 }}
+              />
+            </IconButton>
+            <IconButton
               onClick={() => onEdit(mechanic)}
               className="!p-1 hover:bg-gray-200 dark:hover:bg-gray-700"
               title="ویرایش"
             >
-              <Edit className="text-blue-500 dark:text-blue-400" style={{ fontSize: 18 }} />
+              <Edit
+                className="text-blue-500 dark:text-blue-400"
+                style={{ fontSize: 18 }}
+              />
             </IconButton>
             <IconButton
               onClick={() => onDelete(mechanic.id.toString())}
               className="!p-1 hover:bg-gray-200 dark:hover:bg-gray-700"
               title="حذف"
             >
-              <Delete className="text-red-500 dark:text-red-400" style={{ fontSize: 18 }} />
+              <Delete
+                className="text-red-500 dark:text-red-400"
+                style={{ fontSize: 18 }}
+              />
             </IconButton>
           </div>
         </div>
         <hr className="border-gray-300 dark:border-gray-600 mb-2" />
-        
+
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600 dark:text-gray-400">نام کاربری :</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              نام کاربری :
+            </span>
             <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
               {mechanic.userName}
             </span>
           </div>
-          
+
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600 dark:text-gray-400">سطح تخصص :</span>
-            <span className={`text-sm font-medium px-2 py-1 rounded-full ${
-              mechanic.expertLevel === 2 
-                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-            }`}>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              سطح تخصص :
+            </span>
+            <span
+              className={`text-sm font-medium px-2 py-1 rounded-full ${
+                mechanic.expertLevel === 2
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+              }`}
+            >
               {getExpertLevelText(mechanic.expertLevel)}
             </span>
           </div>
-          
+
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600 dark:text-gray-400">وضعیت :</span>
-            <span className={`text-sm font-medium px-2 py-1 rounded-full ${
-              mechanic.isActive 
-                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-            }`}>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              وضعیت :
+            </span>
+            <span
+              className={`text-sm font-medium px-2 py-1 rounded-full ${
+                mechanic.isActive
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+              }`}
+            >
               {getStatusText(mechanic.isActive)}
             </span>
           </div>
-          
+
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600 dark:text-gray-400">تاریخ ایجاد :</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              تاریخ ایجاد :
+            </span>
             <span className="text-sm text-gray-800 dark:text-gray-200">
               {formatDate(mechanic.createDm)}
             </span>
@@ -97,4 +131,4 @@ const MechanicCard: FC<MechanicCardProps> = ({ mechanic, onEdit, onDelete }) => 
   );
 };
 
-export default MechanicCard; 
+export default MechanicCard;

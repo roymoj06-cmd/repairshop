@@ -34,7 +34,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               </span>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-800 dark:text-gray-200 line-clamp-1">
+              <h3 className="font-semibold text-gray-800 dark:text-gray-200">
                 {service.serviceTitle}
               </h3>
               <div className="mt-1">
