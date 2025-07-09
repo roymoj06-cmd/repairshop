@@ -1,5 +1,19 @@
-import { users, workHours, days } from "@/utils/statics";
+import { workHours, days } from "@/utils/statics";
+import { getActiveMechanics } from "@/service/mechanic/mechanic.service";
+import { useQuery } from "@tanstack/react-query";
+import moment from "moment-jalaali";
 import { useEffect, useState } from "react";
+
+// Persian day names
+const persianDays = [
+  "شنبه",
+  "یکشنبه",
+  "دوشنبه",
+  "سه‌شنبه",
+  "چهارشنبه",
+  "پنج‌شنبه",
+  "جمعه",
+];
 
 // مودال ویرایش تسک
 export default function TaskEditModal({
@@ -7,12 +21,23 @@ export default function TaskEditModal({
   isOpen,
   onClose,
   onSave,
+  holidays = [],
 }: {
   task: Task | null;
   isOpen: boolean;
   onClose: () => void;
   onSave: (updatedTask: Task) => void;
+  holidays?: string[];
 }) {
+  // Query برای دریافت مکانیک‌های فعال
+  const { data: mechanicsData, isLoading: isLoadingMechanics } = useQuery({
+    queryKey: ["activeMechanics"],
+    queryFn: getActiveMechanics,
+    select: (data: any) =>
+      data?.data?.map((mechanic: { fullName: string }) => mechanic.fullName) ||
+      [],
+  });
+
   const [formData, setFormData] = useState<Task>({
     id: "",
     user: "",
@@ -22,6 +47,20 @@ export default function TaskEditModal({
     title: "",
   });
 
+  // تابع کمکی برای بررسی تعطیلی بودن روز
+  const isHoliday = (dayIndex: number): boolean => {
+    const dayDate = moment(days[dayIndex]);
+
+    // بررسی جمعه (روز 6 هفته - شنبه=0، جمعه=6)
+    if (dayDate.day() === 6) {
+      return true; // جمعه تعطیل است
+    }
+
+    // بررسی روزهای تعطیل اضافی
+    const dayStart = dayDate.startOf("day").toISOString();
+    return holidays.includes(dayStart);
+  };
+
   useEffect(() => {
     if (task) {
       setFormData(task);
@@ -30,6 +69,13 @@ export default function TaskEditModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // بررسی تعطیلی بودن روز انتخاب شده
+    if (isHoliday(formData.startDay)) {
+      alert("نمی‌توان در روز تعطیل تسک ایجاد کرد!");
+      return;
+    }
+
     onSave(formData);
     onClose();
   };
@@ -64,12 +110,17 @@ export default function TaskEditModal({
               }
               className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              disabled={isLoadingMechanics}
             >
-              {users.map((user) => (
-                <option key={user} value={user}>
-                  {user}
-                </option>
-              ))}
+              {isLoadingMechanics ? (
+                <option>در حال بارگذاری...</option>
+              ) : (
+                mechanicsData?.map((mechanic: string) => (
+                  <option key={mechanic} value={mechanic}>
+                    {mechanic}
+                  </option>
+                ))
+              )}
             </select>
           </div>
 
@@ -83,11 +134,21 @@ export default function TaskEditModal({
               className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              {days.map((day, index) => (
-                <option key={index} value={index}>
-                  {day}
-                </option>
-              ))}
+              {days.map((day, index) => {
+                const isHolidayDay = isHoliday(index);
+                return (
+                  <option
+                    key={index}
+                    value={index}
+                    disabled={isHolidayDay}
+                    className={isHolidayDay ? "text-red-500" : ""}
+                  >
+                    {persianDays[moment(day).day()]} -{" "}
+                    {moment(day).format("jMM/jDD")}
+                    {isHolidayDay && " (تعطیل)"}
+                  </option>
+                );
+              })}
             </select>
           </div>
 

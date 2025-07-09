@@ -4,12 +4,14 @@ import {
   DropCell,
   TaskEditModal,
 } from "@/components";
-import { days, users, workHours } from "@/utils/statics";
+import { days, workHours } from "@/utils/statics";
 import moment from "moment-jalaali";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { toast } from "react-toastify";
+import { useQuery } from "@tanstack/react-query";
+import { getActiveMechanics } from "@/service/mechanic/mechanic.service";
 
 // Configure moment-jalaali
 moment.loadPersian({ dialect: "persian-modern" });
@@ -26,6 +28,42 @@ const persianDays = [
 ];
 
 export default function TaskManagement() {
+  // Query برای دریافت مکانیک‌های فعال
+  const { data: mechanicsData, isLoading: isLoadingMechanics } = useQuery({
+    queryKey: ["activeMechanics"],
+    queryFn: getActiveMechanics,
+    select: (data: any) =>
+      data?.data?.map((mechanic: { fullName: string }) => mechanic.fullName) ||
+      [],
+  });
+
+  // آرایه روزهای تعطیل (UTC timestamps)
+  // برای اضافه کردن روز تعطیل جدید، تاریخ را به فرمت ISO string اضافه کنید
+  // مثال: "2024-03-21T00:00:00.000Z" برای نوروز
+  const [holidays, setHolidays] = useState<string[]>([
+    // مثال: روزهای تعطیل - می‌توانید این‌ها را تغییر دهید
+    "2024-01-01T00:00:00.000Z", // روز سال نو میلادی
+    "2024-03-21T00:00:00.000Z", // نوروز
+    "2024-03-22T00:00:00.000Z", // روز دوم نوروز
+    "2024-03-23T00:00:00.000Z", // روز سوم نوروز
+    "2024-03-24T00:00:00.000Z", // روز چهارم نوروز
+    "2024-04-01T00:00:00.000Z", // روز طبیعت
+    "2024-04-02T00:00:00.000Z", // روز شهدا
+    "2024-04-09T00:00:00.000Z", // روز ارتش
+    "2024-04-10T00:00:00.000Z", // روز ارتش
+    "2024-05-01T00:00:00.000Z", // روز کارگر
+    "2024-06-04T00:00:00.000Z", // رحلت امام خمینی
+    "2024-06-05T00:00:00.000Z", // شهادت امام جعفر صادق
+    "2024-07-16T00:00:00.000Z", // عید قربان
+    "2024-07-26T00:00:00.000Z", // عید غدیر
+    "2024-09-17T00:00:00.000Z", // تاسوعا
+    "2024-09-18T00:00:00.000Z", // عاشورا
+    "2024-09-27T00:00:00.000Z", // اربعین حسینی
+    "2024-10-29T00:00:00.000Z", // میلاد پیامبر
+    "2024-11-07T00:00:00.000Z", // میلاد امام جعفر صادق
+    "2024-12-19T00:00:00.000Z", // میلاد امام رضا
+  ]);
+
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: "1",
@@ -60,9 +98,36 @@ export default function TaskManagement() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(users[0]);
+  const [selectedUser, setSelectedUser] = useState("");
   const [selectedDay, setSelectedDay] = useState(0);
   const [selectedHour, setSelectedHour] = useState(0);
+
+  // تنظیم کاربر پیش‌فرض وقتی داده‌ها لود شدند
+  useEffect(() => {
+    if (mechanicsData && mechanicsData.length > 0 && !selectedUser) {
+      setSelectedUser(mechanicsData[0]);
+    }
+  }, [mechanicsData, selectedUser]);
+
+  // تابع کمکی برای بررسی تعطیلی بودن روز
+  const isHoliday = (dayIndex: number): boolean => {
+    const dayDate = moment(days[dayIndex]);
+
+    // بررسی جمعه (روز 6 هفته - شنبه=0، جمعه=6)
+    if (dayDate.day() === 6) {
+      return true; // جمعه تعطیل است
+    }
+
+    // بررسی روزهای تعطیل اضافی
+    const dayStart = dayDate.startOf("day").toISOString();
+    return holidays.includes(dayStart);
+  };
+
+  // تابع کمکی برای بررسی تعطیلی بودن روز با تاریخ
+  const isHolidayByDate = (date: string): boolean => {
+    const dayStart = moment(date).startOf("day").toISOString();
+    return holidays.includes(dayStart);
+  };
 
   // تابع کمکی برای محاسبه ساعات باقی‌مانده در روز
   const getRemainingHoursInDay = (startHour: number) => {
@@ -73,7 +138,7 @@ export default function TaskManagement() {
     return Math.max(0, remainingHours);
   };
 
-  // تابع کمکی برای محاسبه روز و ساعت پایان تسک با در نظر گرفتن
+  // تابع کمکی برای محاسبه روز و ساعت پایان تسک با در نظر گرفتن روزهای تعطیل
   const calculateTaskEnd = (
     startDay: number,
     startHour: number,
@@ -101,6 +166,13 @@ export default function TaskManagement() {
     currentHour = 0;
 
     while (remainingHours > 0) {
+      // بررسی تعطیلی بودن روز
+      if (isHoliday(currentDay)) {
+        // اگر روز تعطیل است، به روز بعد برو
+        currentDay++;
+        continue;
+      }
+
       if (remainingHours <= 9) {
         // تسک در این روز تمام می‌شود
         return {
@@ -137,6 +209,11 @@ export default function TaskManagement() {
 
     // بررسی تمام روزهایی که تسک در آن‌ها فعال است
     for (let currentDay = day; currentDay <= endDay; currentDay++) {
+      // بررسی تعطیلی بودن روز - اگر روز تعطیل است، بررسی نکن
+      if (isHoliday(currentDay)) {
+        continue; // به روز بعد برو
+      }
+
       const existingTasksHours = getDailyWorkHours(
         user,
         currentDay,
@@ -214,6 +291,11 @@ export default function TaskManagement() {
     day: number,
     excludeTaskId?: string
   ) => {
+    // اگر روز تعطیل است، ساعات کاری 0 است
+    if (isHoliday(day)) {
+      return 0;
+    }
+
     return tasks
       .filter((task) => {
         if (task.id === excludeTaskId) return false;
@@ -245,6 +327,11 @@ export default function TaskManagement() {
 
   // پیدا کردن آخرین تسک برای قرار دادن تسک جدید در ادامه
   const getNextAvailableHour = (user: string, day: number) => {
+    // بررسی تعطیلی بودن روز
+    if (isHoliday(day)) {
+      return -1; // نشان‌دهنده تعطیلی
+    }
+
     const userTasks = tasks.filter((t) => t.user === user);
     if (userTasks.length === 0) return 0;
 
@@ -290,6 +377,12 @@ export default function TaskManagement() {
     newDay: number,
     newHour: number
   ) => {
+    // بررسی تعطیلی بودن روز
+    if (isHoliday(newDay)) {
+      toast.error("نمی‌توان در روز تعطیل تسک ایجاد کرد!");
+      return;
+    }
+
     // بررسی تداخل
     if (hasTaskOverlap(newUser, newDay, newHour, task.duration, task.id)) {
       toast.error("این زمان با تسک دیگری تداخل دارد!");
@@ -334,6 +427,12 @@ export default function TaskManagement() {
   };
 
   const handleSaveTask = (updatedTask: Task) => {
+    // بررسی تعطیلی بودن روز
+    if (isHoliday(updatedTask.startDay)) {
+      toast.error("نمی‌توان در روز تعطیل تسک ایجاد کرد!");
+      return;
+    }
+
     // بررسی تداخل
     if (
       hasTaskOverlap(
@@ -385,11 +484,21 @@ export default function TaskManagement() {
 
   const handleCreateTask = () => {
     const nextHour = getNextAvailableHour(selectedUser, selectedDay);
+    if (nextHour === -1) {
+      toast.error("روز انتخاب شده تعطیل است!");
+      return;
+    }
     setSelectedHour(nextHour);
     setIsCreateModalOpen(true);
   };
 
   const handleCreateNewTask = (newTask: Task) => {
+    // بررسی تعطیلی بودن روز
+    if (isHoliday(newTask.startDay)) {
+      toast.error("نمی‌توان در روز تعطیل تسک ایجاد کرد!");
+      return;
+    }
+
     // بررسی تداخل
     if (
       hasTaskOverlap(
@@ -448,7 +557,17 @@ export default function TaskManagement() {
     dayIndex: number,
     _hourIndex: number
   ) => {
+    // بررسی تعطیلی بودن روز
+    if (isHoliday(dayIndex)) {
+      toast.error("روز انتخاب شده تعطیل است!");
+      return;
+    }
+
     const nextHour = getNextAvailableHour(user, dayIndex);
+    if (nextHour === -1) {
+      toast.error("روز انتخاب شده تعطیل است!");
+      return;
+    }
     setSelectedUser(user);
     setSelectedDay(dayIndex);
     setSelectedHour(nextHour);
@@ -496,7 +615,7 @@ export default function TaskManagement() {
                 onChange={(e) => setSelectedUser(e.target.value)}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 text-sm min-w-[100px]"
               >
-                {users.map((user) => (
+                {mechanicsData?.map((user: string) => (
                   <option key={user} value={user}>
                     {user}
                   </option>
@@ -516,6 +635,7 @@ export default function TaskManagement() {
                   <option key={index} value={index}>
                     {persianDays[moment(day).day()]} -{" "}
                     {moment(day).format("jMM/jDD")}
+                    {isHoliday(index) && " (تعطیل)"}
                   </option>
                 ))}
               </select>
@@ -552,21 +672,34 @@ export default function TaskManagement() {
                   <th className="bg-gray-100 w-32">کاربر</th>
                   <th className="bg-gray-100 w-20">ساعت</th>
                   {days.map((day, i) => (
-                    <th key={i} className="bg-gray-100 text-sm w-24 ">
-                      {persianDays[moment(day).day()]} <br />{" "}
-                      {moment(day).format("jMM/jDD")}
+                    <th
+                      key={i}
+                      className={`bg-gray-100 text-sm w-24 ${
+                        isHoliday(i) ? "bg-red-100 text-red-700" : ""
+                      }`}
+                    >
+                      <div>
+                        {persianDays[moment(day).day()]} <br />{" "}
+                        {moment(day).format("jMM/jDD")}
+                        {isHoliday(i) && (
+                          <>
+                            <br />
+                            <span className="text-xs">تعطیل</span>
+                          </>
+                        )}
+                      </div>
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {mechanicsData?.map((user: string) => (
                   <Fragment key={user}>
                     {workHours.map((hour) => (
                       <tr
                         key={`${user}-${hour}`}
                         className={`${
-                          users.indexOf(user) % 2 === 0
+                          mechanicsData.indexOf(user) % 2 === 0
                             ? "bg-white/50"
                             : "bg-gray-100/50"
                         }`}
@@ -589,7 +722,7 @@ export default function TaskManagement() {
                         )}
                         <td
                           className={`font-semibold text-sm border w-20 ${
-                            users.indexOf(user) % 2 === 0
+                            mechanicsData.indexOf(user) % 2 === 0
                               ? "bg-white"
                               : "bg-gray-100"
                           }`}
@@ -639,6 +772,7 @@ export default function TaskManagement() {
                                 user={user}
                                 onDropTask={handleTaskDrop}
                                 onCreateTask={handleCreateTaskFromCell}
+                                holidays={holidays}
                               >
                                 <DraggableTask
                                   task={taskHere}
@@ -646,6 +780,7 @@ export default function TaskManagement() {
                                   currentDay={dayIdx}
                                   currentHour={hour}
                                   taskLength={taskLength}
+                                  holidays={holidays}
                                 />
                               </DropCell>
                             );
@@ -660,6 +795,7 @@ export default function TaskManagement() {
                               user={user}
                               onDropTask={handleTaskDrop}
                               onCreateTask={handleCreateTaskFromCell}
+                              holidays={holidays}
                             />
                           );
                         })}
@@ -678,32 +814,42 @@ export default function TaskManagement() {
             ساعات کاری هر کاربر:
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {users.map((user) => (
+            {mechanicsData?.map((user: string) => (
               <div key={user} className="bg-white p-3 rounded border">
                 <h4 className="font-bold text-gray-800 mb-2">{user}</h4>
                 <div className="space-y-1">
                   {days.map((_day, dayIndex) => {
                     const workHours = getDailyWorkHours(user, dayIndex);
                     const isOverLimit = workHours > 9;
+                    const isHolidayDay = isHoliday(dayIndex);
                     return (
                       <div
                         key={dayIndex}
                         className="flex justify-between items-center text-sm"
                       >
-                        <span className="text-gray-600">
+                        <span
+                          className={`${
+                            isHolidayDay
+                              ? "text-red-600 font-semibold"
+                              : "text-gray-600"
+                          }`}
+                        >
                           {persianDays[moment(days[dayIndex]).day()]} -{" "}
                           {moment(days[dayIndex]).format("jMM/jDD")}:
+                          {isHolidayDay && " (تعطیل)"}
                         </span>
                         <span
                           className={`font-semibold ${
-                            isOverLimit
+                            isHolidayDay
+                              ? "text-red-600"
+                              : isOverLimit
                               ? "text-red-600"
                               : workHours === 9
                               ? "text-green-600"
                               : "text-gray-800"
                           }`}
                         >
-                          {`${workHours}/9 ساعت`}
+                          {isHolidayDay ? "تعطیل" : `${workHours}/9 ساعت`}
                         </span>
                       </div>
                     );
@@ -730,6 +876,10 @@ export default function TaskManagement() {
             </li>
             <li>• تسک‌های عادی با رنگ آبی نمایش داده می‌شوند</li>
             <li>• ساعات کاری بیش از 9 ساعت با رنگ قرمز نمایش داده می‌شوند</li>
+            <li>• روزهای تعطیل با رنگ قرمز نمایش داده می‌شوند</li>
+            <li>• جمعه‌ها به صورت خودکار تعطیل محسوب می‌شوند</li>
+            <li>• نمی‌توان در روزهای تعطیل تسک ایجاد کرد</li>
+            <li>• تسک‌های چند روزه نمی‌توانند از روزهای تعطیل عبور کنند</li>
           </ul>
         </div>
 
@@ -739,6 +889,7 @@ export default function TaskManagement() {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           onSave={handleSaveTask}
+          holidays={holidays}
         />
 
         {/* Create Task Modal */}
@@ -749,6 +900,7 @@ export default function TaskManagement() {
           selectedUser={selectedUser}
           selectedDay={selectedDay}
           selectedHour={selectedHour}
+          holidays={holidays}
         />
       </div>
     </DndProvider>

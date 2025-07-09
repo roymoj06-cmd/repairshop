@@ -1,4 +1,6 @@
 import { useDrag } from "react-dnd";
+import moment from "moment-jalaali";
+import { days } from "@/utils/statics";
 
 export default function DraggableTask({
   task,
@@ -6,6 +8,7 @@ export default function DraggableTask({
   isContinuing = false,
   currentDay,
   taskLength,
+  holidays = [],
 }: {
   task: Task;
   onClick: (task: Task) => void;
@@ -13,7 +16,22 @@ export default function DraggableTask({
   currentDay?: number;
   currentHour?: number;
   taskLength?: number;
+  holidays?: string[];
 }) {
+  // تابع کمکی برای بررسی تعطیلی بودن روز
+  const isHoliday = (dayIndex: number): boolean => {
+    const dayDate = moment(days[dayIndex]);
+
+    // بررسی جمعه (روز 6 هفته - شنبه=0، جمعه=6)
+    if (dayDate.day() === 6) {
+      return true; // جمعه تعطیل است
+    }
+
+    // بررسی روزهای تعطیل اضافی
+    const dayStart = dayDate.startOf("day").toISOString();
+    return holidays.includes(dayStart);
+  };
+
   // تابع کمکی برای محاسبه ساعات باقی‌مانده در روز
   const getRemainingHoursInDay = (startHour: number) => {
     const actualStartHour = startHour + 8; // تبدیل به ساعت واقعی
@@ -78,10 +96,14 @@ export default function DraggableTask({
       height = hoursInDay * 30;
     }
 
+    // بررسی تعطیلی بودن روز فعلی
+    const isHolidayDay = currentDay !== undefined && isHoliday(currentDay);
+
     return {
       top: `${top}px`,
       height: `${height}px`,
       minHeight: "30px", // حداقل ارتفاع
+      opacity: isHolidayDay ? 0 : 1, // اعمال opacity صفر برای روزهای تعطیل
     };
   };
 
