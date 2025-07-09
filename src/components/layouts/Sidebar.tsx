@@ -5,6 +5,7 @@ import {
   DirectionsCar,
   Logout,
   Person,
+  Task,
 } from "@mui/icons-material";
 import {
   Avatar,
@@ -74,6 +75,12 @@ const navConfig: NavItemProps[] = [
     title: "مدیریت مرخصی ها",
     path: dir.leaveManagement,
     icon: <CalendarMonth />,
+    guid: "",
+  },
+  {
+    title: "مدیریت تسک ها",
+    path: dir.taskManagement,
+    icon: <Task />,
     guid: "",
   },
 ];

@@ -1,3 +1,5 @@
+import moment from "moment-jalaali";
+
 export interface IVehicleType {
   id: number;
   name: string;
@@ -18,3 +20,8 @@ export const expertLevelOptions: SelectOption[] = [
   { value: 1, label: "مبتدی" },
   { value: 2, label: "متخصص" },
 ];
+export const workHours = Array.from({ length: 9 }, (_, i) => i);
+export const users = ["حمیدرضا", "زهرا", "مهدی"];
+export const days = Array.from({ length: 10 }, (_, i) =>
+  moment().add(i, "day").format("YYYY/MM/DD")
+);

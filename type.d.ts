@@ -485,3 +485,14 @@ interface ICreateRepairFactorRequest {
     ];
   };
 }
+type Task = {
+  id: string;
+  user: string;
+  startDay: number;
+  startHour: number; // ساعت شروع (0-7)
+  duration: number; // مدت زمان به ساعت
+  title: string;
+  // برای تسک‌های چند روزه
+  endDay?: number; // روز پایان (اگر null باشد یعنی همان روز شروع)
+  endHour?: number; // ساعت پایان در روز آخر
+};

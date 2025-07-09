@@ -12,6 +12,7 @@ const ServiceManagement = lazy(() => import("@/Pages/ServiceManagement"));
 const ServiceAdmission = lazy(() => import("@/Pages/ServiceAdmission"));
 const LeaveManagement = lazy(() => import("@/Pages/LeaveManagement"));
 const CarsManagement = lazy(() => import("@/Pages/CarsManagement"));
+const TaskManagement = lazy(() => import("@/Pages/TaskManagement"));
 const Dashboard = lazy(() => import("@/Pages/Dashboard"));
 const Vehicle = lazy(() => import("@/Pages/Vehicle"));
 const Login = lazy(() => import("@/Pages/Login"));
@@ -55,6 +56,7 @@ const ViewSelector: FC = () => {
           <Route path={dir.carsManagement} element={<CarsManagement />} />
           <Route path={dir.dashboard} element={<Dashboard />} />
           <Route path={dir.vehicles} element={<Vehicle />} />
+          <Route path={dir.taskManagement} element={<TaskManagement />} />
           <Route path="*" element={<div>404 Not Found</div>} />
         </Route>
       </Routes>
