@@ -7,6 +7,7 @@ import AuthGuard from "./AuthGuard";
 import dir from "./dir";
 
 const AddServiceAdmission = lazy(() => import("@/Pages/AddServiceAdmission"));
+const MechanicPerformance = lazy(() => import("@/Pages/MechanicPerformance"));
 const MechanicsManagement = lazy(() => import("@/Pages/MechanicManagement"));
 const ServiceManagement = lazy(() => import("@/Pages/ServiceManagement"));
 const ServiceAdmission = lazy(() => import("@/Pages/ServiceAdmission"));
@@ -51,6 +52,10 @@ const ViewSelector: FC = () => {
           <Route
             path={dir.addServiceAdmission}
             element={<AddServiceAdmission />}
+          />
+          <Route
+            path={dir.mechanicPerformance}
+            element={<MechanicPerformance />}
           />
           <Route path={dir.leaveManagement} element={<LeaveManagement />} />
           <Route path={dir.carsManagement} element={<CarsManagement />} />

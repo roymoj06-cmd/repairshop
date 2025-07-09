@@ -10,9 +10,8 @@
   flex-direction: column;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
-    transform: translateY(-4px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
   .vehicle-content {
@@ -22,6 +21,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    position: relative;
   }
   .vehicle-title {
     font-size: 1.25rem;
@@ -90,6 +90,34 @@
     font-weight: bold;
     backdrop-filter: blur(5px);
   }
+
+  // Delete button styles
+  .delete-button {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    .MuiIconButton-root {
+      padding: 0.375rem;
+      border-radius: 50%;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+      }
+    }
+  }
+
+  &:hover .delete-button {
+    opacity: 1;
+  }
+
   .description-item {
     position: relative;
     margin-top: 0.5rem;
@@ -180,6 +208,13 @@
   .price-tag {
     background: rgba(0, 0, 0, 0.8) !important;
     backdrop-filter: blur(8px);
+  }
+
+  .delete-button {
+    .MuiIconButton-root {
+      backdrop-filter: blur(6px);
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    }
   }
 
   .description-item {

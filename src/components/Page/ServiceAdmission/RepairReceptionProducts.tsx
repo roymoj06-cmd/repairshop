@@ -26,13 +26,14 @@ import {
   changeIsCancelled,
 } from "@/service/repair/repair.service";
 import {
+  RequestProductFromCustomerModal,
+  CreateFactorForReception,
   RequestProductListModal,
   RequestProductModal,
+  ConfirmDeleteDialog,
   Loading,
-  CreateFactorForReception,
-  RequestProductFromCustomerModal,
+  RequestProductForInventoryModal,
 } from "@/components";
-import ConfirmDeleteDialog from "@/components/common/ConfirmDeleteDialog";
 
 interface RepairReceptionProductsProps {
   repairReceptionId?: string;
@@ -52,8 +53,13 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
     useState<boolean>();
   const [showProductRequestListModal, setShowProductRequestListModal] =
     useState<boolean>();
+  const [
+    showProductRequestForInventoryModal,
+    setShowProductRequestForInventoryModal,
+  ] = useState<boolean>();
   const [selectedProductForDelete, setSelectedProductForDelete] =
     useState<any>(null);
+
   const [
     showProductRequestFromCustomerModal,
     setShowProductRequestFromCustomerModal,
@@ -256,13 +262,22 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
         }}
       >
         <Button
+          onClick={() => setShowProductRequestForInventoryModal(true)}
+          variant="contained"
+          color="secondary"
+          size="large"
+          fullWidth={isMobile}
+        >
+          درخواست قطعه مکانیک
+        </Button>
+        <Button
           onClick={() => setShowProductRequestModal(true)}
           variant="contained"
           color="secondary"
           size="large"
           fullWidth={isMobile}
         >
-          درخواست قطعه
+          درخواست قطعه انبار
         </Button>
         <Button
           onClick={() => setShowProductRequestListModal(true)}
@@ -322,6 +337,13 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
           </Typography>
         </Box>
       )}
+      <ConfirmDeleteDialog
+        content={`آیا از حذف کالای "${selectedProductForDelete?.productName}" اطمینان دارید؟`}
+        onConfirm={handleConfirmDelete}
+        onClose={handleCancelDelete}
+        open={showDeleteDialog}
+        title="تایید حذف کالا"
+      />
       {showProductRequestModal && (
         <RequestProductModal
           setShowModal={setShowProductRequestModal}
@@ -337,13 +359,6 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
           onRefresh={handleRefreshData}
         />
       )}
-      <ConfirmDeleteDialog
-        content={`آیا از حذف کالای "${selectedProductForDelete?.productName}" اطمینان دارید؟`}
-        onConfirm={handleConfirmDelete}
-        onClose={handleCancelDelete}
-        open={showDeleteDialog}
-        title="تایید حذف کالا"
-      />
       {showCreateFactorModal && repairReception && (
         <CreateFactorForReception
           open={showCreateFactorModal}
@@ -365,6 +380,13 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
           showModal={showProductRequestFromCustomerModal}
           repairReceptionId={repairReceptionId}
           onRefresh={handleRefreshData}
+        />
+      )}
+      {showProductRequestForInventoryModal && (
+        <RequestProductForInventoryModal
+          setShowModal={setShowProductRequestForInventoryModal}
+          showModal={showProductRequestForInventoryModal}
+          repairReceptionId={repairReceptionId}
         />
       )}
     </div>

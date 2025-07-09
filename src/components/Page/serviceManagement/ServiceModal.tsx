@@ -181,12 +181,6 @@ const ServiceModal: FC<ServiceModalProps> = ({
                 name="isActive"
                 control={control}
                 render={({ field }) => {
-                  console.log(
-                    "Switch field value:",
-                    field.value,
-                    "type:",
-                    typeof field.value
-                  );
                   return (
                     <FormControlLabel
                       control={

@@ -222,8 +222,11 @@ const LeaveModal: FC<LeaveModalProps> = ({
                 enableSpeechToText
                 control={control}
                 type="text"
-                multiline
+                isTextArea
+                minRows={1}
+                maxRows={10}
                 rows={4}
+                multiline
               />
             </Grid>
           </Grid>

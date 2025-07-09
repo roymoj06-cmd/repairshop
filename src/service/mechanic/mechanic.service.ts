@@ -57,3 +57,11 @@ export const deleteMechanic = async (id: number) => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+
+export const getMechanicAccountBalance = async (userId: number) => {
+  const reqConfig: AxiosRequestConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getCustomerAccountBalance}?userId=${userId}`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

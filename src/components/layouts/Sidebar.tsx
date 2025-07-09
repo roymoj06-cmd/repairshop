@@ -1,4 +1,5 @@
 import {
+  BarChart,
   Build,
   CalendarMonth,
   CarRepair,
@@ -83,6 +84,12 @@ const navConfig: NavItemProps[] = [
     icon: <Task />,
     guid: "",
   },
+  {
+    title: "گزارش عملکرد",
+    path: dir.mechanicPerformance,
+    icon: <BarChart />,
+    guid: "",
+  },
 ];
 
 interface SidebarProps {
@@ -132,9 +139,6 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
         <Box className="sidebar__user-info">
           <Typography variant="subtitle1" className="sidebar__user-name">
             {user?.fullName}
-          </Typography>
-          <Typography variant="body2" className="sidebar__user-role">
-            مدیر
           </Typography>
         </Box>
       </Box>

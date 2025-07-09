@@ -21,9 +21,19 @@ interface UserAccessResponse {
   accesses: UserAccess[];
   role: string;
 }
+interface IUpdateRepairReceptionByProblem {
+  repairReception: {
+    repairCustomerProblemId: number;
+    details: {
+      isCustomerOwner: boolean;
+      productId: number;
+      qty: number;
+    }[];
+  };
+}
 interface IUpdateRepairReception {
   repairReception: {
-    repairReceptionId: number;
+    repairReceptionId?: number;
     description?: string;
     customerId?: number;
     fileIds?: number[];
@@ -496,3 +506,33 @@ type Task = {
   endDay?: number; // روز پایان (اگر null باشد یعنی همان روز شروع)
   endHour?: number; // ساعت پایان در روز آخر
 };
+interface ICreateMechanicProductRequest {
+  productTitle: string;
+  problemId: number;
+  fileId: number;
+}
+interface IMechanicPerformance {
+  serviceId?: number;
+  fromDate?: string;
+  userId: number;
+  toDate?: string;
+}
+interface IMechanicPerformanceResponse {
+  totalTimeSpentMinutes: number;
+  mechanicName: string;
+  totalProfit: number;
+  fromDate: string;
+  userId: number;
+  toDate: string;
+  services: {
+    commissionPercent: number;
+    timeSpentMinutes: number;
+    servicePrice: number;
+    serviceName: string;
+    serviceId: number;
+    startDate: string;
+    basePrice: number;
+    endDate: string;
+    profit: number;
+  }[];
+}

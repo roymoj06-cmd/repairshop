@@ -28,7 +28,7 @@ import {
 
 import { getCustomerProblems } from "@/service/repairServices/repairServices.service";
 import { getProductsThatContainsText } from "@/service/Product/Product.service";
-import { updateRepairReception } from "@/service/repair/repair.service";
+import { updateRepairReceptionByProblem } from "@/service/repair/repair.service";
 import { EnhancedSelect, Loading } from "@/components";
 
 interface IRequestProductFromCustomerModalProps {
@@ -96,7 +96,7 @@ const RequestProductFromCustomerModal: FC<
     isPending: isPendingUpdateRepairReception,
     mutateAsync: mutateUpdateRepairReception,
   } = useMutation({
-    mutationFn: updateRepairReception,
+    mutationFn: updateRepairReceptionByProblem,
     onSuccess: (data: any) => {
       if (data?.isSuccess) {
         toast.success(data?.message);
@@ -162,19 +162,13 @@ const RequestProductFromCustomerModal: FC<
       toast.error("شناسه پذیرش تعمیر یافت نشد");
       return;
     }
-    const requestData: IUpdateRepairReception = {
+    const requestData: IUpdateRepairReceptionByProblem = {
       repairReception: {
-        repairReceptionId: Number(repairReceptionId),
+        repairCustomerProblemId: +selectedProblem?.value,
         details: selectedProducts.map((product) => ({
-          repairReceptionDetailId: 0, // New entry
-          productId: product.productId,
-          qty: product.quantity,
+          productId: +product.productId,
+          qty: +product.quantity,
           isCustomerOwner: true,
-          overridedUnitPrice: 0,
-          unitPrice: 0,
-          barcodeId: 0,
-          mechanic: "",
-          scanCode: "",
         })),
       },
     };

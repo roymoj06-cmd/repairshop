@@ -1,19 +1,10 @@
-import { Add } from "@mui/icons-material";
 import { Box, Grid2 as Grid, Tab, Tabs, Typography } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import { FC, useEffect, useRef, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { Add } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
-import {
-  RepairReceptionProducts,
-  RepairReceptionService,
-  PlateManagementDialog,
-  CustomerProblems,
-  EnhancedSelect,
-  Loading,
-  Button,
-} from "@/components";
 import { getCustomers } from "@/service/customer/customer.service";
 import {
   getRepairReceptionForUpdateById,
@@ -21,7 +12,16 @@ import {
   updateRepairReception,
   getCustomerCars,
 } from "@/service/repair/repair.service";
-import UploaderDocs from "./UploaderDocs";
+import {
+  RepairReceptionProducts,
+  RepairReceptionService,
+  PlateManagementDialog,
+  CustomerProblems,
+  EnhancedSelect,
+  UploaderDocs,
+  Loading,
+  Button,
+} from "@/components";
 
 interface IServiceAdmissionFormProps {
   repairReceptionId?: string;
@@ -142,7 +142,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
     },
   });
   const handleCustomerChange = (value: any) => {
-    console.log(value);
     if (value?.value) {
       mutateAsyncCustomerCars(value.value);
     }
@@ -277,21 +276,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             </Button>
           </Box>
         </Grid>
-        {/* <Grid size={{ xs: 12, md: 4 }}>
-          <EnhancedInput
-            helperText={errors.preferredRepairTime?.message as string}
-            error={!!errors.preferredRepairTime}
-            enableSpeechToText={false}
-            name="preferredRepairTime"
-            label="زمان ترجیحی تعمیر"
-            icon={<span>روز</span>}
-            type="datetime-local"
-            iconPosition="end"
-            isTextArea
-            fullWidth
-            rows={1}
-          />
-        </Grid> */}
         <Grid
           size={{ xs: 12, md: 4 }}
           sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}

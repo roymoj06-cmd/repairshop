@@ -39,6 +39,10 @@ export const routesConfig: RouteConfig[] = [
         path: dir.taskManagement,
         title: "مدیریت تسک ها",
       },
+      {
+        path: dir.mechanicPerformance,
+        title: "گزارش عملکرد",
+      },
     ],
   },
 ];

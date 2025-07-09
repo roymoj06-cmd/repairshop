@@ -97,7 +97,6 @@ const AddServiceAdmissionForm: FC = () => {
   });
 
   const handleCustomerChange = (value: any) => {
-    console.log(value);
     if (value?.value) {
       mutateAsyncCustomerCars(value.value);
     }

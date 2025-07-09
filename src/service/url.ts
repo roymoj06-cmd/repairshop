@@ -36,6 +36,7 @@ export const proxyServerUrl = {
   // repair Controller
   getRepairReceptionForUpdateById: `${panelServiceBaseUrl}/Repair/GetRepairReceptionProductById/`,
   generateRepairReceptionFactors: `${panelServiceBaseUrl}/Repair/GenerateRepairReceptionFactors`,
+  updateRepairReceptionByProblem: `${panelServiceBaseUrl}/Repair/UpdateRepairReceptionByProblem`,
   createRepairFactorRequest: `${panelServiceBaseUrl}/Repair/CreateRepairFactorRequest`,
   dischargeRepairReception: `${panelServiceBaseUrl}/Repair/DischargeRepairReception`,
   repairReceptionSummary: `${panelServiceBaseUrl}/Repair/repair-reception-summary`,
@@ -86,12 +87,11 @@ export const proxyServerUrl = {
   getCustomerProblems: `${panelServiceBaseUrl}/RepairServices/GetCustomerProblems`,
 
   // RepairReceptionService Controller
-  updateRepairReceptionServicesForProblems: `${panelServiceBaseUrl}/RepairReceptionService/UpdateRepairReceptionServicesForProblems`,
   getAllRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServicesGroupedByProblems`,
-  createRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/CreateRepairReceptionServicesForProblems`,
   getRepairReceptionServiceById: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServiceById`,
   updateRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/UpdateRepairReceptionService`,
   deleteRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/DeleteRepairReceptionService`,
+  saveRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/SaveRepairReceptionServices`,
 
   // RepairProductRequest Controller
   getAllRepairProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetAllRepairProductRequestsByReceptionId`,
@@ -114,8 +114,20 @@ export const proxyServerUrl = {
   // product Controller
   getProductsThatContainsText: `${copserverUrl}/Product/GetProductsThatContainsText`,
 
+  // customer Controller
+  getCustomerAccountBalance: `${copserverUrl}/Customer/GetCustomerAccountBalance`,
+
   // RepairReceptionFile Controller
   getFilesByReceptionId: `${panelServiceBaseUrl}/RepairReceptionFile/GetFilesByReceptionId`,
   uploadFileRepairReceptionFile: `${panelServiceBaseUrl}/RepairReceptionFile/UploadFile`,
   deleteFileRepairReceptionFile: `${panelServiceBaseUrl}/RepairReceptionFile/DeleteFile`,
+
+  // RepairMechanicProductRequest Controller
+  getMechanicProductRequestById: `${panelServiceBaseUrl}/RepairMechanicProductRequest/GetMechanicProductRequestById`,
+  createMechanicProductRequest: `${panelServiceBaseUrl}/RepairMechanicProductRequest/CreateMechanicProductRequest`,
+  deleteMechanicProductRequest: `${panelServiceBaseUrl}/RepairMechanicProductRequest/DeleteMechanicProductRequest`,
+  getMechanicProductRequest: `${panelServiceBaseUrl}/RepairMechanicProductRequest/GetMechanicProductRequest`,
+
+  // MechanicPerformance Controller
+  getMechanicPerformance: `${panelServiceBaseUrl}/MechanicPerformance/GetMechanicPerformance`,
 };

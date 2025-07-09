@@ -11,6 +11,7 @@ import {
 } from "@/service/mechanic/mechanic.service";
 import {
   MechanicModal,
+  MechanicLedger,
   ConfirmDialog,
   MechanicCard,
   Loading,
@@ -19,6 +20,9 @@ import {
 
 const MechanicManagement: FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLedgerOpen, setIsLedgerOpen] = useState(false);
+  const [selectedMechanic, setSelectedMechanic] =
+    useState<IGetAllMechanics | null>(null);
   const [editingMechanic, setEditingMechanic] =
     useState<IGetAllMechanics | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -87,6 +91,11 @@ const MechanicManagement: FC = () => {
     setDeleteConfirm({ open: true, mechanicId: id, mechanicName: name });
   };
 
+  const handleViewLedger = (mechanic: IGetAllMechanics) => {
+    setSelectedMechanic(mechanic);
+    setIsLedgerOpen(true);
+  };
+
   const confirmDelete = () => {
     if (deleteConfirm.mechanicId) {
       deleteMutation.mutate(Number(deleteConfirm.mechanicId));
@@ -101,6 +110,11 @@ const MechanicManagement: FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingMechanic(null);
+  };
+
+  const handleCloseLedger = () => {
+    setIsLedgerOpen(false);
+    setSelectedMechanic(null);
   };
 
   return (
@@ -127,6 +141,7 @@ const MechanicManagement: FC = () => {
               <MechanicCard
                 onDelete={(id) => handleDeleteMechanic(id, mechanic.fullName)}
                 onEdit={handleEditMechanic}
+                onViewLedger={handleViewLedger}
                 mechanic={mechanic}
                 key={mechanic.id}
               />
@@ -140,6 +155,12 @@ const MechanicManagement: FC = () => {
         editingMechanic={editingMechanic}
         onClose={handleCloseModal}
         open={isModalOpen}
+      />
+      <MechanicLedger
+        open={isLedgerOpen}
+        onClose={handleCloseLedger}
+        mechanicId={selectedMechanic?.userId}
+        mechanicName={selectedMechanic?.fullName}
       />
       <ConfirmDialog
         onCancel={() =>

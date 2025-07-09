@@ -11,6 +11,7 @@ import {
   Accordion,
   Paper,
   Box,
+  useMediaQuery,
 } from "@mui/material";
 
 import { getRepairReceptions } from "@/service/repair/repair.service";
@@ -29,6 +30,16 @@ const Vehicle: FC = () => {
   const navigate = useNavigate();
   const page = searchParams.get("page") ?? 1;
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
+  const isCustomRange = useMediaQuery(
+    "(min-width: 1200px) and (max-width: 1300px)"
+  );
+  const getGridSize = () => {
+    if (isCustomRange) {
+      return { xs: 12, sm: 6, md: 3, lg: 3 };
+    }
+    return { xs: 12, sm: 6, md: 3, lg: 2 };
+  };
+
   const statusOptions = [
     { value: null, label: "همه" },
     { value: "false", label: "ترخیص نشده" },
@@ -101,7 +112,21 @@ const Vehicle: FC = () => {
     setSearchParams({ page: value.toString() });
   };
 
-  const handleCardClick = (receptionId: string | number) => {
+  const handleCardClick = (
+    receptionId: string | number,
+    event?: React.MouseEvent
+  ) => {
+    // Prevent navigation if the click is on a dialog, modal, or delete button
+    if (event) {
+      const target = event.target as HTMLElement;
+      const clickedElement = target.closest(
+        '.MuiDialog-root, .MuiModal-root, .delete-button, [role="dialog"]'
+      );
+      if (clickedElement) {
+        return;
+      }
+    }
+
     navigate({
       pathname: `${dir.serviceAdmission}`,
       search: `repairReceptionId=${receptionId}`,
@@ -179,10 +204,10 @@ const Vehicle: FC = () => {
       <Box className="vehicle-cards-container p-2">
         <Grid container spacing={2}>
           {vehicles?.data?.values?.map((vehicle: any) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }} key={vehicle.id}>
+            <Grid size={getGridSize()} key={vehicle.id}>
               <Paper
                 className="vehicle-card-container cursor-pointer"
-                onClick={() => handleCardClick(vehicle.id)}
+                onClick={(e) => handleCardClick(vehicle.id, e)}
               >
                 <VehicleCard vehicle={vehicle} />
               </Paper>

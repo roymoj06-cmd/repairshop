@@ -12,6 +12,16 @@ export const updateRepairReception = async (data: IUpdateRepairReception) => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const updateRepairReceptionByProblem = async (
+  data: IUpdateRepairReceptionByProblem
+) => {
+  const reqConfig: AxiosRequestConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.updateRepairReceptionByProblem}`,
+    data,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
 export const createRepairReception = async (data: IUpdateRepairReception) => {
   const reqConfig: AxiosRequestConfig = {
     method: "POST",
