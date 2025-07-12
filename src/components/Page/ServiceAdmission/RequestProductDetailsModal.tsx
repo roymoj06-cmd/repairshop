@@ -26,6 +26,7 @@ import {
   buyRequest,
   addApprovedProductsToReception,
 } from "../../../service/repairProductRequest/repairProductRequest.service";
+import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 
 interface IRequestProductDetailsModalProps {
   setShowDetailsModal: (show: boolean) => void;
@@ -39,11 +40,6 @@ const MobileProductCard: FC<{
   product: any;
   onActionClick: (requestId: number, status: number) => void;
 }> = ({ product, onActionClick }) => {
-  const getStatusClass = (isAccepted: boolean) => {
-    return isAccepted
-      ? "request-product-details-modal__status--accepted"
-      : "request-product-details-modal__status--rejected";
-  };
   const handleKasriClick = () => {
     onActionClick(product.requestedId, 1);
   };
@@ -94,92 +90,33 @@ const MobileProductCard: FC<{
         </Box>
 
         <Box className="request-product-details-modal__mobile-card-actions">
-          <Button
-            variant="contained"
-            color="secondary"
-            size="small"
-            className="request-product-details-modal__mobile-button"
-            onClick={handleKasriClick}
-            disabled={isKasriDisabled}
-          >
-            کسری
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            size="small"
-            className="request-product-details-modal__mobile-button"
-            onClick={handleRejectClick}
-            disabled={isRejectDisabled}
-          >
-            رد
-          </Button>
+          <AccessGuard accessId={ACCESS_IDS.DECLARE_SHORTAGE}>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="small"
+              className="request-product-details-modal__mobile-button"
+              onClick={handleKasriClick}
+              disabled={isKasriDisabled}
+            >
+              کسری
+            </Button>
+          </AccessGuard>
+          <AccessGuard accessId={ACCESS_IDS.REJECT_REQUEST}>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="small"
+              className="request-product-details-modal__mobile-button"
+              onClick={handleRejectClick}
+              disabled={isRejectDisabled}
+            >
+              رد
+            </Button>
+          </AccessGuard>
         </Box>
       </Box>
     </Paper>
-  );
-};
-const ActionButtons: FC<{
-  isTablet: boolean;
-  requestId: number;
-  statusId: number;
-  requestedQty: number;
-  usedQty: number;
-  onActionClick: (requestId: number, status: number) => void;
-}> = ({
-  isTablet,
-  requestId,
-  statusId,
-  requestedQty,
-  usedQty,
-  onActionClick,
-}) => {
-  const buttonClass = isTablet
-    ? "request-product-details-modal__action-button--tablet"
-    : "request-product-details-modal__action-button--desktop";
-
-  const containerClass = isTablet
-    ? "request-product-details-modal__action-buttons-container--tablet"
-    : "request-product-details-modal__action-buttons-container";
-
-  const handleKasriClick = () => {
-    onActionClick(requestId, 1);
-  };
-
-  const handleRejectClick = () => {
-    onActionClick(requestId, 4);
-  };
-
-  // اگر تعداد کالاهای درخواستی با تعداد مصرفی یکسان شد باید دکمه های رد و کسری غیر فعال شود
-  // همینطور اگر تعداد کالاهای مصرفی بیشتر از 0 بود دکمه رد غیر فعال شود
-  const isKasriDisabled =
-    statusId === 1 || statusId === 4 || requestedQty === usedQty;
-  const isRejectDisabled =
-    statusId === 1 || statusId === 4 || usedQty > 0 || requestedQty === usedQty;
-
-  return (
-    <Box className={containerClass}>
-      <Button
-        variant="contained"
-        color="secondary"
-        size="small"
-        className={buttonClass}
-        onClick={handleKasriClick}
-        disabled={isKasriDisabled}
-      >
-        کسری
-      </Button>
-      <Button
-        variant="contained"
-        color="secondary"
-        size="small"
-        className={buttonClass}
-        onClick={handleRejectClick}
-        disabled={isRejectDisabled}
-      >
-        رد
-      </Button>
-    </Box>
   );
 };
 const tableColumns = [
@@ -458,96 +395,137 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
       ))}
     </Box>
   );
-  const renderDesktopLayout = () => (
-    <TableContainer
-      component={Paper}
-      className="request-product-details-modal__table-container"
-    >
-      <Table size={isTablet ? "small" : "medium"} className={getTableClass()}>
-        <TableHead className="request-product-details-modal__table-head">
-          <TableRow>
-            {tableColumns.map((column) => (
-              <TableCell
-                key={column.key}
-                className={getTableCellHeaderClass()}
-                style={{
-                  minWidth: column.minWidth,
-                  maxWidth: column.maxWidth,
-                  textAlign: column.align,
-                }}
-              >
-                {column.label}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {selectedProblem?.repairProductRequestDto?.map((product, index) => (
-            <TableRow key={product.requestedId}>
-              <TableCell
-                className={`${getTableCellBodyClass()} request-product-details-modal__table-cell--body--left`}
-                style={{ textAlign: "center" }}
-              >
-                {index + 1}
-              </TableCell>
-              <TableCell
-                className={`${getTableCellBodyClass()} request-product-details-modal__table-cell--body--word-break`}
-                style={{ textAlign: "center" }}
-              >
-                {product.productName}
-              </TableCell>
-              <TableCell
-                className={getTableCellBodyClass()}
-                style={{ textAlign: "center" }}
-              >
-                {product.productCode}
-              </TableCell>
-              <TableCell
-                className={getTableCellBodyClass()}
-                style={{ textAlign: "center" }}
-              >
-                {product.realQty}
-              </TableCell>
-              <TableCell
-                className={getTableCellBodyClass()}
-                style={{ textAlign: "center" }}
-              >
-                {product?.requestedQty}
-              </TableCell>
-              <TableCell
-                className={getTableCellBodyClass()}
-                style={{ textAlign: "center" }}
-              >
-                {product?.usedQty}
-              </TableCell>
-              <TableCell
-                className={getTableCellBodyClass()}
-                style={{ textAlign: "center" }}
-              >
-                {product?.brandName} / {product?.countryName}
-              </TableCell>
-              <TableCell
-                className={getTableCellBodyClass()}
-                style={{ textAlign: "center" }}
-              >
-                {product.statusDescription}
-              </TableCell>
-              <TableCell className={getTableCellPaddingClass()}>
-                <ActionButtons
-                  isTablet={isTablet}
-                  requestId={product.requestedId}
-                  statusId={product.statusId}
-                  requestedQty={product.requestedQty}
-                  usedQty={product.usedQty}
-                  onActionClick={handleActionClick}
-                />
-              </TableCell>
+  const renderDesktopLayout = () => {
+    const buttonClass = isTablet
+      ? "request-product-details-modal__action-button--tablet"
+      : "request-product-details-modal__action-button--desktop";
+
+    const containerClass = isTablet
+      ? "request-product-details-modal__action-buttons-container--tablet"
+      : "request-product-details-modal__action-buttons-container";
+
+    return (
+      <TableContainer
+        component={Paper}
+        className="request-product-details-modal__table-container"
+      >
+        <Table size={isTablet ? "small" : "medium"} className={getTableClass()}>
+          <TableHead className="request-product-details-modal__table-head">
+            <TableRow>
+              {tableColumns.map((column) => (
+                <TableCell
+                  key={column.key}
+                  className={getTableCellHeaderClass()}
+                  style={{
+                    minWidth: column.minWidth,
+                    maxWidth: column.maxWidth,
+                    textAlign: column.align,
+                  }}
+                >
+                  {column.label}
+                </TableCell>
+              ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
+          </TableHead>
+          <TableBody>
+            {selectedProblem?.repairProductRequestDto?.map((product, index) => (
+              <TableRow key={product.requestedId}>
+                <TableCell
+                  className={`${getTableCellBodyClass()} request-product-details-modal__table-cell--body--left`}
+                  style={{ textAlign: "center" }}
+                >
+                  {index + 1}
+                </TableCell>
+                <TableCell
+                  className={`${getTableCellBodyClass()} request-product-details-modal__table-cell--body--word-break`}
+                  style={{ textAlign: "center" }}
+                >
+                  {product.productName}
+                </TableCell>
+                <TableCell
+                  className={getTableCellBodyClass()}
+                  style={{ textAlign: "center" }}
+                >
+                  {product.productCode}
+                </TableCell>
+                <TableCell
+                  className={getTableCellBodyClass()}
+                  style={{ textAlign: "center" }}
+                >
+                  {product.realQty}
+                </TableCell>
+                <TableCell
+                  className={getTableCellBodyClass()}
+                  style={{ textAlign: "center" }}
+                >
+                  {product?.requestedQty}
+                </TableCell>
+                <TableCell
+                  className={getTableCellBodyClass()}
+                  style={{ textAlign: "center" }}
+                >
+                  {product?.usedQty}
+                </TableCell>
+                <TableCell
+                  className={getTableCellBodyClass()}
+                  style={{ textAlign: "center" }}
+                >
+                  {product?.brandName} / {product?.countryName}
+                </TableCell>
+                <TableCell
+                  className={getTableCellBodyClass()}
+                  style={{ textAlign: "center" }}
+                >
+                  {product.statusDescription}
+                </TableCell>
+                <TableCell className={getTableCellPaddingClass()}>
+                  <Box className={containerClass}>
+                    <AccessGuard accessId={ACCESS_IDS.DECLARE_SHORTAGE}>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        size="small"
+                        className={buttonClass}
+                        onClick={() =>
+                          handleActionClick(product.requestedId, 1)
+                        }
+                        disabled={
+                          product.statusId === 1 ||
+                          product.statusId === 4 ||
+                          product.requestedQty === product.usedQty
+                        }
+                      >
+                        کسری
+                      </Button>
+                    </AccessGuard>
+                    <AccessGuard accessId={ACCESS_IDS.REJECT_REQUEST}>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        size="small"
+                        className={buttonClass}
+                        onClick={() =>
+                          handleActionClick(product.requestedId, 4)
+                        }
+                        disabled={
+                          product.statusId === 1 ||
+                          product.statusId === 4 ||
+                          product.usedQty > 0 ||
+                          product.requestedQty === product.usedQty
+                        }
+                      >
+                        رد
+                      </Button>
+                    </AccessGuard>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  };
 
   return (
     <Dialog

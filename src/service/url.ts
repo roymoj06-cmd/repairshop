@@ -123,7 +123,7 @@ export const proxyServerUrl = {
   deleteFileRepairReceptionFile: `${panelServiceBaseUrl}/RepairReceptionFile/DeleteFile`,
 
   // RepairMechanicProductRequest Controller
-  getMechanicProductRequestById: `${panelServiceBaseUrl}/RepairMechanicProductRequest/GetMechanicProductRequestById`,
+  getMechanicProductRequestByProblemId: `${panelServiceBaseUrl}/RepairMechanicProductRequest/GetMechanicProductRequestByProblemId`,
   createMechanicProductRequest: `${panelServiceBaseUrl}/RepairMechanicProductRequest/CreateMechanicProductRequest`,
   deleteMechanicProductRequest: `${panelServiceBaseUrl}/RepairMechanicProductRequest/DeleteMechanicProductRequest`,
   getMechanicProductRequest: `${panelServiceBaseUrl}/RepairMechanicProductRequest/GetMechanicProductRequest`,

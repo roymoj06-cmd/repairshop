@@ -1,28 +1,29 @@
-import { Dispatch, FC, SetStateAction, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Dispatch, FC, SetStateAction, useState } from "react";
 import {
   DialogActions,
   DialogContent,
+  useMediaQuery,
   DialogTitle,
+  CardContent,
+  Typography,
   TableHead,
   TableBody,
   TableCell,
   TableRow,
+  useTheme,
   Dialog,
   Button,
   Table,
-  useTheme,
-  useMediaQuery,
-  Box,
-  Typography,
-  Card,
-  CardContent,
   Stack,
+  Card,
   Chip,
+  Box,
 } from "@mui/material";
 
 import { getAllRepairProductRequestsByReceptionId } from "@/service/repairProductRequest/repairProductRequest.service";
 import { Loading, RequestProductDetailsModal } from "@/components";
+import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 
 interface IRequestProductListModalProps {
   setShowModal: Dispatch<SetStateAction<boolean | undefined>>;
@@ -114,19 +115,21 @@ const RequestProductListModal: FC<IRequestProductListModalProps> = ({
             />
           </Box>
           <Box display="flex" justifyContent="flex-end">
-            <Button
-              variant="contained"
-              color="secondary"
-              size="small"
-              onClick={() => handleViewDetails(problem)}
-              sx={{
-                minWidth: "100px",
-                fontSize: "0.875rem",
-                py: 0.5,
-              }}
-            >
-              مشاهده جزئیات
-            </Button>
+            <AccessGuard accessId={ACCESS_IDS.VIEW_REQUESTS}>
+              <Button
+                variant="contained"
+                color="secondary"
+                size="small"
+                onClick={() => handleViewDetails(problem)}
+                sx={{
+                  minWidth: "100px",
+                  fontSize: "0.875rem",
+                  py: 0.5,
+                }}
+              >
+                مشاهده جزئیات
+              </Button>
+            </AccessGuard>
           </Box>
         </Stack>
       </CardContent>
@@ -190,19 +193,21 @@ const RequestProductListModal: FC<IRequestProductListModalProps> = ({
                 />
               </TableCell>
               <TableCell sx={{ textAlign: "center" }}>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  size="small"
-                  onClick={() => handleViewDetails(problem)}
-                  sx={{
-                    fontSize: isTablet ? "0.75rem" : "0.875rem",
-                    minWidth: isTablet ? "60px" : "80px",
-                    py: isTablet ? 0.5 : 1,
-                  }}
-                >
-                  مشاهده
-                </Button>
+                <AccessGuard accessId={ACCESS_IDS.VIEW_REQUESTS}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    size="small"
+                    onClick={() => handleViewDetails(problem)}
+                    sx={{
+                      fontSize: isTablet ? "0.75rem" : "0.875rem",
+                      minWidth: isTablet ? "60px" : "80px",
+                      py: isTablet ? 0.5 : 1,
+                    }}
+                  >
+                    مشاهده
+                  </Button>
+                </AccessGuard>
               </TableCell>
             </TableRow>
           )

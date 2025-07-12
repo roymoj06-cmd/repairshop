@@ -1,6 +1,6 @@
 import { FC, SetStateAction, Dispatch } from "react";
 
-import { fixNumbers } from "@/utils";
+import { fixNumbers, getPlateBackgroundColor } from "@/utils";
 
 interface IPlateNumberDisplayProps {
   setState?: Dispatch<SetStateAction<plateSection>>;
@@ -32,10 +32,10 @@ const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({
       }));
     }
   };
-  // const backgroundColor = getPlateBackgroundColor(plateSection2 || "");
+  const backgroundColor = getPlateBackgroundColor(plateSection2 || "");
 
   return (
-    <div className="plate-container" style={{ background: "#fff" }}>
+    <div className="plate-container" style={{ background: backgroundColor }}>
       <div className="plate-section">
         <div className="plate-section-content">
           <div className="text-center text-black">ایران</div>

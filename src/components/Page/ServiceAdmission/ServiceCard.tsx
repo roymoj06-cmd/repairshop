@@ -8,6 +8,7 @@ import {
   addCommas,
   formatDateTime,
 } from "@/utils";
+import { useAccessControl, ACCESS_IDS } from "@/utils/accessControl";
 
 interface ServiceCardProps {
   onDelete: (id: number, serviceName: string) => void;
@@ -22,6 +23,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   service,
   onEdit,
 }) => {
+  const { hasAccess } = useAccessControl();
+
   return (
     <div className="bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 overflow-hidden">
       {/* Service Header */}
@@ -48,28 +51,32 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <IconButton
-              onClick={() => onEdit(service)}
-              className="!p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600"
-              title="ویرایش"
-              size="small"
-            >
-              <Edit
-                className="text-blue-500 dark:text-blue-400"
-                style={{ fontSize: 16 }}
-              />
-            </IconButton>
-            <IconButton
-              onClick={() => onDelete(service.id, service.serviceTitle)}
-              className="!p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600"
-              title="حذف"
-              size="small"
-            >
-              <Delete
-                className="text-red-500 dark:text-red-400"
-                style={{ fontSize: 16 }}
-              />
-            </IconButton>
+            {hasAccess(ACCESS_IDS.EDIT_REPAIR) && (
+              <IconButton
+                onClick={() => onEdit(service)}
+                className="!p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600"
+                title="ویرایش"
+                size="small"
+              >
+                <Edit
+                  className="text-blue-500 dark:text-blue-400"
+                  style={{ fontSize: 16 }}
+                />
+              </IconButton>
+            )}
+            {hasAccess(ACCESS_IDS.DELETE_REPAIR) && (
+              <IconButton
+                onClick={() => onDelete(service.id, service.serviceTitle)}
+                className="!p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600"
+                title="حذف"
+                size="small"
+              >
+                <Delete
+                  className="text-red-500 dark:text-red-400"
+                  style={{ fontSize: 16 }}
+                />
+              </IconButton>
+            )}
           </div>
         </div>
       </div>

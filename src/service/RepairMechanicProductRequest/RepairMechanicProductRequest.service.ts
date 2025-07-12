@@ -2,11 +2,13 @@ import { convertObjectToQueryString } from "@/utils";
 import axiosInstance from "@/service/axiosInstance";
 import { proxyServerUrl } from "@/service/url";
 
-export const getMechanicProductRequestById = async (id: number) => {
-  const queryString = convertObjectToQueryString({ id });
+export const getMechanicProductRequestByProblemId = async (
+  problemId: number
+) => {
+  const queryString = convertObjectToQueryString({ problemId });
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getMechanicProductRequestById}${
+    url: `${proxyServerUrl.getMechanicProductRequestByProblemId}${
       queryString ? `?${queryString}` : ""
     }`,
   };

@@ -11,6 +11,11 @@ import {
   deleteCustomerProblem,
   getCustomerProblems,
 } from "@/service/repairServices/repairServices.service";
+import {
+  useAccessControl,
+  ACCESS_IDS,
+  AccessGuard,
+} from "@/utils/accessControl";
 
 interface ICustomerProblemsProps {
   repairReceptionId?: string;
@@ -30,6 +35,7 @@ interface ServerProblemChange {
 const CustomerProblems: FC<ICustomerProblemsProps> = ({
   repairReceptionId,
 }) => {
+  const { hasAccess } = useAccessControl();
   const queryClient = useQueryClient();
   const [localProblems, setLocalProblems] = useState<LocalProblem[]>([]);
   const [serverProblemChanges, setServerProblemChanges] = useState<
@@ -235,23 +241,26 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
 
   return (
     <Box>
-      <Box className="mb-2 flex justify-between items-center">
-        <Typography variant="subtitle1">شرح مشکلات</Typography>
-        <Button
-          startIcon={<Add />}
-          variant="outlined"
-          onClick={addProblem}
-          size="small"
-          disabled={
-            isLoading ||
-            createMutation.isPending ||
-            updateMutation.isPending ||
-            deleteMutation.isPending
-          }
-        >
-          افزودن مشکل
-        </Button>
-      </Box>
+      <AccessGuard accessId={ACCESS_IDS.ADD_PROBLEM}>
+        <Box className="mb-2 flex justify-between items-center">
+          <Typography variant="subtitle1">شرح مشکلات</Typography>
+          <Button
+            startIcon={<Add />}
+            variant="outlined"
+            onClick={addProblem}
+            size="small"
+            disabled={
+              isLoading ||
+              createMutation.isPending ||
+              updateMutation.isPending ||
+              deleteMutation.isPending
+            }
+          >
+            افزودن مشکل
+          </Button>
+        </Box>
+      </AccessGuard>
+
       {allProblems.map((problem, index) => {
         const needsSaving = hasChanges(index);
         return (
@@ -275,7 +284,7 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
                 deleteMutation.isPending
               }
             />
-            {needsSaving && (
+            {needsSaving && hasAccess(ACCESS_IDS.EDIT_PROBLEM) && (
               <IconButton
                 color="success"
                 onClick={() => saveProblem(index)}
@@ -290,7 +299,7 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
                 <Check />
               </IconButton>
             )}
-            {allProblems.length > 1 && (
+            {allProblems.length > 1 && hasAccess(ACCESS_IDS.DELETE_PROBLEM) && (
               <IconButton
                 color="error"
                 onClick={() => removeProblem(index)}
