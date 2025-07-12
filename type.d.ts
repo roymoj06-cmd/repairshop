@@ -543,3 +543,27 @@ interface IGetMechanicProductRequestByProblemId {
   fileId: number;
   id: number;
 }
+interface IGetRepairReceptionServices {
+  totalEstimatedMinutes: number;
+  repairReceptionId: number;
+  totalPrice: number;
+  services: {
+    repairCustomerProblemDescription: string;
+    performedByMechanicName: string;
+    repairCustomerProblemId: number;
+    performedByMechanicId: number;
+    repairReceptionId: number;
+    createdByUserName: string;
+    createdByUserId: number;
+    estimatedMinute: number;
+    serviceTitle: string;
+    servicePrice: number;
+    serviceCount: number;
+    totalPrice: number;
+    serviceId: number;
+    startDate: string;
+    endDate: string;
+    status: number;
+    id: number;
+  }[];
+}
