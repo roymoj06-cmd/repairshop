@@ -58,8 +58,8 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                     className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700"
                   >
                     <ProblemHeader
-                      problem={problem}
                       problemIndex={problemIndex}
+                      problem={problem}
                     />
                     <div className="p-2">
                       {problem.services?.length > 0 ? (
@@ -93,8 +93,6 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                   </div>
                 )
               )}
-
-              {/* Total Summary */}
               <ProjectSummary problems={services.problems} />
             </div>
           ) : (
@@ -114,22 +112,20 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
           )}
         </div>
       )}
-
       <ServiceManagementModal
-        open={showModal}
+        isLoading={createMutation.isPending || updateMutation.isPending}
+        onServiceChange={handleServiceChange}
+        onProblemChange={setSelectedProblem}
         onClose={() => setShowModal(false)}
-        onSubmit={handleSubmit}
         selectedService={selectedService}
         selectedProblem={selectedProblem}
         currentServices={currentServices}
-        problems={problems}
         repairServices={repairServices}
+        onSubmit={handleSubmit}
         mechanics={mechanics}
-        isLoading={createMutation.isPending || updateMutation.isPending}
-        onProblemChange={setSelectedProblem}
-        onServiceChange={handleServiceChange}
+        problems={problems}
+        open={showModal}
       />
-
       <ConfirmDialog
         open={deleteConfirm.open}
         onCancel={() =>

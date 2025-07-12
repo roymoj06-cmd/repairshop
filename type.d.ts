@@ -551,7 +551,7 @@ interface IGetMechanicProductRequestByProblemId {
   fileId: number;
   id: number;
 }
-interface IGetRepairReceptionServices {
+interface IGetRepairReceptionService {
   id: number;
   serviceId: number;
   serviceTitle: string;
@@ -570,4 +570,10 @@ interface IGetRepairReceptionServices {
   startDate: string;
   endDate: string;
   hasFactor: boolean;
+}
+interface IGetRepairReceptionServices {
+  totalEstimatedMinutes: number;
+  repairReceptionId: number;
+  totalPrice: number;
+  services: IGetRepairReceptionService[];
 }

@@ -127,7 +127,7 @@ export default function TaskEditModal({
       if (!data?.data?.services) return [];
 
       const allServices: any[] = [];
-      data.data.services.forEach((service: IGetRepairReceptionServices) => {
+      data.data.services.forEach((service: IGetRepairReceptionService) => {
         allServices.push({
           label: service.serviceTitle,
           value: service.id,

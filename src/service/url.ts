@@ -98,11 +98,11 @@ export const proxyServerUrl = {
 
   // RepairReceptionService Controller
   getAllRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServicesGroupedByProblems`,
-  getRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServices`,
   getRepairReceptionServiceById: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServiceById`,
   updateRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/UpdateRepairReceptionService`,
   deleteRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/DeleteRepairReceptionService`,
   saveRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/SaveRepairReceptionServices`,
+  getRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServices`,
 
   // RepairProductRequest Controller
   getAllRepairProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetAllRepairProductRequestsByReceptionId`,
