@@ -2,6 +2,7 @@ import { persist } from "zustand/middleware";
 import { toast } from "react-toastify";
 import { create } from "zustand";
 import Cookies from "js-cookie";
+
 import { token } from "@/service/authentication/authentication.service";
 import { getCurrentUserAccesses } from "@/service/userSecurity/userSecurity.service";
 

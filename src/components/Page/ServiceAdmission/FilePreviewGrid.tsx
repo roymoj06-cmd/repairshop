@@ -1,15 +1,16 @@
-import { CircularProgressWithLabel } from "@/components";
-import ConfirmDeleteDialog from "@/components/common/ConfirmDeleteDialog";
-import FileDetail from "@/components/common/FileDetail";
 import { Close, FolderOpen, Visibility } from "@mui/icons-material";
 import { Dialog } from "@mui/material";
 import { useState } from "react";
+
+import { CircularProgressWithLabel, ConfirmDeleteDialog } from "@/components";
+import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
+import FileDetail from "@/components/common/FileDetail";
 import { useTheme } from "@/context/ThemeContext";
 
 interface FilePreviewGridProps {
+  progressMap?: Record<number, number>;
   files: Array<File & { id: number }>;
   removeFile: (id: number) => void;
-  progressMap?: Record<number, number>;
   isLoading?: boolean;
 }
 
@@ -116,17 +117,19 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
                 </div>
               )}
 
-              <Close
-                fontSize="small"
-                onClick={() =>
-                  setModalDetail({
-                    show: true,
-                    type: "delete",
-                    data: fileObj,
-                  })
-                }
-                className="absolute top-0 right-0 bg-secondary-main text-white p-1 shadow"
-              />
+              <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+                <Close
+                  fontSize="small"
+                  onClick={() =>
+                    setModalDetail({
+                      show: true,
+                      type: "delete",
+                      data: fileObj,
+                    })
+                  }
+                  className="absolute top-0 right-0 bg-secondary-main text-white p-1 shadow"
+                />
+              </AccessGuard>
               <Visibility
                 fontSize="medium"
                 onClick={() =>

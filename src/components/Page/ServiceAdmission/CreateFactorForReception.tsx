@@ -34,6 +34,7 @@ import {
   salesViewByCustomerAndByCarId,
   createRepairFactorRequest,
 } from "@/service/repair/repair.service";
+import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 
 interface CreateFactorForReceptionProps {
   repairReceptionId: number;
@@ -1203,15 +1204,17 @@ const CreateFactorForReception: React.FC<CreateFactorForReceptionProps> = ({
                         gap: 1,
                       }}
                     >
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={handleSubmit}
-                        disabled={isLoading}
-                        fullWidth
-                      >
-                        ثبت
-                      </Button>
+                      <AccessGuard accessId={ACCESS_IDS.CREATE_FACTOR}>
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          onClick={handleSubmit}
+                          disabled={isLoading}
+                          fullWidth
+                        >
+                          ثبت
+                        </Button>
+                      </AccessGuard>
                       {/* <Button
                         variant="contained"
                         color="secondary"

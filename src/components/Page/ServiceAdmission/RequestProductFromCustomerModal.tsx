@@ -29,6 +29,7 @@ import {
 import { getCustomerProblems } from "@/service/repairServices/repairServices.service";
 import { getProductsThatContainsText } from "@/service/Product/Product.service";
 import { updateRepairReceptionByProblem } from "@/service/repair/repair.service";
+import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 import { EnhancedSelect, Loading } from "@/components";
 
 interface IRequestProductFromCustomerModalProps {
@@ -172,7 +173,6 @@ const RequestProductFromCustomerModal: FC<
         })),
       },
     };
-
     mutateUpdateRepairReception(requestData);
   };
   const handleClose = () => {
@@ -373,7 +373,6 @@ const RequestProductFromCustomerModal: FC<
       </Table>
     </TableContainer>
   );
-
   const renderProductList = () => {
     if (selectedProducts.length === 0) return null;
     if (isMobile || isTablet) {
@@ -460,19 +459,21 @@ const RequestProductFromCustomerModal: FC<
           gap: isMobile ? 1 : 0,
         }}
       >
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={
-            selectedProducts.length === 0 ||
-            !selectedProblem ||
-            isPendingUpdateRepairReception
-          }
-          fullWidth={isMobile}
-          size={isMobile ? "large" : "medium"}
-        >
-          ثبت
-        </Button>
+        <AccessGuard accessId={ACCESS_IDS.CUSTOMER_PART_RECEIPT}>
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            disabled={
+              selectedProducts.length === 0 ||
+              !selectedProblem ||
+              isPendingUpdateRepairReception
+            }
+            fullWidth={isMobile}
+            size={isMobile ? "large" : "medium"}
+          >
+            ثبت
+          </Button>
+        </AccessGuard>
         <Button
           onClick={handleClose}
           variant="outlined"

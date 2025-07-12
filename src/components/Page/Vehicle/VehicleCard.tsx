@@ -14,6 +14,7 @@ import { deleteRepairReception } from "@/service/repair/repair.service";
 import { PlateNumberDisplay, ConfirmDeleteDialog } from "@/components";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "@/context/ThemeContext";
+import { useStore } from "@/Store/useStore";
 
 interface VehicleCardProps {
   vehicle: IGetRepairReceptions;
@@ -27,6 +28,7 @@ const formatPrice = (price: number) => {
 };
 const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
   const { mode } = useTheme();
+  const { userAccesses } = useStore();
   const queryClient = useQueryClient();
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -80,27 +82,31 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
           }}
         >
           {/* Delete button in top-right corner */}
-          <div className="delete-button">
-            <IconButton
-              onClick={handleDeleteClick}
-              size="small"
-              sx={{
-                backgroundColor:
-                  mode === "dark"
-                    ? "rgba(239, 68, 68, 0.1)"
-                    : "rgba(239, 68, 68, 0.1)",
-                color: "#ef4444",
-                "&:hover": {
+          {userAccesses?.find(
+            (item: string) => item === "faddee5d-7277-420f-9452-ccb315b15f1e"
+          ) && (
+            <div className="delete-button">
+              <IconButton
+                onClick={handleDeleteClick}
+                size="small"
+                sx={{
                   backgroundColor:
                     mode === "dark"
-                      ? "rgba(239, 68, 68, 0.2)"
-                      : "rgba(239, 68, 68, 0.2)",
-                },
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </div>
+                      ? "rgba(239, 68, 68, 0.1)"
+                      : "rgba(239, 68, 68, 0.1)",
+                  color: "#ef4444",
+                  "&:hover": {
+                    backgroundColor:
+                      mode === "dark"
+                        ? "rgba(239, 68, 68, 0.2)"
+                        : "rgba(239, 68, 68, 0.2)",
+                  },
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </div>
+          )}
 
           <div className="py-2 w-full mx-auto">
             <PlateNumberDisplay

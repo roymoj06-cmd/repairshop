@@ -26,13 +26,19 @@ import {
   changeIsCancelled,
 } from "@/service/repair/repair.service";
 import {
+  useAccessControl,
+  AccessGuard,
+  ACCESS_IDS,
+} from "@/utils/accessControl";
+import {
   RequestProductFromCustomerModal,
+  RequestProductForInventoryModal,
   CreateFactorForReception,
   RequestProductListModal,
   RequestProductModal,
   ConfirmDeleteDialog,
+  ProductFactorModal,
   Loading,
-  RequestProductForInventoryModal,
 } from "@/components";
 
 interface RepairReceptionProductsProps {
@@ -42,6 +48,7 @@ interface RepairReceptionProductsProps {
 const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
   repairReceptionId,
 }) => {
+  const { hasAccess } = useAccessControl();
   const queryClient = useQueryClient();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -53,6 +60,7 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
     useState<boolean>();
   const [showProductRequestListModal, setShowProductRequestListModal] =
     useState<boolean>();
+  const [showFactorModal, setShowFactorModal] = useState<boolean>();
   const [
     showProductRequestForInventoryModal,
     setShowProductRequestForInventoryModal,
@@ -137,14 +145,16 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
           >
             {product.productName}
           </Typography>
-          <IconButton
-            color="error"
-            size="small"
-            onClick={() => handleDeleteClick(product)}
-            sx={{ ml: 1 }}
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
+          {hasAccess(ACCESS_IDS.DELETE_SCANNED_PART) && (
+            <IconButton
+              color="error"
+              size="small"
+              onClick={() => handleDeleteClick(product)}
+              sx={{ ml: 1 }}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          )}
         </Box>
 
         <Stack spacing={1}>
@@ -235,13 +245,15 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
                 {product.brand} / {product.countryName}
               </TableCell>
               <TableCell sx={{ textAlign: "center" }}>
-                <IconButton
-                  color="error"
-                  size="small"
-                  onClick={() => handleDeleteClick(product)}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                {hasAccess(ACCESS_IDS.DELETE_SCANNED_PART) && (
+                  <IconButton
+                    color="error"
+                    size="small"
+                    onClick={() => handleDeleteClick(product)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
               </TableCell>
             </TableRow>
           ))}
@@ -257,54 +269,98 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
         sx={{
           mb: 3,
           display: "flex",
-          flexDirection: isMobile ? "column" : "row",
+          flexWrap: "wrap",
           gap: 2,
+          alignItems: "flex-start",
         }}
       >
+        <AccessGuard accessId={ACCESS_IDS.MECHANIC_PART_REQUEST}>
+          <Button
+            onClick={() => setShowProductRequestForInventoryModal(true)}
+            variant="contained"
+            color="secondary"
+            size="large"
+            sx={{
+              flex: "1 1 auto",
+              minWidth: "fit-content",
+              maxWidth: "calc(50% - 8px)",
+            }}
+          >
+            درخواست قطعه مکانیک
+          </Button>
+        </AccessGuard>
+        <AccessGuard accessId={ACCESS_IDS.WAREHOUSE_PART_REQUEST}>
+          <Button
+            onClick={() => setShowProductRequestModal(true)}
+            variant="contained"
+            color="secondary"
+            size="large"
+            sx={{
+              flex: "1 1 auto",
+              minWidth: "fit-content",
+              maxWidth: "calc(50% - 8px)",
+            }}
+          >
+            درخواست قطعه انبار
+          </Button>
+        </AccessGuard>
+        <AccessGuard accessId={ACCESS_IDS.VIEW_REQUESTS}>
+          <Button
+            onClick={() => setShowProductRequestListModal(true)}
+            variant="contained"
+            color="secondary"
+            size="large"
+            sx={{
+              flex: "1 1 auto",
+              minWidth: "fit-content",
+              maxWidth: "calc(50% - 8px)",
+            }}
+          >
+            نمایش درخواست ها
+          </Button>
+        </AccessGuard>
+        <AccessGuard accessId={ACCESS_IDS.CREATE_FACTOR}>
+          <Button
+            onClick={() => setShowCreateFactorModal(true)}
+            variant="contained"
+            color="secondary"
+            size="large"
+            sx={{
+              flex: "1 1 auto",
+              minWidth: "fit-content",
+              maxWidth: "calc(50% - 8px)",
+            }}
+          >
+            ایجاد فاکتور
+          </Button>
+        </AccessGuard>
+        <AccessGuard accessId={ACCESS_IDS.CUSTOMER_PART_RECEIPT}>
+          <Button
+            onClick={() => setShowProductRequestFromCustomerModal(true)}
+            variant="contained"
+            color="secondary"
+            size="large"
+            sx={{
+              flex: "1 1 auto",
+              minWidth: "fit-content",
+              maxWidth: "calc(50% - 8px)",
+            }}
+          >
+            رسید کالا از مشتری
+          </Button>
+        </AccessGuard>
         <Button
-          onClick={() => setShowProductRequestForInventoryModal(true)}
+          onClick={() => setShowFactorModal(true)}
           variant="contained"
           color="secondary"
           size="large"
-          fullWidth={isMobile}
+          sx={{
+            flex: "1 1 auto",
+            minWidth: "fit-content",
+            maxWidth: "calc(50% - 8px)",
+          }}
         >
-          درخواست قطعه مکانیک
-        </Button>
-        <Button
-          onClick={() => setShowProductRequestModal(true)}
-          variant="contained"
-          color="secondary"
-          size="large"
-          fullWidth={isMobile}
-        >
-          درخواست قطعه انبار
-        </Button>
-        <Button
-          onClick={() => setShowProductRequestListModal(true)}
-          variant="contained"
-          color="secondary"
-          size="large"
-          fullWidth={isMobile}
-        >
-          نمایش درخواست ها
-        </Button>
-        <Button
-          onClick={() => setShowCreateFactorModal(true)}
-          variant="contained"
-          color="secondary"
-          size="large"
-          fullWidth={isMobile}
-        >
-          ایجاد فاکتور
-        </Button>
-        <Button
-          onClick={() => setShowProductRequestFromCustomerModal(true)}
-          variant="contained"
-          color="secondary"
-          size="large"
-          fullWidth={isMobile}
-        >
-          رسید کالا از مشتری
+          نمایش فاکتور
         </Button>
       </Box>
       {repairReception?.details && repairReception.details.length > 0 ? (
@@ -313,7 +369,7 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
             variant={isMobile ? "h6" : "h5"}
             sx={{ mb: 2, fontWeight: "bold" }}
           >
-            لیست کالاهای پذیرش شده
+            لیست کالاهای مصرف شده
           </Typography>
 
           {isMobile || isTablet ? (
@@ -387,6 +443,20 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
           setShowModal={setShowProductRequestForInventoryModal}
           showModal={showProductRequestForInventoryModal}
           repairReceptionId={repairReceptionId}
+        />
+      )}
+      {showFactorModal && (
+        <ProductFactorModal
+          open={showFactorModal}
+          onClose={() => setShowFactorModal(false)}
+          repairReceptionId={+(repairReceptionId || "")}
+          details={{
+            customerName: repairReception?.customerName || "",
+            plateNumber: repairReception?.plateNumber || "",
+            receptionDate: repairReception?.receptionDate || "",
+            isDischarged: repairReception?.isDischarged,
+          }}
+          onRefresh={handleRefreshData}
         />
       )}
     </div>

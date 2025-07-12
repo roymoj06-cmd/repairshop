@@ -456,7 +456,7 @@ export const getFileSource = (fileId: number) => {
 };
 export const getPlateBackgroundColor = (letter: string): string => {
   const colorMap: { [key: string]: string } = {
-    ع: "#f1d907",
+    ع: "#feca14",
     // Add more mappings as needed
   };
 

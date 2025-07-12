@@ -252,16 +252,16 @@ interface ICreateOrUpdateCustomerProblem {
 }
 interface ICreateOrUpdateRepairReceptionService {
   request: {
-    repairReceptionId: number;
-    problemServices: {
-      repairCustomerProblemId: number;
-      services: {
-        performedByMechanicId: number;
-        estimatedMinute: number;
-        serviceCount: number;
-        serviceId: number;
-      }[];
-    }[];
+    repairReceptionServiceId: number;
+    repairCustomerProblemId: number;
+    performedByMechanicId: number;
+    estimatedMinute: number;
+    serviceCount: number;
+    serviceId: number;
+    startDate: string;
+    endDate: string;
+    status: number;
+    price: number;
   };
 }
 interface IAllGetRepairReceptionService extends IPaginationForService {
@@ -535,4 +535,11 @@ interface IMechanicPerformanceResponse {
     endDate: string;
     profit: number;
   }[];
+}
+interface IGetMechanicProductRequestByProblemId {
+  problemTitle: string;
+  productTitle: string;
+  problemId: number;
+  fileId: number;
+  id: number;
 }

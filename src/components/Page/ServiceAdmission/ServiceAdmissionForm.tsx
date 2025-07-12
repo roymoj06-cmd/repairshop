@@ -22,6 +22,7 @@ import {
   Loading,
   Button,
 } from "@/components";
+import { useAccessControl, ACCESS_IDS } from "@/utils/accessControl";
 
 interface IServiceAdmissionFormProps {
   repairReceptionId?: string;
@@ -30,6 +31,7 @@ interface IServiceAdmissionFormProps {
 const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   repairReceptionId,
 }) => {
+  const { hasCategoryAccess } = useAccessControl();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [showNewPlateDialog, setShowNewPlateDialog] = useState<boolean>(false);
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
@@ -303,37 +305,43 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
                 onChange={handleTabChange}
                 aria-label="service tabs"
               >
-                <Tab label="مشکلات" />
-                <Tab label="تعمیرات" />
-                <Tab label="قطعات" />
-                <Tab label="مستندات" />
+                {hasCategoryAccess(ACCESS_IDS.PROBLEMS) && (
+                  <Tab label="مشکلات" />
+                )}
+                {hasCategoryAccess(ACCESS_IDS.REPAIRS) && (
+                  <Tab label="تعمیرات" />
+                )}
+                {hasCategoryAccess(ACCESS_IDS.PARTS) && <Tab label="قطعات" />}
+                {hasCategoryAccess(ACCESS_IDS.DOCUMENTS) && (
+                  <Tab label="مستندات" />
+                )}
               </Tabs>
             </Box>
 
             {/* تب مشکلات */}
-            {activeTab === 0 && (
+            {activeTab === 0 && hasCategoryAccess(ACCESS_IDS.PROBLEMS) && (
               <CustomerProblems repairReceptionId={repairReceptionId} />
             )}
 
             {/* تب تعمیرات */}
-            {activeTab === 1 && (
+            {activeTab === 1 && hasCategoryAccess(ACCESS_IDS.REPAIRS) && (
               <RepairReceptionService repairReceptionId={repairReceptionId} />
             )}
 
             {/* تب قطعات */}
-            {activeTab === 2 && (
+            {activeTab === 2 && hasCategoryAccess(ACCESS_IDS.PARTS) && (
               <RepairReceptionProducts repairReceptionId={repairReceptionId} />
             )}
 
             {/* تب مستندات */}
-            {activeTab === 3 && (
+            {activeTab === 3 && hasCategoryAccess(ACCESS_IDS.DOCUMENTS) && (
               <Box>
                 <Grid size={{ xs: 12 }}>
                   <Box className="mt-4">
                     <Typography variant="h6" className="mb-2">
                       آپلود فایل
+                      <UploaderDocs repairReceptionId={repairReceptionId} />
                     </Typography>
-                    <UploaderDocs repairReceptionId={repairReceptionId} />
                   </Box>
                 </Grid>
               </Box>

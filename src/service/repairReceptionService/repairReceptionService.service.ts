@@ -39,7 +39,7 @@ export const updateRepairReceptionService = async (
 ) => {
   const reqConfig = {
     method: "PUT",
-    url: `${proxyServerUrl.updateRepairReceptionService}`,
+    url: `${proxyServerUrl.saveRepairReceptionServices}`,
     data: data,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
@@ -55,7 +55,7 @@ export const deleteRepairReceptionService = async (id: number) => {
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
 export const updateRepairReceptionServicesForProblems = async (
-  data: IUpdateRepairReceptionServicesForProblems
+  data: ICreateOrUpdateRepairReceptionService
 ) => {
   const reqConfig = {
     method: "PUT",

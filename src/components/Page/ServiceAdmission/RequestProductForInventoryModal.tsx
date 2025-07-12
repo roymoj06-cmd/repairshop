@@ -19,9 +19,9 @@ import { getCustomerProblems } from "@/service/repairServices/repairServices.ser
 import {
   createMechanicProductRequest,
   deleteMechanicProductRequest,
-  getMechanicProductRequest,
 } from "@/service/RepairMechanicProductRequest/RepairMechanicProductRequest.service";
 import { EnhancedInput, EnhancedSelect, Loading } from "@/components";
+import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 
 interface IRequestProductForInventoryModalProps {
   setShowModal: Dispatch<SetStateAction<boolean | undefined>>;
@@ -57,25 +57,11 @@ const RequestProductForInventoryModal: FC<
         label: problem.description,
       })) || [],
   });
-  const { data: serverRequests = [], isLoading } = useQuery({
-    queryKey: ["mechanicProductRequests", selectedProblem?.value],
-    queryFn: () =>
-      getMechanicProductRequest({
-        page: 1,
-        size: 100,
-      }),
-    enabled: !!selectedProblem?.value,
-    select: (data) => data?.data?.values || [],
-  });
-  const allRequests = [
-    ...serverRequests
-      .filter((request: any) => request.problemId === selectedProblem?.value)
-      .map((request: any) => ({
-        ...request,
-        isNew: false,
-      })),
-    ...localRequests,
-  ];
+  // Remove server requests query - we don't need to show existing requests
+  const allRequests = localRequests.map((request: any) => ({
+    ...request,
+    isNew: true,
+  }));
   const createMutation = useMutation({
     mutationFn: createMechanicProductRequest,
     onSuccess: (data: any) => {
@@ -84,7 +70,7 @@ const RequestProductForInventoryModal: FC<
       });
       if (data?.isSuccess) {
         toast.success("درخواست با موفقیت ایجاد شد");
-        setLocalRequests((prev) => prev.slice(0, -1));
+        setLocalRequests([]);
       } else {
         toast.error(data?.message || "خطا در ایجاد درخواست");
       }
@@ -113,76 +99,45 @@ const RequestProductForInventoryModal: FC<
     const newRequest: LocalRequest = {
       productTitle: "",
       problemId: selectedProblem.value,
-      fileId: 0, // Assuming fileId is optional or will be handled later
+      fileId: 0,
       isNew: true,
     };
     setLocalRequests([...localRequests, newRequest]);
   };
   const updateRequestTitle = (index: number, productTitle: string) => {
-    const isLocalRequest = index >= serverRequests.length;
-    if (isLocalRequest) {
-      const localIndex = index - serverRequests.length;
-      const newLocalRequests = [...localRequests];
-      newLocalRequests[localIndex] = {
-        ...newLocalRequests[localIndex],
-        productTitle,
-      };
-      setLocalRequests(newLocalRequests);
-    }
+    const newLocalRequests = [...localRequests];
+    newLocalRequests[index] = {
+      ...newLocalRequests[index],
+      productTitle,
+    };
+    setLocalRequests(newLocalRequests);
   };
   const getRequestTitle = (index: number) => {
-    const isLocalRequest = index >= serverRequests.length;
-    if (isLocalRequest) {
-      const localIndex = index - serverRequests.length;
-      return localRequests[localIndex]?.productTitle || "";
-    } else {
-      return serverRequests[index]?.productTitle || "";
-    }
+    return localRequests[index]?.productTitle || "";
   };
   const hasChanges = (index: number) => {
-    const isLocalRequest = index >= serverRequests.length;
-    if (isLocalRequest) {
-      const localIndex = index - serverRequests.length;
-      return localRequests[localIndex]?.productTitle?.trim() || false;
-    }
-    return false;
+    return localRequests[index]?.productTitle?.trim() || false;
   };
   const saveRequest = async (index: number) => {
-    const isLocalRequest = index >= serverRequests.length;
-    if (isLocalRequest) {
-      const localIndex = index - serverRequests.length;
-      const request = localRequests[localIndex];
-      if (!request.productTitle.trim()) {
-        toast.error("لطفاً عنوان کالا را وارد کنید");
-        return;
-      }
-      createMutation.mutate({
-        productTitle: request.productTitle,
-        problemId: request.problemId,
-        fileId: request.fileId,
-      });
-    }
-  };
-  const removeRequest = async (index: number) => {
-    const isLocalRequest = index >= serverRequests.length;
-    if (isLocalRequest) {
-      const localIndex = index - serverRequests.length;
-      const newLocalRequests = localRequests.filter((_, i) => i !== localIndex);
-      setLocalRequests(newLocalRequests);
+    const request = localRequests[index];
+    if (!request.productTitle.trim()) {
+      toast.error("لطفاً عنوان کالا را وارد کنید");
       return;
     }
-    const request = serverRequests[index];
-    if (!request.id) return;
-    if (
-      window.confirm("آیا مطمئن هستید که می‌خواهید این درخواست را حذف کنید؟")
-    ) {
-      deleteMutation.mutate(request.id);
-    }
+    createMutation.mutate({
+      productTitle: request.productTitle,
+      problemId: request.problemId,
+      fileId: request.fileId,
+    });
+  };
+  const removeRequest = async (index: number) => {
+    const newLocalRequests = localRequests.filter((_, i) => i !== index);
+    setLocalRequests(newLocalRequests);
   };
   const handleCloseModal = () => {
-    setShowModal(false);
     setSelectedProblem(null);
     setLocalRequests([]);
+    setShowModal(false);
   };
 
   return (
@@ -228,19 +183,19 @@ const RequestProductForInventoryModal: FC<
           <Box sx={{ mt: 2 }}>
             <Box className="mb-2 flex justify-between items-center">
               <Typography variant="subtitle1">درخواست‌های کالا</Typography>
-              <Button
-                startIcon={<Add />}
-                variant="outlined"
-                onClick={addRequest}
-                size="small"
-                disabled={
-                  isLoading ||
-                  createMutation.isPending ||
-                  deleteMutation.isPending
-                }
-              >
-                افزودن درخواست کالا
-              </Button>
+              <AccessGuard accessId={ACCESS_IDS.MECHANIC_PART_REQUEST}>
+                <Button
+                  startIcon={<Add />}
+                  variant="outlined"
+                  onClick={addRequest}
+                  size="small"
+                  disabled={
+                    createMutation.isPending || deleteMutation.isPending
+                  }
+                >
+                  افزودن درخواست کالا
+                </Button>
+              </AccessGuard>
             </Box>
 
             {allRequests.map((request, index) => {

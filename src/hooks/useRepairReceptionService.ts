@@ -6,10 +6,10 @@ import { getAllRepairServices } from "@/service/repairServices/repairServices.se
 import { getCustomerProblems } from "@/service/repairServices/repairServices.service";
 import { ServiceFormData, ExtendedSelectOption, addCommas } from "@/utils";
 import {
-  updateRepairReceptionServicesForProblems,
   getAllRepairReceptionServices,
   deleteRepairReceptionService,
   createRepairReceptionService,
+  updateRepairReceptionServicesForProblems,
 } from "@/service/repairReceptionService/repairReceptionService.service";
 import { getActiveMechanics } from "@/service/mechanic/mechanic.service";
 
@@ -288,106 +288,56 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
         return;
       }
       if (selectedService) {
-        const updateData: IUpdateRepairReceptionServicesForProblems = {
+        const updateData: ICreateOrUpdateRepairReceptionService = {
           request: {
-            repairReceptionId: Number(repairReceptionId),
-            problemServices: [
-              {
-                repairCustomerProblemId: selectedProblem?.value,
-                services: currentServices.map((service) => {
-                  const serviceData: any = {
-                    serviceId: Number(service.serviceId?.value) || 0,
-                    serviceCount: service.serviceCount || 1,
-                    performedByMechanicId:
-                      Number(service.mechanicId?.value) || 0,
-                    price: Number(service.servicePrice) || 0,
-                    estimatedMinute: Number(service.estimatedMinute) || 0,
-                    startDate: service.startDate || null,
-                    endDate: service.endDate || null,
-                    status:
-                      "status" in selectedService ? selectedService.status : 0,
-                    isDeleted: false,
-                  };
-                  if ("id" in selectedService && selectedService.id) {
-                    serviceData.id = selectedService.id;
-                  }
-                  return serviceData;
-                }),
-              },
-            ],
+            repairReceptionServiceId:
+              "id" in selectedService ? selectedService.id : 0,
+            repairCustomerProblemId: selectedProblem?.value,
+            performedByMechanicId:
+              Number(currentServices[0].mechanicId?.value) || 0,
+            estimatedMinute: Number(currentServices[0].estimatedMinute) || 0,
+            serviceCount: currentServices[0].serviceCount || 1,
+            serviceId: Number(currentServices[0].serviceId?.value) || 0,
+            startDate: currentServices[0].startDate || "",
+            endDate: currentServices[0].endDate || "",
+            status: "status" in selectedService ? selectedService.status : 0,
+            price: Number(currentServices[0].servicePrice) || 0,
           },
         };
 
         updateMutation.mutate(updateData);
       } else if (currentServices.some((service) => service.originalServiceId)) {
-        const updateData: IUpdateRepairReceptionServicesForProblems = {
+        const updateData: ICreateOrUpdateRepairReceptionService = {
           request: {
-            repairReceptionId: Number(repairReceptionId),
-            problemServices: [
-              {
-                repairCustomerProblemId: selectedProblem?.value,
-                services: currentServices
-                  .filter((service) => !service.isDeleted)
-                  .map((service) => {
-                    const serviceData: any = {
-                      serviceId: Number(service.serviceId?.value) || 0,
-                      serviceCount: service.serviceCount || 1,
-                      performedByMechanicId:
-                        Number(service.mechanicId?.value) || 0,
-                      price: Number(service.servicePrice) || 0,
-                      estimatedMinute: Number(service.estimatedMinute) || 0,
-                      startDate: service.startDate || null,
-                      endDate: service.endDate || null,
-                      status: 0,
-                      isDeleted: false,
-                    };
-                    if (service.originalServiceId) {
-                      serviceData.id = service.originalServiceId;
-                    }
-                    return serviceData;
-                  }),
-              },
-            ],
+            repairReceptionServiceId: currentServices[0].originalServiceId || 0,
+            repairCustomerProblemId: selectedProblem?.value,
+            performedByMechanicId:
+              Number(currentServices[0].mechanicId?.value) || 0,
+            estimatedMinute: Number(currentServices[0].estimatedMinute) || 0,
+            serviceCount: currentServices[0].serviceCount || 1,
+            serviceId: Number(currentServices[0].serviceId?.value) || 0,
+            startDate: currentServices[0].startDate || "",
+            endDate: currentServices[0].endDate || "",
+            status: 0,
+            price: Number(currentServices[0].servicePrice) || 0,
           },
         };
-        const deletedServices = currentServices.filter(
-          (service) => service.isDeleted && service.originalServiceId
-        );
-        if (deletedServices.length > 0) {
-          updateData.request.problemServices[0].services.push(
-            ...deletedServices.map((service) => ({
-              id: service.originalServiceId || 0,
-              serviceId: Number(service.serviceId?.value) || 0,
-              serviceCount: service.serviceCount || 1,
-              performedByMechanicId: Number(service.mechanicId?.value) || 0,
-              price: Number(service.servicePrice) || 0,
-              estimatedMinute: Number(service.estimatedMinute) || 0,
-              startDate: service.startDate || null,
-              endDate: service.endDate || null,
-              status: 0,
-              isDeleted: true,
-            }))
-          );
-        }
         updateMutation.mutate(updateData);
       } else {
+        // For creating new services, we need to use the simple structure
         const serviceData: ICreateOrUpdateRepairReceptionService = {
           request: {
-            repairReceptionId: Number(repairReceptionId),
-            problemServices: [
-              {
-                repairCustomerProblemId: selectedProblem?.value,
-                services: currentServices.map((service) => ({
-                  performedByMechanicId: Number(service.mechanicId?.value) || 0,
-                  serviceCount: service.serviceCount || 1,
-                  serviceId: Number(service.serviceId?.value) || 0,
-                  price: Number(service.servicePrice) || 0,
-                  estimatedMinute: Number(service.estimatedMinute) || 0,
-                  startDate: service.startDate || null,
-                  endDate: service.endDate || null,
-                })),
-              },
-            ],
+            repairReceptionServiceId: 0, // This will be set by the backend
+            repairCustomerProblemId: selectedProblem?.value,
+            performedByMechanicId:
+              Number(currentServices[0].mechanicId?.value) || 0,
+            estimatedMinute: Number(currentServices[0].estimatedMinute) || 0,
+            serviceCount: currentServices[0].serviceCount || 1,
+            serviceId: Number(currentServices[0].serviceId?.value) || 0,
+            startDate: currentServices[0].startDate || "",
+            endDate: currentServices[0].endDate || "",
+            status: 0,
+            price: Number(currentServices[0].servicePrice) || 0,
           },
         };
 

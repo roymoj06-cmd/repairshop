@@ -9,8 +9,8 @@ import {
   Loading,
 } from "@/components";
 
-// import ServiceCard from "./ServiceCard";
 import { useRepairReceptionService } from "@/hooks/useRepairReceptionService";
+import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 
 interface IRepairReceptionServiceProps {
   repairReceptionId?: string;
@@ -84,9 +84,11 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                         </div>
                       )}
 
-                      <AddServiceBox
-                        onAddService={() => openModal(undefined, problem)}
-                      />
+                      <AccessGuard accessId={ACCESS_IDS.ADD_REPAIR}>
+                        <AddServiceBox
+                          onAddService={() => openModal(undefined, problem)}
+                        />
+                      </AccessGuard>
                     </div>
                   </div>
                 )

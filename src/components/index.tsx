@@ -8,11 +8,12 @@ export { default as RepairReceptionService } from "./Page/ServiceAdmission/Repai
 export { default as ServiceManagementModal } from "./Page/ServiceAdmission/ServiceManagementModal";
 export { default as ServiceAdmissionForm } from "./Page/ServiceAdmission/ServiceAdmissionForm";
 export { default as RequestProductModal } from "./Page/ServiceAdmission/RequestProductModal";
+export { default as ProductFactorModal } from "./Page/ServiceAdmission/ProductFactorModal";
 export { default as CircularProgressWithLabel } from "./common/CircularProgressWithLabel";
 export { default as CustomerProblems } from "./Page/ServiceAdmission/CustomerProblems";
+export { default as MechanicLedger } from "./Page/mechanicManagement/MechanicLedger";
 export { default as ProjectSummary } from "./Page/ServiceAdmission/ProjectSummary";
 export { default as MechanicModal } from "./Page/mechanicManagement/MechanicModal";
-export { default as MechanicLedger } from "./Page/mechanicManagement/MechanicLedger";
 export { default as PlateManagementDialog } from "./common/PlateManagementDialog";
 export { default as AddServiceBox } from "./Page/ServiceAdmission/AddServiceBox";
 export { default as ProblemHeader } from "./Page/ServiceAdmission/ProblemHeader";

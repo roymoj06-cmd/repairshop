@@ -6,6 +6,7 @@ import { Add } from "@mui/icons-material";
 import { toast } from "react-toastify";
 
 import { getCustomers } from "@/service/customer/customer.service";
+import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 import {
   createRepairReception,
   getCustomerCars,
@@ -217,19 +218,21 @@ const AddServiceAdmissionForm: FC = () => {
           size={{ xs: 12, md: 4 }}
           sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
         >
-          <Button
-            type="submit"
-            variant="contained"
-            color="secondary"
-            size="large"
-            disabled={
-              !watch("carId") &&
-              watch("carId") !== 0 &&
-              !watch("isReturnedVehicle")
-            }
-          >
-            {"ثبت پذیرش"}
-          </Button>
+          <AccessGuard accessId={ACCESS_IDS.ADMISSION}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="secondary"
+              size="large"
+              disabled={
+                !watch("carId") &&
+                watch("carId") !== 0 &&
+                !watch("isReturnedVehicle")
+              }
+            >
+              {"ثبت پذیرش"}
+            </Button>
+          </AccessGuard>
         </Grid>
         {createRepairReceptionData?.isSuccess ? (
           <Grid size={{ xs: 12 }}>
