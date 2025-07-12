@@ -26,7 +26,6 @@ export default function CreateTaskModal({
   holidays?: string[];
 }) {
   // State for the workflow
-  const [plateSearch, setPlateSearch] = useState("");
   const [plateFilter, setPlateFilter] = useState<plateSection>({
     plateSection1: "",
     plateSection2: "",
@@ -209,7 +208,6 @@ export default function CreateTaskModal({
   // Reset selections when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
-      setPlateSearch("");
       setPlateFilter({
         plateSection1: "",
         plateSection2: "",
