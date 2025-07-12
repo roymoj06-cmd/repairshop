@@ -14,6 +14,16 @@ export const getAllRepairReceptionServices = async (
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const getRepairReceptionServices = async (repairReceptionId: number) => {
+  const queryString = convertObjectToQueryString({ repairReceptionId });
+  const reqConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getRepairReceptionServices}${
+      queryString ? `?${queryString}` : ""
+    }`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
 export const getRepairReceptionServiceById = async (id: number) => {
   const queryString = convertObjectToQueryString({ id });
   const reqConfig = {

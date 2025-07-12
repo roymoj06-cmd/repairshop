@@ -505,6 +505,14 @@ type Task = {
   // برای تسک‌های چند روزه
   endDay?: number; // روز پایان (اگر null باشد یعنی همان روز شروع)
   endHour?: number; // ساعت پایان در روز آخر
+  // اطلاعات اضافی برای ویرایش
+  plateSection1?: string;
+  plateSection2?: string;
+  plateSection3?: string;
+  plateSection4?: string;
+  receptionId?: number;
+  serviceId?: number;
+  mechanicId?: number;
 };
 interface ICreateMechanicProductRequest {
   productTitle: string;
@@ -542,4 +550,24 @@ interface IGetMechanicProductRequestByProblemId {
   problemId: number;
   fileId: number;
   id: number;
+}
+interface IGetRepairReceptionServices {
+  id: number;
+  serviceId: number;
+  serviceTitle: string;
+  servicePrice: number;
+  serviceCount: number;
+  repairReceptionId: number;
+  totalPrice: number;
+  status: string;
+  createdByUserId: number;
+  createdByUserName: string;
+  performedByMechanicId: number;
+  performedByMechanicName: string;
+  repairCustomerProblemId: number;
+  repairCustomerProblemDescription: string;
+  estimatedMinute: number;
+  startDate: string;
+  endDate: string;
+  hasFactor: boolean;
 }
