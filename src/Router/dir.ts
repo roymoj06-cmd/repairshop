@@ -5,6 +5,7 @@ export default {
   serviceManagement: "/dashboard/service-management",
   serviceAdmission: "/dashboard/service-admission",
   leaveManagement: "/dashboard/leave-management",
+  taskManagement: "/dashboard/task-management",
   carsManagement: "/dashboard/cars-management",
   vehicles: "/dashboard/vehicles",
   dashboard: "/dashboard",
