@@ -86,6 +86,16 @@ export const proxyServerUrl = {
   updateCustomerProblem: `${panelServiceBaseUrl}/RepairServices/UpdateCustomerProblem`,
   getCustomerProblems: `${panelServiceBaseUrl}/RepairServices/GetCustomerProblems`,
 
+  // repairSchedule Controller
+  receptions: `${panelServiceBaseUrl}/RepairSchedule/receptions`,
+  createSchedule: `${panelServiceBaseUrl}/RepairSchedule/schedules`,
+  updateSchedule: `${panelServiceBaseUrl}/RepairSchedule/schedules/`,
+  getAllSchedules: `${panelServiceBaseUrl}/RepairSchedule/schedules`,
+  deleteSchedule: `${panelServiceBaseUrl}/RepairSchedule/schedules/`,
+  getScheduleById: `${panelServiceBaseUrl}/RepairSchedule/schedules/`,
+  getAvailability: `${panelServiceBaseUrl}/RepairSchedule/availability`,
+  getSchedulesByMechanicId: `${panelServiceBaseUrl}/RepairSchedule/schedules/by-mechanic/`,
+
   // RepairReceptionService Controller
   getAllRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServicesGroupedByProblems`,
   getRepairReceptionServiceById: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServiceById`,

@@ -9,6 +9,7 @@ export default function DraggableTask({
   currentDay,
   taskLength,
   holidays = [],
+  mechanicLeavesMap = {},
 }: {
   task: Task;
   onClick: (task: Task) => void;
@@ -17,19 +18,28 @@ export default function DraggableTask({
   currentHour?: number;
   taskLength?: number;
   holidays?: string[];
+  mechanicLeavesMap?: { [mechanicName: string]: string[] };
 }) {
   // تابع کمکی برای بررسی تعطیلی بودن روز
   const isHoliday = (dayIndex: number): boolean => {
     const dayDate = moment(days[dayIndex]);
 
-    // بررسی جمعه (روز 6 هفته - شنبه=0، جمعه=6)
-    if (dayDate.day() === 6) {
+    // بررسی جمعه (روز 5 هفته - یکشنبه=0، جمعه=5)
+    if (dayDate.day() === 5) {
       return true; // جمعه تعطیل است
     }
 
     // بررسی روزهای تعطیل اضافی
     const dayStart = dayDate.startOf("day").toISOString();
     return holidays.includes(dayStart);
+  };
+
+  // تابع کمکی برای بررسی مرخصی بودن مکانیک در روز خاص
+  const isMechanicOnLeave = (dayIndex: number): boolean => {
+    const dayDate = moment(days[dayIndex]);
+    const dayStart = dayDate.startOf("day").toISOString();
+    const mechanicLeaves = mechanicLeavesMap[task.user] || [];
+    return mechanicLeaves.includes(dayStart);
   };
 
   // تابع کمکی برای محاسبه ساعات باقی‌مانده در روز
@@ -96,23 +106,54 @@ export default function DraggableTask({
       height = hoursInDay * 30;
     }
 
-    // بررسی تعطیلی بودن روز فعلی
+    // بررسی تعطیلی یا مرخصی بودن روز فعلی
     const isHolidayDay = currentDay !== undefined && isHoliday(currentDay);
+    const isMechanicLeaveDay =
+      currentDay !== undefined && isMechanicOnLeave(currentDay);
 
     return {
       top: `${top}px`,
       height: `${height}px`,
       minHeight: "30px", // حداقل ارتفاع
-      opacity: isHolidayDay ? 0 : 1, // اعمال opacity صفر برای روزهای تعطیل
+      // تسک‌ها در روزهای تعطیل یا مرخصی شفاف‌تر باشند اما کاملاً مخفی نباشند
+      opacity: isHolidayDay || isMechanicLeaveDay ? 0.7 : 1,
     };
   };
 
   const getTaskClassName = () => {
-    if (isContinuing) {
-      return "absolute left-0 bg-purple-500 text-white rounded px-2 py-1 w-full cursor-pointer text-xs overflow-hidden hover:bg-purple-600 transition-colors z-10 border-l-4 border-yellow-300";
+    // بررسی تعطیلی یا مرخصی بودن روز فعلی
+    const isHolidayDay = currentDay !== undefined && isHoliday(currentDay);
+    const isMechanicLeaveDay =
+      currentDay !== undefined && isMechanicOnLeave(currentDay);
+
+    let baseClass =
+      "absolute left-0 rounded px-2 py-1 w-full cursor-pointer text-xs overflow-hidden transition-colors z-10";
+
+    if (isHolidayDay) {
+      // برای روزهای تعطیل، تسک را با رنگ قرمز نمایش بده
+      if (isContinuing) {
+        return `${baseClass} bg-red-600/90 text-white hover:bg-red-700/90 border-l-4 border-red-300`;
+      }
+      return `${baseClass} bg-red-600/90 text-white hover:bg-red-700/90`;
+    } else if (isMechanicLeaveDay) {
+      // برای روزهای مرخصی، تسک را با رنگ نارنجی نمایش بده
+      if (isContinuing) {
+        return `${baseClass} bg-orange-600/90 text-white hover:bg-orange-700/90 border-l-4 border-orange-300`;
+      }
+      return `${baseClass} bg-orange-600/90 text-white hover:bg-orange-700/90`;
+    } else {
+      // برای روزهای عادی
+      if (isContinuing) {
+        return `${baseClass} bg-purple-500 text-white hover:bg-purple-600 border-l-4 border-yellow-300`;
+      }
+      return `${baseClass} bg-blue-500 text-white hover:bg-blue-600`;
     }
-    return "absolute left-0 bg-blue-500 text-white rounded px-2 py-1 w-full cursor-pointer text-xs overflow-hidden hover:bg-blue-600 transition-colors z-10";
   };
+
+  // بررسی تعطیلی یا مرخصی بودن روز فعلی
+  const isHolidayDay = currentDay !== undefined && isHoliday(currentDay);
+  const isMechanicLeaveDay =
+    currentDay !== undefined && isMechanicOnLeave(currentDay);
 
   return (
     <div
@@ -126,7 +167,9 @@ export default function DraggableTask({
         onClick(task);
       }}
     >
-      <div className="font-semibold">{task.title}</div>
+      <div className="font-semibold">
+        {isHolidayDay ? "تعطیل" : isMechanicLeaveDay ? "مرخصی" : task.title}
+      </div>
       <div className="text-xs opacity-90">
         {isContinuing ? (
           <>

@@ -4,15 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import moment from "moment-jalaali";
 import { useEffect, useState } from "react";
 
-// Persian day names
+// Persian day names - mapping from English day of week to Persian
 const persianDays = [
-  "شنبه",
-  "یکشنبه",
-  "دوشنبه",
-  "سه‌شنبه",
-  "چهارشنبه",
-  "پنج‌شنبه",
-  "جمعه",
+  "یکشنبه", // Sunday (0)
+  "دوشنبه", // Monday (1)
+  "سه‌شنبه", // Tuesday (2)
+  "چهارشنبه", // Wednesday (3)
+  "پنج‌شنبه", // Thursday (4)
+  "جمعه", // Friday (5)
+  "شنبه", // Saturday (6)
 ];
 
 // مودال ایجاد تسک جدید
@@ -55,8 +55,8 @@ export default function CreateTaskModal({
   const isHoliday = (dayIndex: number): boolean => {
     const dayDate = moment(days[dayIndex]);
 
-    // بررسی جمعه (روز 6 هفته - شنبه=0، جمعه=6)
-    if (dayDate.day() === 6) {
+    // بررسی جمعه (روز 5 هفته - یکشنبه=0، جمعه=5)
+    if (dayDate.day() === 5) {
       return true; // جمعه تعطیل است
     }
 

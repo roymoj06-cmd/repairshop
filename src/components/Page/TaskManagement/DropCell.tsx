@@ -35,8 +35,8 @@ export default function DropCell({
   const isHoliday = (dayIndex: number): boolean => {
     const dayDate = moment(days[dayIndex]);
 
-    // بررسی جمعه (روز 6 هفته - شنبه=0، جمعه=6)
-    if (dayDate.day() === 6) {
+    // بررسی جمعه (روز 5 هفته - یکشنبه=0، جمعه=5)
+    if (dayDate.day() === 5) {
       return true; // جمعه تعطیل است
     }
 

@@ -4,15 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import moment from "moment-jalaali";
 import { useEffect, useState } from "react";
 
-// Persian day names
+// Persian day names - mapping from English day of week to Persian
 const persianDays = [
-  "شنبه",
-  "یکشنبه",
-  "دوشنبه",
-  "سه‌شنبه",
-  "چهارشنبه",
-  "پنج‌شنبه",
-  "جمعه",
+  "یکشنبه", // Sunday (0)
+  "دوشنبه", // Monday (1)
+  "سه‌شنبه", // Tuesday (2)
+  "چهارشنبه", // Wednesday (3)
+  "پنج‌شنبه", // Thursday (4)
+  "جمعه", // Friday (5)
+  "شنبه", // Saturday (6)
 ];
 
 // مودال ویرایش تسک
@@ -21,12 +21,14 @@ export default function TaskEditModal({
   isOpen,
   onClose,
   onSave,
+  onDelete,
   holidays = [],
 }: {
   task: Task | null;
   isOpen: boolean;
   onClose: () => void;
   onSave: (updatedTask: Task) => void;
+  onDelete: (taskId: string) => void;
   holidays?: string[];
 }) {
   // Query برای دریافت مکانیک‌های فعال
@@ -51,8 +53,8 @@ export default function TaskEditModal({
   const isHoliday = (dayIndex: number): boolean => {
     const dayDate = moment(days[dayIndex]);
 
-    // بررسی جمعه (روز 6 هفته - شنبه=0، جمعه=6)
-    if (dayDate.day() === 6) {
+    // بررسی جمعه (روز 5 هفته - یکشنبه=0، جمعه=5)
+    if (dayDate.day() === 5) {
       return true; // جمعه تعطیل است
     }
 
@@ -199,6 +201,17 @@ export default function TaskEditModal({
               className="flex-1 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
             >
               ذخیره
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (task) {
+                  onDelete(task.id);
+                }
+              }}
+              className="flex-1 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors"
+            >
+              حذف
             </button>
             <button
               type="button"
