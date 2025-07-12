@@ -339,8 +339,8 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
                 <Grid size={{ xs: 12 }}>
                   <Box className="mt-4">
                     <Typography variant="h6" className="mb-2">
-                      <UploaderDocs repairReceptionId={repairReceptionId} />
                       آپلود فایل
+                      <UploaderDocs repairReceptionId={repairReceptionId} />
                     </Typography>
                   </Box>
                 </Grid>
