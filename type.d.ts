@@ -549,9 +549,15 @@ interface IGetRepairReceptionServices {
   totalPrice: number;
   services: {
     repairCustomerProblemDescription: string;
+    isSelectedForFactorLocal?: boolean;
+    repairReceptionServiceId: number;
     performedByMechanicName: string;
     repairCustomerProblemId: number;
+    isSelectedForFactor?: boolean;
     performedByMechanicId: number;
+    repairServiceFactorId: number;
+    overridedServiceTitle: string;
+    overridedUnitPrice: number;
     repairReceptionId: number;
     createdByUserName: string;
     createdByUserId: number;
@@ -559,11 +565,29 @@ interface IGetRepairReceptionServices {
     serviceTitle: string;
     servicePrice: number;
     serviceCount: number;
+    hasFactor: boolean;
     totalPrice: number;
     serviceId: number;
     startDate: string;
+    unitPrice: number;
+    quantity: number;
+    statusId: number;
     endDate: string;
-    status: number;
+    status: string;
     id: number;
+  }[];
+}
+
+interface IRepairServiceFactor {
+  repairReceptionId: number;
+  description: string;
+  id?: number;
+  details: {
+    repairReceptionServiceId?: number;
+    overridedServiceTitle: string;
+    overridedUnitPrice: number;
+    unitPrice: number;
+    quantity: number;
+    id?: number;
   }[];
 }

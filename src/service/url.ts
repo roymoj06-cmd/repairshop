@@ -141,4 +141,9 @@ export const proxyServerUrl = {
 
   // MechanicPerformance Controller
   getMechanicPerformance: `${panelServiceBaseUrl}/MechanicPerformance/GetMechanicPerformance`,
+
+  // RepairServiceFactor Controller
+  getRepairServiceFactorById: `${panelServiceBaseUrl}/RepairServiceFactor/GetRepairServiceFactorById`,
+  deleteRepairServiceFactor: `${panelServiceBaseUrl}/RepairServiceFactor/DeleteRepairServiceFactor`,
+  saveRepairServiceFactor: `${panelServiceBaseUrl}/RepairServiceFactor/SaveRepairServiceFactor`,
 };

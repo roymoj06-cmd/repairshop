@@ -325,7 +325,20 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
 
             {/* تب تعمیرات */}
             {activeTab === 1 && hasCategoryAccess(ACCESS_IDS.REPAIRS) && (
-              <RepairReceptionService repairReceptionId={repairReceptionId} />
+              <RepairReceptionService
+                repairReceptionId={repairReceptionId}
+                customerId={watch("customerId")}
+                carId={watch("carId")}
+                details={{
+                  customerName:
+                    customerOptions.find((c) => c.value === watch("customerId"))
+                      ?.label || "",
+                  plateNumber:
+                    customerVehicles.find((v) => v.value === watch("carId"))
+                      ?.label || "",
+                  receptionDate: new Date().toLocaleDateString("fa-IR"),
+                }}
+              />
             )}
 
             {/* تب قطعات */}

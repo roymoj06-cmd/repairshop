@@ -1,12 +1,14 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   ServiceManagementModal,
+  CreateFactorForService,
   ProjectSummary,
   ConfirmDialog,
   ProblemHeader,
   AddServiceBox,
   ServiceCard,
   Loading,
+  Button,
 } from "@/components";
 
 import { useRepairReceptionService } from "@/hooks/useRepairReceptionService";
@@ -14,11 +16,23 @@ import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 
 interface IRepairReceptionServiceProps {
   repairReceptionId?: string;
+  customerId?: number;
+  carId?: number;
+  details?: {
+    receptionDate: string;
+    customerName: string;
+    plateNumber: string;
+  };
 }
 
 const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
   repairReceptionId,
+  customerId,
+  carId,
+  details,
 }) => {
+  const [showFactorModal, setShowFactorModal] = useState(false);
+
   const {
     handleServiceChange,
     setSelectedProblem,
@@ -49,6 +63,24 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
         <Loading />
       ) : (
         <div className="service-management__content">
+          {/* Service Factor Button */}
+          <AccessGuard accessId={ACCESS_IDS.CREATE_FACTOR}>
+            <Button
+              onClick={() => setShowFactorModal(true)}
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{
+                maxWidth: "calc(50% - 8px)",
+                minWidth: "fit-content",
+                marginBottom: "1rem",
+                flex: "1 1 auto",
+              }}
+            >
+              ایجاد فاکتور خدمات
+            </Button>
+          </AccessGuard>
+
           {services?.problems?.length > 0 ? (
             <div className="space-y-6">
               {services.problems.map(
@@ -112,6 +144,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
           )}
         </div>
       )}
+
       <ServiceManagementModal
         isLoading={createMutation.isPending || updateMutation.isPending}
         onServiceChange={handleServiceChange}
@@ -126,6 +159,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
         problems={problems}
         open={showModal}
       />
+
       <ConfirmDialog
         open={deleteConfirm.open}
         onCancel={() =>
@@ -137,6 +171,19 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
 سرویس: ${deleteConfirm.serviceName}`}
         loading={deleteMutation.isPending}
       />
+
+      {/* Service Factor Modal */}
+      {repairReceptionId && customerId && carId && details && (
+        <CreateFactorForService
+          repairReceptionId={Number(repairReceptionId)}
+          customerId={customerId}
+          carId={carId}
+          details={details}
+          open={showFactorModal}
+          onClose={() => setShowFactorModal(false)}
+          // onSuccess={handleFactorSuccess}
+        />
+      )}
     </div>
   );
 };
