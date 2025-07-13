@@ -360,14 +360,14 @@ interface IUpdateRepairReceptionServicesForProblems {
     problemServices: {
       repairCustomerProblemId: number;
       services: {
-        id: number;
-        serviceId: number;
-        serviceCount: number;
         performedByMechanicId: number;
-        price: number;
         estimatedMinute: number;
-        status: number;
+        serviceCount: number;
         isDeleted: boolean;
+        serviceId: number;
+        status: number;
+        price: number;
+        id: number;
       }[];
     }[];
   };
@@ -505,6 +505,14 @@ type Task = {
   // برای تسک‌های چند روزه
   endDay?: number; // روز پایان (اگر null باشد یعنی همان روز شروع)
   endHour?: number; // ساعت پایان در روز آخر
+  // اطلاعات اضافی برای ویرایش
+  plateSection1?: string;
+  plateSection2?: string;
+  plateSection3?: string;
+  plateSection4?: string;
+  receptionId?: number;
+  serviceId?: number;
+  mechanicId?: number;
 };
 interface ICreateMechanicProductRequest {
   productTitle: string;
@@ -543,39 +551,31 @@ interface IGetMechanicProductRequestByProblemId {
   fileId: number;
   id: number;
 }
+interface IGetRepairReceptionService {
+  repairCustomerProblemDescription: string;
+  performedByMechanicName: string;
+  repairCustomerProblemId: number;
+  performedByMechanicId: number;
+  createdByUserName: string;
+  repairReceptionId: number;
+  createdByUserId: number;
+  estimatedMinute: number;
+  serviceTitle: string;
+  servicePrice: number;
+  serviceCount: number;
+  totalPrice: number;
+  hasFactor: boolean;
+  serviceId: number;
+  startDate: string;
+  endDate: string;
+  status: string;
+  id: number;
+}
 interface IGetRepairReceptionServices {
+  services: IGetRepairReceptionService[];
   totalEstimatedMinutes: number;
   repairReceptionId: number;
   totalPrice: number;
-  services: {
-    repairCustomerProblemDescription: string;
-    isSelectedForFactorLocal?: boolean;
-    repairReceptionServiceId: number;
-    performedByMechanicName: string;
-    repairCustomerProblemId: number;
-    isSelectedForFactor?: boolean;
-    performedByMechanicId: number;
-    repairServiceFactorId: number;
-    overridedServiceTitle: string;
-    overridedUnitPrice: number;
-    repairReceptionId: number;
-    createdByUserName: string;
-    createdByUserId: number;
-    estimatedMinute: number;
-    serviceTitle: string;
-    servicePrice: number;
-    serviceCount: number;
-    hasFactor: boolean;
-    totalPrice: number;
-    serviceId: number;
-    startDate: string;
-    unitPrice: number;
-    quantity: number;
-    statusId: number;
-    endDate: string;
-    status: string;
-    id: number;
-  }[];
 }
 
 interface IRepairServiceFactor {

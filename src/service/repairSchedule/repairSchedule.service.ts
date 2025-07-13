@@ -42,10 +42,18 @@ export const getScheduleById = async (id: number) => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
-export const getSchedulesByMechanicId = async (mechanicId: number) => {
+export const getSchedulesByMechanicId = async (
+  mechanicId: number,
+  fromDate?: string,
+  toDate?: string
+) => {
+  const query = convertObjectToQueryString({
+    fromDate,
+    toDate,
+  });
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getSchedulesByMechanicId}${mechanicId}`,
+    url: `${proxyServerUrl.getSchedulesByMechanicId}${mechanicId}?${query}`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };

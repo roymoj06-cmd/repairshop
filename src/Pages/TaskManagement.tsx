@@ -14,6 +14,12 @@ import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
 import { getActiveMechanics } from "@/service/mechanic/mechanic.service";
 import { getAllMechanicLeave } from "@/service/repairMechanicLeaves/repairMechanicLeaves.service";
+import { getSchedulesByMechanicId } from "@/service/repairSchedule/repairSchedule.service";
+import DatePicker, { DateObject } from "react-multi-date-picker";
+import persian_fa from "react-date-object/locales/persian_fa";
+import persian from "react-date-object/calendars/persian";
+import gregorian from "react-date-object/calendars/gregorian";
+import gregorian_en from "react-date-object/locales/gregorian_en";
 
 // Configure moment-jalaali
 moment.loadPersian({ dialect: "persian-modern" });
@@ -30,13 +36,35 @@ const persianDays = [
 ];
 
 export default function TaskManagement() {
+  // تاریخ‌های پیش‌فرض: از امروز تا 3 هفته بعد
+  const [dateRange, setDateRange] = useState({
+    fromDate: moment().format("YYYY-MM-DD"),
+    toDate: moment().add(3, "weeks").format("YYYY-MM-DD"),
+  });
+
+  // DatePicker objects for the date range
+  const [fromDatePicker, setFromDatePicker] = useState<DateObject | null>(
+    new DateObject({
+      calendar: persian,
+      date: new Date(),
+    })
+  );
+  const [toDatePicker, setToDatePicker] = useState<DateObject | null>(
+    new DateObject({
+      calendar: persian,
+      date: moment().add(3, "weeks").toDate(),
+    })
+  );
+
   // Query برای دریافت مکانیک‌های فعال
   const { data: mechanicsData } = useQuery({
     queryKey: ["activeMechanics"],
     queryFn: getActiveMechanics,
     select: (data: any) =>
-      data?.data?.map((mechanic: { fullName: string }) => mechanic.fullName) ||
-      [],
+      data?.data?.map((mechanic: { fullName: string; id: number }) => ({
+        fullName: mechanic.fullName,
+        id: mechanic.id,
+      })) || [],
   });
 
   // Query برای دریافت مرخصی‌های مکانیک‌ها
@@ -45,6 +73,61 @@ export default function TaskManagement() {
     queryFn: () => getAllMechanicLeave({ page: 1, size: 1000 }),
     select: (data: any) => data?.data || [],
     refetchInterval: 30000, // هر 30 ثانیه به‌روزرسانی
+  });
+
+  // Sync DatePicker objects with dateRange
+  useEffect(() => {
+    if (fromDatePicker) {
+      const gregorianDate = fromDatePicker.convert(gregorian, gregorian_en);
+      setDateRange((prev) => ({
+        ...prev,
+        fromDate: gregorianDate.format("YYYY-MM-DD"),
+      }));
+    }
+  }, [fromDatePicker]);
+
+  useEffect(() => {
+    if (toDatePicker) {
+      const gregorianDate = toDatePicker.convert(gregorian, gregorian_en);
+      setDateRange((prev) => ({
+        ...prev,
+        toDate: gregorianDate.format("YYYY-MM-DD"),
+      }));
+    }
+  }, [toDatePicker]);
+
+  // Query برای دریافت برنامه‌های مکانیک‌ها
+  const { data: schedulesData, refetch: refetchSchedules } = useQuery({
+    queryKey: ["mechanicSchedules", dateRange.fromDate, dateRange.toDate],
+    queryFn: async () => {
+      if (!mechanicsData || mechanicsData.length === 0) return [];
+
+      const allSchedules = [];
+      for (const mechanic of mechanicsData) {
+        try {
+          const response = await getSchedulesByMechanicId(
+            mechanic.id,
+            dateRange.fromDate,
+            dateRange.toDate
+          );
+          if (response?.data) {
+            allSchedules.push(
+              ...response.data.map((schedule: any) => ({
+                ...schedule,
+                mechanicName: mechanic.fullName,
+              }))
+            );
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching schedules for ${mechanic.fullName}:`,
+            error
+          );
+        }
+      }
+      return allSchedules;
+    },
+    enabled: !!mechanicsData && mechanicsData.length > 0,
   });
 
   // ایجاد مپینگ بین نام مکانیک و تاریخ‌های مرخصی
@@ -71,6 +154,69 @@ export default function TaskManagement() {
 
     setMechanicLeavesMap(leavesMap);
   }, [mechanicLeavesData, mechanicsData]);
+
+  // تبدیل برنامه‌های دریافتی به فرمت تسک‌ها
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    if (!schedulesData || !mechanicsData) {
+      setTasks([]);
+      return;
+    }
+
+    const convertedTasks: Task[] = schedulesData.map(
+      (schedule: any, index: number) => {
+        const startDate = moment(schedule.startDatetime);
+        const endDate = moment(schedule.endDatetime);
+
+        // محاسبه روز شروع نسبت به اولین روز در بازه
+        const firstDay = moment(dateRange.fromDate);
+        const startDay = startDate.diff(firstDay, "days");
+
+        // محاسبه ساعت شروع (از 8 صبح)
+        const startHour = Math.max(0, startDate.hour() - 8);
+
+        // محاسبه مدت زمان به ساعت
+        const durationInHours = Math.ceil(schedule.durationInMinutes / 60);
+
+        // محاسبه روز و ساعت پایان
+        const endDay = endDate.diff(firstDay, "days");
+        const endHour = endDate.hour() - 8;
+
+        return {
+          id: schedule.id?.toString() || `temp-${index}`,
+          user: schedule.mechanicName,
+          startDay: Math.max(0, startDay),
+          startHour: Math.max(0, startHour),
+          duration: durationInHours,
+          title: schedule.receptionServiceId
+            ? `سرویس ${schedule.receptionServiceId}`
+            : "تسک بدون عنوان",
+          endDay: endDay > startDay ? endDay : undefined,
+          endHour: endDay > startDay ? Math.max(0, endHour) : undefined,
+        };
+      }
+    );
+
+    setTasks(convertedTasks);
+  }, [schedulesData, mechanicsData, dateRange]);
+
+  // تولید روزهای هفته بر اساس بازه تاریخ
+  const generateDays = () => {
+    const daysArray = [];
+    const startDate = moment(dateRange.fromDate);
+    const endDate = moment(dateRange.toDate);
+
+    let currentDate = startDate.clone();
+    while (currentDate.isSameOrBefore(endDate)) {
+      daysArray.push(currentDate.format("YYYY-MM-DD"));
+      currentDate.add(1, "day");
+    }
+
+    return daysArray;
+  };
+
+  const days = generateDays();
 
   // آرایه روزهای تعطیل (UTC timestamps)
   // برای اضافه کردن روز تعطیل جدید، تاریخ را به فرمت ISO string اضافه کنید
@@ -99,37 +245,6 @@ export default function TaskManagement() {
     "2024-12-19T00:00:00.000Z", // میلاد امام رضا
   ]);
 
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: "1",
-      user: "حمیدرضا",
-      startDay: 0,
-      startHour: 0,
-      duration: 4,
-      title: "طراحی UI",
-    },
-    {
-      id: "2",
-      user: "زهرا",
-      startDay: 0,
-      startHour: 4,
-      duration: 9,
-      title: "برنامه‌نویسی",
-      endDay: 1,
-      endHour: 4, // 4 ساعت در روز بعد (5 ساعت در روز اول)
-    },
-    {
-      id: "3",
-      user: "مهدی",
-      startDay: 0,
-      startHour: 7, // ساعت 15:00
-      duration: 9,
-      title: "تست تسک 9 ساعته",
-      endDay: 1,
-      endHour: 7, // 7 ساعت در روز بعد
-    },
-  ]);
-
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -140,7 +255,7 @@ export default function TaskManagement() {
   // تنظیم کاربر پیش‌فرض وقتی داده‌ها لود شدند
   useEffect(() => {
     if (mechanicsData && mechanicsData.length > 0 && !selectedUser) {
-      setSelectedUser(mechanicsData[0]);
+      setSelectedUser(mechanicsData[0].fullName);
     }
   }, [mechanicsData, selectedUser]);
 
@@ -787,40 +902,53 @@ export default function TaskManagement() {
       <div className="overflow-auto">
         {/* کنترل‌های ایجاد تسک */}
         <div className="mb-6 p-4 bg-white rounded-xl shadow flex flex-col sm:flex-row sm:items-end gap-4 border border-gray-200">
+          {/* Date Range Filter */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end flex-1">
             <div>
               <label className="block text-xs font-bold mb-1 text-gray-600">
-                کاربر
+                بازه تاریخ از
               </label>
-              <select
-                value={selectedUser}
-                onChange={(e) => setSelectedUser(e.target.value)}
-                className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 text-sm min-w-[100px]"
-              >
-                {mechanicsData?.map((user: string) => (
-                  <option key={user} value={user}>
-                    {user}
-                  </option>
-                ))}
-              </select>
+              <DatePicker
+                className="custom-datepicker"
+                containerClassName="w-full custom-datepicker-container"
+                onChange={(e: DateObject) => setFromDatePicker(e)}
+                placeholder="انتخاب تاریخ شروع"
+                calendarPosition="bottom-left"
+                onOpenPickNewDate={false}
+                locale={persian_fa}
+                calendar={persian}
+                format="YYYY/MM/DD"
+                value={fromDatePicker}
+                portal={true}
+                zIndex={2001}
+                style={{
+                  width: "100%",
+                  height: "40px",
+                }}
+              />
             </div>
             <div>
               <label className="block text-xs font-bold mb-1 text-gray-600">
-                روز
+                تا
               </label>
-              <select
-                value={selectedDay}
-                onChange={(e) => setSelectedDay(parseInt(e.target.value))}
-                className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50 text-sm min-w-[120px]"
-              >
-                {days.map((day, index) => (
-                  <option key={index} value={index}>
-                    {persianDays[moment(day).day()]} -{" "}
-                    {moment(day).format("jMM/jDD")}
-                    {isHoliday(index) && " (تعطیل)"}
-                  </option>
-                ))}
-              </select>
+              <DatePicker
+                className="custom-datepicker"
+                containerClassName="w-full custom-datepicker-container"
+                onChange={(e: DateObject) => setToDatePicker(e)}
+                placeholder="انتخاب تاریخ پایان"
+                calendarPosition="bottom-left"
+                onOpenPickNewDate={false}
+                locale={persian_fa}
+                calendar={persian}
+                format="YYYY/MM/DD"
+                value={toDatePicker}
+                portal={true}
+                zIndex={2001}
+                style={{
+                  width: "100%",
+                  height: "40px",
+                }}
+              />
             </div>
           </div>
           <button
@@ -856,8 +984,8 @@ export default function TaskManagement() {
                   {days.map((day, i) => {
                     // بررسی اینکه آیا در این روز مکانیک‌هایی مرخصی دارند
                     const mechanicsOnLeave =
-                      mechanicsData?.filter((mechanic: string) =>
-                        isMechanicOnLeave(mechanic, i)
+                      mechanicsData?.filter((mechanic: { fullName: string }) =>
+                        isMechanicOnLeave(mechanic.fullName, i)
                       ) || [];
 
                     // تعیین رنگ هدر بر اساس تعطیل یا مرخصی بودن
@@ -895,11 +1023,11 @@ export default function TaskManagement() {
                 </tr>
               </thead>
               <tbody>
-                {mechanicsData?.map((user: string) => (
-                  <Fragment key={user}>
+                {mechanicsData?.map((user: { fullName: string }) => (
+                  <Fragment key={user.fullName}>
                     {workHours.map((hour) => (
                       <tr
-                        key={`${user}-${hour}`}
+                        key={`${user.fullName}-${hour}`}
                         className={`${
                           mechanicsData.indexOf(user) % 2 === 0
                             ? "bg-white/50"
@@ -912,7 +1040,9 @@ export default function TaskManagement() {
                             className="font-semibold border align-middle w-32"
                           >
                             <div className="text-center">
-                              <div className="font-bold text-lg">{user}</div>
+                              <div className="font-bold text-lg">
+                                {user.fullName}
+                              </div>
                               <div className="text-xs text-gray-600 mt-1">
                                 ساعات کاری
                               </div>
@@ -922,7 +1052,7 @@ export default function TaskManagement() {
                               {/* نمایش تعداد روزهای مرخصی */}
                               {(() => {
                                 const leaveDays = days.filter((_, dayIndex) =>
-                                  isMechanicOnLeave(user, dayIndex)
+                                  isMechanicOnLeave(user.fullName, dayIndex)
                                 ).length;
                                 return leaveDays > 0 ? (
                                   <div className="text-xs text-orange-600 font-semibold mt-1">
@@ -944,12 +1074,12 @@ export default function TaskManagement() {
                         </td>
                         {days.map((_, dayIdx) => {
                           const taskHere = getTaskAtPosition(
-                            user,
+                            user.fullName,
                             dayIdx,
                             hour
                           );
                           const isMechanicLeave = isMechanicOnLeave(
-                            user,
+                            user.fullName,
                             dayIdx
                           );
                           const isHolidayDay = isHoliday(dayIdx);
@@ -995,7 +1125,7 @@ export default function TaskManagement() {
                                 key={dayIdx}
                                 dayIndex={dayIdx}
                                 hourIndex={hour}
-                                user={user}
+                                user={user.fullName}
                                 onDropTask={handleTaskDrop}
                                 onCreateTask={handleCreateTaskFromCell}
                                 holidays={holidays}
@@ -1023,7 +1153,7 @@ export default function TaskManagement() {
                               key={dayIdx}
                               dayIndex={dayIdx}
                               hourIndex={hour}
-                              user={user}
+                              user={user.fullName}
                               onDropTask={handleTaskDrop}
                               onCreateTask={handleCreateTaskFromCell}
                               holidays={holidays}
@@ -1056,19 +1186,27 @@ export default function TaskManagement() {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {mechanicsData?.map((user: string) => (
-              <div key={user} className="bg-white p-3 rounded border">
-                <h4 className="font-bold text-gray-800 mb-2">{user}</h4>
+            {mechanicsData?.map((user: { fullName: string }) => (
+              <div key={user.fullName} className="bg-white p-3 rounded border">
+                <h4 className="font-bold text-gray-800 mb-2">
+                  {user.fullName}
+                </h4>
                 <div className="space-y-1">
                   {days.map((_day, dayIndex) => {
-                    const workHours = getDailyWorkHours(user, dayIndex);
+                    const workHours = getDailyWorkHours(
+                      user.fullName,
+                      dayIndex
+                    );
                     const isOverLimit = workHours > 9;
                     const isHolidayDay = isHoliday(dayIndex);
                     const isMechanicLeaveDay = isMechanicOnLeave(
-                      user,
+                      user.fullName,
                       dayIndex
                     );
-                    const isDayOff = isDayOffForMechanic(user, dayIndex);
+                    const isDayOff = isDayOffForMechanic(
+                      user.fullName,
+                      dayIndex
+                    );
 
                     return (
                       <div
