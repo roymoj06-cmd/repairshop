@@ -27,9 +27,9 @@ interface LocalProblem extends ICreateOrUpdateCustomerProblem {
 }
 
 interface ServerProblemChange {
-  id: string;
   originalDescription: string;
   currentDescription: string;
+  id: string;
 }
 
 const CustomerProblems: FC<ICustomerProblemsProps> = ({

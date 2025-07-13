@@ -108,7 +108,6 @@ interface IGenerateRepairRecaptionFactors {
     ];
   };
 }
-
 interface IGetReceptionForShowToSales {
   productId: number;
   productCode: string;
@@ -312,10 +311,10 @@ interface ICreateBatchRepairProductRequest {
 }
 interface IBatchReviewRepairProductRequest {
   requests: {
-    id: number;
-    status: number;
     rejectReason: string;
     approvedQty: number;
+    status: number;
+    id: number;
   }[];
 }
 interface ICreateOrUpdateRepairProductRequest {
@@ -577,7 +576,6 @@ interface IGetRepairReceptionServices {
   repairReceptionId: number;
   totalPrice: number;
 }
-
 interface IRepairServiceFactor {
   repairReceptionId: number;
   description: string;
