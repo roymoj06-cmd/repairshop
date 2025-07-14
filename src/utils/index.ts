@@ -466,9 +466,8 @@ export const formatDuration = (minutes: number) => {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
   if (hours > 0) {
-    return `${hours} ساعت${
-      remainingMinutes > 0 ? ` و ${remainingMinutes} د` : ""
-    }`;
+    return `${hours} ساعت${remainingMinutes > 0 ? ` و ${remainingMinutes} د` : ""
+      }`;
   }
   return `${remainingMinutes} دقیقه`;
 };
@@ -508,11 +507,13 @@ export const formatTimeDisplay = (minutes: number): string => {
 export const getStatusText = (status: number): string => {
   switch (status) {
     case 0:
-      return "در انتظار";
+      return "در انتظار شروع";
     case 1:
       return "در حال انجام";
-    case 2:
+    case 3:
       return "تکمیل شده";
+    case 2:
+      return "آماده تست";
     default:
       return "نامشخص";
   }
@@ -520,13 +521,17 @@ export const getStatusText = (status: number): string => {
 
 export const getStatusColor = (
   status: number
-): "warning" | "info" | "success" | "default" => {
+): "warning" | "info" | "success" | "default" | "error" => {
   switch (status) {
     case 0:
       return "warning";
     case 1:
       return "info";
     case 2:
+      return "success";
+    case 3:
+      return "success";
+    case 4:
       return "success";
     default:
       return "default";

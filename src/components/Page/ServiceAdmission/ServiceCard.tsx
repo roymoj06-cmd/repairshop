@@ -16,6 +16,7 @@ interface ServiceCardProps {
   onEdit: (service: Service) => void;
   isUpdatingStatus?: boolean;
   serviceIndex: number;
+  isTested?: boolean;
   service: Service;
 }
 
@@ -23,6 +24,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   isUpdatingStatus = false,
   onUpdateStatus,
   serviceIndex,
+  isTested,
   onDelete,
   service,
   onEdit,
@@ -35,21 +37,21 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         return {
           text: "شروع به انجام سرویس",
           nextStatus: 1,
-          color: "bg-green-500 hover:bg-green-600",
+          color: "bg-indigo-500 hover:bg-indigo-600",
           textColor: "text-white",
         };
       case 1:
         return {
           text: "اتمام سرویس",
           nextStatus: 3,
-          color: "bg-blue-500 hover:bg-blue-600",
+          color: "bg-teal-500 hover:bg-teal-600",
           textColor: "text-white",
         };
-      case 2:
+      case 3:
         return {
-          text: "آماده تست",
-          nextStatus: 2,
-          color: "bg-orange-500 hover:bg-orange-600",
+          text: isTested === false ? "تست رد شد" : "آماده تست",
+          nextStatus: 4,
+          color: isTested === false ? "bg-red-500 hover:bg-red-600" : "bg-emerald-500 hover:bg-emerald-600",
           textColor: "text-white",
         };
       default:
@@ -66,7 +68,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       onUpdateStatus(service.id, statusButtonInfo.nextStatus);
     }
   };
-
+  console.log(service);
   return (
     <div className="bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 overflow-hidden">
       <div className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 p-4 border-b border-gray-200 dark:border-gray-600">
@@ -83,10 +85,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               </h3>
               <div className="mt-1">
                 <Chip
-                  label={getStatusText(service.status)}
-                  color={getStatusColor(service.status)}
+                  label={getStatusText(service.statusId)}
+                  color={getStatusColor(service.statusId)}
                   size="small"
-                  className="!text-xs !h-5"
+                  className='!text-xs !h-5'
                 />
               </div>
             </div>
@@ -196,21 +198,19 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           </div>
         </div>
 
-        <button
-          onClick={handleStatusUpdate}
-          disabled={service.statusId === 2}
-          className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
-            isUpdatingStatus
+        {statusButtonInfo && hasAccess(ACCESS_IDS.TEST_REPAIR) && !isTested && (
+          <button
+            onClick={handleStatusUpdate}
+            disabled={service.statusId === 3}
+            className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${isUpdatingStatus
               ? "bg-gray-400 cursor-not-allowed"
               : statusButtonInfo?.color
-          } ${
-            statusButtonInfo?.textColor
-          } shadow-sm hover:shadow-md disabled:hover:shadow-sm`}
-        >
-          {isUpdatingStatus ? "در حال بروزرسانی..." : statusButtonInfo?.text}
-        </button>
-        {/* {statusButtonInfo && hasAccess(ACCESS_IDS.EDIT_REPAIR) && (
-        )} */}
+              } ${statusButtonInfo?.textColor
+              } shadow-sm hover:shadow-md disabled:hover:shadow-sm`}
+          >
+            {isUpdatingStatus ? "در حال بروزرسانی..." : statusButtonInfo?.text}
+          </button>
+        )}
       </div>
     </div>
   );

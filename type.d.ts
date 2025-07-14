@@ -302,6 +302,7 @@ interface ProblemsService {
   totalProblemPrice: number;
   services: Service[];
   problemId: number;
+  isTested?: boolean;
 }
 interface Service {
   repairCustomerProblemDescription: string;
@@ -315,7 +316,9 @@ interface Service {
   serviceTitle: string;
   servicePrice: number;
   serviceCount: number;
+  statusTitle: string;
   totalPrice: number;
+  isTested?: boolean;
   serviceId: number;
   startDate: string;
   statusId: number;

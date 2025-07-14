@@ -28,6 +28,10 @@ const ProblemHeader: React.FC<ProblemHeaderProps> = ({
   const allServicesCompleted = problem.services?.every(
     (service: Service) => service.statusId === 3
   );
+
+  // Check if problem has been tested
+  const isProblemTested = problem.isTested !== undefined;
+  const isTestSuccessful = problem.isTested === true;
   const updateTestMutation = useMutation({
     mutationFn: updateProblemIsTested,
     onSuccess: (data: any) => {
@@ -105,84 +109,98 @@ const ProblemHeader: React.FC<ProblemHeaderProps> = ({
       </div>
 
       {/* Tester Buttons Section - Separate Row */}
-      <AccessGuard accessId={ACCESS_IDS.EDIT_REPAIR}>
+      <AccessGuard accessId={ACCESS_IDS.TEST_REPAIR}>
         <div className="border-t border-white/20 pt-3 mt-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="text-white text-xs sm:text-sm opacity-90">
-              <span className="inline-flex items-center gap-1">
-                {allServicesCompleted ? (
-                  <>
-                    <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                    همه سرویس‌ها تکمیل شده - آماده تست
-                  </>
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-sm">
+                {isProblemTested ? (
+                  isTestSuccessful ? (
+                    <span className="inline-flex items-center gap-2 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700 px-3 py-1.5 rounded-lg">
+                      <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                      <span className="font-semibold">✅ تست مشکل با موفقیت انجام شد</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700 px-3 py-1.5 rounded-lg">
+                      <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+                      <span className="font-semibold">❌ تست مشکل ناموفق بود</span>
+                    </span>
+                  )
+                ) : allServicesCompleted ? (
+                  <span className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700 px-3 py-1.5 rounded-lg">
+                    <span className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></span>
+                    <span className="font-semibold">🚀 همه سرویس‌ها تکمیل شده - آماده تست</span>
+                  </span>
                 ) : (
-                  <>
-                    <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
-                    در انتظار تکمیل سرویس‌ها
-                  </>
+                  <span className="inline-flex items-center gap-2 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700 px-3 py-1.5 rounded-lg">
+                    <span className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></span>
+                    <span className="font-semibold">⏳ در انتظار تکمیل سرویس‌ها</span>
+                  </span>
                 )}
               </span>
             </div>
-            <div className="flex gap-2 sm:gap-3">
-              <Button
-                onClick={() => handleTestClick(true)}
-                disabled={!allServicesCompleted}
-                variant="contained"
-                size="small"
-                sx={{
-                  backgroundColor: "rgba(34, 197, 94, 0.9) !important",
-                  "&:hover": {
-                    backgroundColor: "rgba(34, 197, 94, 1) !important",
-                    transform: "translateY(-1px)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
-                  },
-                  "&:disabled": {
-                    backgroundColor: "rgba(34, 197, 94, 0.4) !important",
-                    color: "rgba(255, 255, 255, 0.5) !important",
-                    cursor: "not-allowed",
-                  },
-                  minWidth: "100px",
-                  padding: "8px 16px",
-                  fontSize: "0.875rem",
-                  fontWeight: "600",
-                  borderRadius: "8px",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-                  transition: "all 0.2s ease-in-out",
-                  color: "white !important",
-                }}
-              >
-                تست موفق
-              </Button>
-              <Button
-                onClick={() => handleTestClick(false)}
-                disabled={!allServicesCompleted}
-                variant="contained"
-                size="small"
-                sx={{
-                  backgroundColor: "rgba(239, 68, 68, 0.9) !important",
-                  "&:hover": {
-                    backgroundColor: "rgba(239, 68, 68, 1) !important",
-                    transform: "translateY(-1px)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
-                  },
-                  "&:disabled": {
-                    backgroundColor: "rgba(239, 68, 68, 0.4) !important",
-                    color: "rgba(255, 255, 255, 0.5) !important",
-                    cursor: "not-allowed",
-                  },
-                  minWidth: "100px",
-                  padding: "8px 16px",
-                  fontSize: "0.875rem",
-                  fontWeight: "600",
-                  borderRadius: "8px",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-                  transition: "all 0.2s ease-in-out",
-                  color: "white !important",
-                }}
-              >
-                تست ناموفق
-              </Button>
-            </div>
+            {!isProblemTested && (
+              <div className="flex gap-2 sm:gap-3">
+                <Button
+                  onClick={() => handleTestClick(true)}
+                  disabled={!allServicesCompleted}
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    backgroundColor: "rgba(34, 197, 94, 0.9) !important",
+                    "&:hover": {
+                      backgroundColor: "rgba(34, 197, 94, 1) !important",
+                      transform: "translateY(-1px)",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                    },
+                    "&:disabled": {
+                      backgroundColor: "rgba(34, 197, 94, 0.4) !important",
+                      color: "rgba(255, 255, 255, 0.5) !important",
+                      cursor: "not-allowed",
+                    },
+                    minWidth: "100px",
+                    padding: "8px 16px",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
+                    borderRadius: "8px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                    transition: "all 0.2s ease-in-out",
+                    color: "white !important",
+                  }}
+                >
+                  تست موفق
+                </Button>
+                <Button
+                  onClick={() => handleTestClick(false)}
+                  disabled={!allServicesCompleted}
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    backgroundColor: "rgba(239, 68, 68, 0.9) !important",
+                    "&:hover": {
+                      backgroundColor: "rgba(239, 68, 68, 1) !important",
+                      transform: "translateY(-1px)",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                    },
+                    "&:disabled": {
+                      backgroundColor: "rgba(239, 68, 68, 0.4) !important",
+                      color: "rgba(255, 255, 255, 0.5) !important",
+                      cursor: "not-allowed",
+                    },
+                    minWidth: "100px",
+                    padding: "8px 16px",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
+                    borderRadius: "8px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                    transition: "all 0.2s ease-in-out",
+                    color: "white !important",
+                  }}
+                >
+                  تست ناموفق
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </AccessGuard>

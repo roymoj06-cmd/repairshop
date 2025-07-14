@@ -101,13 +101,14 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                           {problem.services.map(
                             (service: Service, serviceIndex: number) => (
                               <ServiceCard
-                                serviceIndex={serviceIndex}
-                                onDelete={handleDelete}
-                                onEdit={openModal}
                                 onUpdateStatus={handleUpdateStatus}
                                 isUpdatingStatus={
                                   updateStatusMutation.isPending
                                 }
+                                isTested={problem?.isTested}
+                                serviceIndex={serviceIndex}
+                                onDelete={handleDelete}
+                                onEdit={openModal}
                                 service={service}
                                 key={service.id}
                               />
@@ -187,7 +188,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
           details={details}
           open={showFactorModal}
           onClose={() => setShowFactorModal(false)}
-          // onSuccess={handleFactorSuccess}
+        // onSuccess={handleFactorSuccess}
         />
       )}
     </div>
