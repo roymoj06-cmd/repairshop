@@ -56,7 +56,9 @@ export const createCustomerProblem = async (
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
-export const getCustomerProblems = async (data: IAllGetRepairReceptionService) => {
+export const getCustomerProblems = async (
+  data: IAllGetRepairReceptionService
+) => {
   const queryString = convertObjectToQueryString(data);
   const reqConfig = {
     method: "GET",
@@ -91,6 +93,16 @@ export const deleteCustomerProblem = async (id: number) => {
   const reqConfig = {
     method: "DELETE",
     url: `${proxyServerUrl.deleteCustomerProblem}${
+      queryString ? `?${queryString}` : ""
+    }`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+export const updateProblemIsTested = async (data: IUpdateProblemIsTested) => {
+  const queryString = convertObjectToQueryString(data);
+  const reqConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.updateProblemIsTested}${
       queryString ? `?${queryString}` : ""
     }`,
   };

@@ -31,6 +31,32 @@ interface IUpdateRepairReceptionByProblem {
     }[];
   };
 }
+interface IUpdateRepairReception2 {
+  repairReception: {
+    customerEstimateTime: number;
+    receptionDate: string;
+    description: string;
+    customerId: number;
+    carId: number;
+    details: {
+      repairReceptionDetailId: number;
+      overridedUnitPrice: number;
+      isCustomerOwner: boolean;
+      productId: number;
+      barcodeId: number;
+      mechanic: string;
+      scanCode: string;
+      qty: number;
+    }[];
+    receptionDateTime: string;
+    deliveryDateTime: string;
+    delivererPhone: string;
+    carKilometers: number;
+    delivererName: string;
+    receiverName: string;
+    carColor: string;
+  };
+}
 interface IUpdateRepairReception {
   repairReception: {
     repairReceptionId?: number;
@@ -292,6 +318,7 @@ interface Service {
   totalPrice: number;
   serviceId: number;
   startDate: string;
+  statusId: number;
   endDate: string;
   status: number;
   id: number;
@@ -462,6 +489,7 @@ interface IGetReceptionProductRequestsById {
   details: {
     repairReceptionDetailId: number;
     isCustomerOwner: boolean;
+    hasOldPart?: boolean;
     productCode: string;
     barcodeCode: string;
     countryName: string;
@@ -588,4 +616,21 @@ interface IRepairServiceFactor {
     quantity: number;
     id?: number;
   }[];
+}
+interface IUpdateProblemIsTested {
+  isTested: boolean;
+  problemId: number;
+}
+interface IUpdateDetailHasOldPart {
+  hasOldPart: boolean;
+  detailId: number;
+}
+interface IUpdateServiceStatus {
+  serviceId: number;
+  status: number;
+}
+interface IGetRepairReceptionStatuses {
+  persianName: string;
+  name: string;
+  id: number;
 }

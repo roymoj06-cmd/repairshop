@@ -34,7 +34,9 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
   const [showFactorModal, setShowFactorModal] = useState(false);
 
   const {
+    updateStatusMutation,
     handleServiceChange,
+    handleUpdateStatus,
     setSelectedProblem,
     setDeleteConfirm,
     selectedProblem,
@@ -63,7 +65,6 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
         <Loading />
       ) : (
         <div className="service-management__content">
-          {/* Service Factor Button */}
           <AccessGuard accessId={ACCESS_IDS.CREATE_FACTOR}>
             <Button
               onClick={() => setShowFactorModal(true)}
@@ -92,6 +93,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                     <ProblemHeader
                       problemIndex={problemIndex}
                       problem={problem}
+                      repairReceptionId={repairReceptionId}
                     />
                     <div className="p-2">
                       {problem.services?.length > 0 ? (
@@ -102,6 +104,10 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                                 serviceIndex={serviceIndex}
                                 onDelete={handleDelete}
                                 onEdit={openModal}
+                                onUpdateStatus={handleUpdateStatus}
+                                isUpdatingStatus={
+                                  updateStatusMutation.isPending
+                                }
                                 service={service}
                                 key={service.id}
                               />

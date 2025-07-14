@@ -74,3 +74,30 @@ export const updateRepairReceptionServicesForProblems = async (
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const updateDetailHasOldPart = async (data: IUpdateDetailHasOldPart) => {
+  const queryString = convertObjectToQueryString(data);
+  const reqConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.updateDetailHasOldPart}${
+      queryString ? `?${queryString}` : ""
+    }`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+export const updateServiceStatus = async (data: IUpdateServiceStatus) => {
+  const queryString = convertObjectToQueryString(data);
+  const reqConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.updateServiceStatus}${
+      queryString ? `?${queryString}` : ""
+    }`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+export const getRepairReceptionStatuses = async () => {
+  const reqConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getRepairReceptionStatuses}`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

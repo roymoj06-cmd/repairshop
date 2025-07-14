@@ -386,6 +386,7 @@ export const ACCESS_IDS = {
   ADD_REPAIR: "78d1c8c5-21aa-4772-a070-ff43572768cc",
   EDIT_REPAIR: "a9b54cdd-8f69-48ad-a80c-2e3c34c61c4b",
   DELETE_REPAIR: "accec800-b88c-469e-8dc1-d62a7057f749",
+  TEST_REPAIR: "0e6452e0-6c89-44a6-8f0c-6a9ba61d1584",
 
   // عملیات قطعات
   MECHANIC_PART_REQUEST: "5ffd6748-329d-4b1d-a025-9c0c0ba350a4",
@@ -394,6 +395,7 @@ export const ACCESS_IDS = {
   VIEW_REQUESTS: "05bee620-fdfc-437d-a066-99b2413a342c",
   CREATE_FACTOR: "19a0f770-0ebc-445e-aab1-e612eeff481f",
   DELETE_SCANNED_PART: "c92e5601-bc02-44a8-8215-874fa75f51d6",
+  OLD_PART_DELIVERED: "b0d92fc3-39ce-4c52-abf0-1557ad5256d1",
 
   // عملیات درخواست‌ها
   DECLARE_SHORTAGE: "54049da6-2c41-48d4-8b5b-a82502bfe24f",
