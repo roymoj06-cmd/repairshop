@@ -54,8 +54,8 @@
 
 /* Dark mode styles for common components */
 .dark .MuiPaper-root {
-  background-color: #222e3c ;
-  color: white ;
+  background-color: #222e3c;
+  color: white;
 }
 
 .dark .MuiCard-root {
@@ -77,6 +77,10 @@
   background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
+.dark .MuiTableBody-root {
+  background-color: #000000 !important;
+}
+
 .dark .MuiInputBase-root {
   color: white !important;
 }
@@ -94,7 +98,7 @@
 }
 
 .dark .MuiButton-contained {
-  background-color: #aa8c78 !important;
+  background-color: #aa8c78;
 }
 
 .dark .MuiButton-contained:hover {

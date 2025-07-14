@@ -1,8 +1,9 @@
+import { Delete as DeleteIcon, CheckCircle, Cancel } from "@mui/icons-material";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { Delete as DeleteIcon } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import { FC, useState } from "react";
 import {
+  FormControlLabel,
   TableContainer,
   useMediaQuery,
   CardContent,
@@ -14,13 +15,16 @@ import {
   TableRow,
   useTheme,
   Button,
+  Switch,
   Table,
   Paper,
   Stack,
   Card,
+  Chip,
   Box,
 } from "@mui/material";
 
+import { updateDetailHasOldPart } from "@/service/repairReceptionService/repairReceptionService.service";
 import {
   getRepairReceptionForUpdateById,
   changeIsCancelled,
@@ -100,7 +104,34 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
       toast.error(error?.message || "خطا در حذف کالا");
     },
   });
-
+  const updateHasOldPartMutation = useMutation({
+    mutationFn: async ({
+      hasOldPart,
+      detailId,
+    }: {
+      hasOldPart: boolean;
+      detailId: number;
+    }) => {
+      const response = await updateDetailHasOldPart({
+        hasOldPart,
+        detailId,
+      });
+      return response;
+    },
+    onSuccess: (data: any) => {
+      if (data.isSuccess) {
+        toast.success(data.message);
+        queryClient.invalidateQueries({
+          queryKey: ["getRepairReceptionForUpdateById", repairReceptionId],
+        });
+      } else {
+        toast.error(data.message);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "خطا در آپدیت وضعیت قطعه قدیمی");
+    },
+  });
   const handleRefreshData = () => {
     queryClient.invalidateQueries({
       queryKey: ["repairReceptionId", repairReceptionId],
@@ -126,6 +157,12 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
   const handleCancelDelete = () => {
     setShowDeleteDialog(false);
     setSelectedProductForDelete(null);
+  };
+  const handleOldPartStatusChange = (detailId: number, hasOldPart: boolean) => {
+    updateHasOldPartMutation.mutate({
+      detailId,
+      hasOldPart,
+    });
   };
   const ProductCard: FC<{ product: any; index: number }> = ({ product }) => (
     <Card key={product.repairReceptionDetailId} sx={{ mb: 2, boxShadow: 2 }}>
@@ -194,6 +231,48 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
             </Typography>
           </Box>
         </Stack>
+
+        <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
+          <Box sx={{ mt: 2, pt: 2, borderTop: "1px solid #e0e0e0" }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={product.hasOldPart || false}
+                  onChange={(e) =>
+                    handleOldPartStatusChange(
+                      product.repairReceptionDetailId,
+                      e.target.checked
+                    )
+                  }
+                  disabled={updateHasOldPartMutation.isPending}
+                  color="primary"
+                />
+              }
+              label={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    قطعه قدیمی تحویل شده
+                  </Typography>
+                  {product.hasOldPart ? (
+                    <Chip
+                      icon={<CheckCircle />}
+                      label="تحویل شده"
+                      color="success"
+                      size="small"
+                    />
+                  ) : (
+                    <Chip
+                      icon={<Cancel />}
+                      label="تحویل نشده"
+                      color="error"
+                      size="small"
+                    />
+                  )}
+                </Box>
+              }
+            />
+          </Box>
+        </AccessGuard>
       </CardContent>
     </Card>
   );
@@ -220,6 +299,11 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
             <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
               برند / کشور
             </TableCell>
+            <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
+              <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
+                قطعه قدیمی
+              </TableCell>
+            </AccessGuard>
             <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
               عملیات
             </TableCell>
@@ -244,6 +328,46 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
               <TableCell sx={{ textAlign: "center" }}>
                 {product.brand} / {product.countryName}
               </TableCell>
+              <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
+                <TableCell sx={{ textAlign: "center" }}>
+                  <Box
+                    sx={{
+                      flexDirection: "column",
+                      alignItems: "center",
+                      display: "flex",
+                      gap: 1,
+                    }}
+                  >
+                    <Switch
+                      checked={product.hasOldPart || false}
+                      onChange={(e) =>
+                        handleOldPartStatusChange(
+                          product.repairReceptionDetailId,
+                          e.target.checked
+                        )
+                      }
+                      disabled={updateHasOldPartMutation.isPending}
+                      color="primary"
+                      size="small"
+                    />
+                    {product.hasOldPart ? (
+                      <Chip
+                        icon={<CheckCircle />}
+                        label="تحویل شده"
+                        color="success"
+                        size="small"
+                      />
+                    ) : (
+                      <Chip
+                        icon={<Cancel />}
+                        label="تحویل نشده"
+                        color="error"
+                        size="small"
+                      />
+                    )}
+                  </Box>
+                </TableCell>
+              </AccessGuard>
               <TableCell sx={{ textAlign: "center" }}>
                 {hasAccess(ACCESS_IDS.DELETE_SCANNED_PART) && (
                   <IconButton

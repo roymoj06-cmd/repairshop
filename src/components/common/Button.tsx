@@ -16,6 +16,7 @@ export interface ButtonProps extends Omit<MuiButtonProps, "variant"> {
   children?: ReactNode;
   endIcon?: ReactNode;
   fullWidth?: boolean;
+  disabled?: boolean;
   loading?: boolean;
   label?: string;
 }
@@ -48,8 +49,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           }`}
           startIcon={loading ? null : startIcon}
           endIcon={loading ? null : endIcon}
-          disabled={disabled || loading}
           fullWidth={fullWidth}
+          disabled={disabled}
           variant={variant}
           color={color}
           ref={ref}

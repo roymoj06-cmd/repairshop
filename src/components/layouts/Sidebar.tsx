@@ -82,7 +82,7 @@ const navConfig: NavItemProps[] = [
     title: "مدیریت تسک ها",
     path: dir.taskManagement,
     icon: <Task />,
-    guid: "",
+    guid: "ec4b9e05-a95e-4551-82ef-46377f11a6fc",
   },
   {
     title: "گزارش عملکرد",

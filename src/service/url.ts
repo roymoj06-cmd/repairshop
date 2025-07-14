@@ -79,8 +79,9 @@ export const proxyServerUrl = {
   getMechanicLeaveById: `${panelServiceBaseUrl}/RepairMechanicLeaves/GetMechanicLeaveById`,
   getAllMechanicLeave: `${panelServiceBaseUrl}/RepairMechanicLeaves/GetAllMechanicLeave`,
 
-  // repairService Controller
+  // repairServices Controller
   getCustomerProblemById: `${panelServiceBaseUrl}/RepairServices/GetCustomerProblemById`,
+  updateProblemIsTested: `${panelServiceBaseUrl}/RepairServices/UpdateProblemIsTested`,
   createCustomerProblem: `${panelServiceBaseUrl}/RepairServices/CreateCustomerProblem`,
   deleteCustomerProblem: `${panelServiceBaseUrl}/RepairServices/DeleteCustomerProblem`,
   updateCustomerProblem: `${panelServiceBaseUrl}/RepairServices/UpdateCustomerProblem`,
@@ -103,6 +104,9 @@ export const proxyServerUrl = {
   deleteRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/DeleteRepairReceptionService`,
   saveRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/SaveRepairReceptionServices`,
   getRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServices`,
+  updateDetailHasOldPart: `${panelServiceBaseUrl}/RepairReceptionService/UpdateDetailHasOldPart`,
+  updateServiceStatus: `${panelServiceBaseUrl}/RepairReceptionService/UpdateServiceStatus`,
+  getRepairReceptionStatuses: `${panelServiceBaseUrl}/Repair/GetRepairReceptionStatuses`,
 
   // RepairProductRequest Controller
   getAllRepairProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetAllRepairProductRequestsByReceptionId`,
@@ -144,6 +148,7 @@ export const proxyServerUrl = {
 
   // RepairServiceFactor Controller
   getRepairServiceFactorById: `${panelServiceBaseUrl}/RepairServiceFactor/GetRepairServiceFactorById`,
+  getAllRepairServiceFactor: `${panelServiceBaseUrl}/RepairServiceFactor/GetAllRepairServiceFactor`,
   deleteRepairServiceFactor: `${panelServiceBaseUrl}/RepairServiceFactor/DeleteRepairServiceFactor`,
   saveRepairServiceFactor: `${panelServiceBaseUrl}/RepairServiceFactor/SaveRepairServiceFactor`,
 };

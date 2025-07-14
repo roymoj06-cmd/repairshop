@@ -396,11 +396,16 @@ const CreateFactorForReception: React.FC<CreateFactorForReceptionProps> = ({
                                 className="font-14"
                                 fullWidth
                                 InputProps={{
-                                  endAdornment: product.isCustomerOwner && (
+                                  sx: {
+                                    fontSize: "14px",
+                                  },
+                                  endAdornment: product.isCustomerOwner ===
+                                    true && (
                                     <StarIcon
-                                      color="warning"
-                                      fontSize="small"
                                       titleAccess="رسید کالا از مشتری"
+                                      fontSize="small"
+                                      color="warning"
+                                      sx={{ color: "#ff9800" }}
                                     />
                                   ),
                                 }}
@@ -488,7 +493,25 @@ const CreateFactorForReception: React.FC<CreateFactorForReceptionProps> = ({
                               {product.productCode}
                             </TableCell>
                             <TableCell align="center" sx={{ fontSize: 14 }}>
-                              {product.productName}
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  gap: 1,
+                                }}
+                                ya
+                              >
+                                <span>{product.productName}</span>
+                                {product.isCustomerOwner === true && (
+                                  <StarIcon
+                                    titleAccess="رسید کالا از مشتری"
+                                    fontSize="small"
+                                    color="warning"
+                                    sx={{ color: "#ff9800" }}
+                                  />
+                                )}
+                              </Box>
                             </TableCell>
                             <TableCell align="center" sx={{ fontSize: 14 }}>
                               {product.qty}
@@ -588,11 +611,13 @@ const CreateFactorForReception: React.FC<CreateFactorForReceptionProps> = ({
                               size="small"
                               fullWidth
                               InputProps={{
-                                endAdornment: product.isCustomerOwner && (
+                                endAdornment: product.isCustomerOwner ===
+                                  true && (
                                   <StarIcon
                                     color="warning"
                                     fontSize="small"
                                     titleAccess="رسید کالا از مشتری"
+                                    sx={{ color: "#ff9800" }}
                                   />
                                 ),
                               }}
@@ -784,18 +809,34 @@ const CreateFactorForReception: React.FC<CreateFactorForReceptionProps> = ({
                             >
                               نام کالا
                             </Typography>
-                            <Typography
-                              variant="body1"
-                              fontWeight="bold"
+                            <Box
                               sx={{
-                                color: product.status
-                                  ? "success.dark"
-                                  : "warning.dark",
-                                fontSize: 14,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
                               }}
                             >
-                              {product.productName}
-                            </Typography>
+                              <Typography
+                                variant="body1"
+                                fontWeight="bold"
+                                sx={{
+                                  color: product.status
+                                    ? "success.dark"
+                                    : "warning.dark",
+                                  fontSize: 14,
+                                }}
+                              >
+                                {product.productName}
+                              </Typography>
+                              {product.isCustomerOwner === true && (
+                                <StarIcon
+                                  titleAccess="رسید کالا از مشتری"
+                                  fontSize="small"
+                                  color="warning"
+                                  sx={{ color: "#ff9800" }}
+                                />
+                              )}
+                            </Box>
                           </Box>
 
                           {/* Product Details Grid */}

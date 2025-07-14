@@ -10,6 +10,7 @@ import {
   deleteRepairReceptionService,
   createRepairReceptionService,
   updateRepairReceptionServicesForProblems,
+  updateServiceStatus,
 } from "@/service/repairReceptionService/repairReceptionService.service";
 import { getActiveMechanics } from "@/service/mechanic/mechanic.service";
 
@@ -127,6 +128,23 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
     },
   });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: updateServiceStatus,
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({
+        queryKey: ["repairReceptionServices", repairReceptionId],
+      });
+      if (data?.isSuccess) {
+        toast.success("وضعیت سرویس با موفقیت تغییر کرد");
+      } else {
+        toast.error(data?.message || "خطا در تغییر وضعیت سرویس");
+      }
+    },
+    onError: () => {
+      toast.error("خطا در تغییر وضعیت سرویس");
+    },
+  });
+
   // Handlers
   const handleDelete = (id: number, serviceName: string) => {
     setDeleteConfirm({ open: true, serviceId: id, serviceName });
@@ -137,6 +155,10 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
       deleteMutation.mutate(deleteConfirm.serviceId);
       setDeleteConfirm({ open: false, serviceId: null, serviceName: null });
     }
+  };
+
+  const handleUpdateStatus = (serviceId: number, newStatus: number) => {
+    updateStatusMutation.mutate({ serviceId, status: newStatus });
   };
 
   const handleServiceChange = (index: number, field: string, value: any) => {
@@ -359,11 +381,13 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
     createMutation,
     updateMutation,
     deleteMutation,
+    updateStatusMutation,
     confirmDelete,
     deleteConfirm,
     setShowModal,
     handleDelete,
     handleSubmit,
+    handleUpdateStatus,
     showModal,
     isLoading,
     mechanics,

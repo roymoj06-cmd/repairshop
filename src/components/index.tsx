@@ -2,9 +2,10 @@ export { default as RequestProductFromCustomerModal } from "./Page/ServiceAdmiss
 export { default as RequestProductForInventoryModal } from "./Page/ServiceAdmission/RequestProductForInventoryModal";
 export { default as RequestProductDetailsModal } from "./Page/ServiceAdmission/RequestProductDetailsModal";
 export { default as CreateFactorForReception } from "./Page/ServiceAdmission/CreateFactorForReception";
-export { default as CreateFactorForService } from "./Page/ServiceAdmission/CreateFactorForService";
+export { default as ViewServiceFactorsModal } from "./Page/ServiceAdmission/ViewServiceFactorsModal";
 export { default as RepairReceptionProducts } from "./Page/ServiceAdmission/RepairReceptionProducts";
 export { default as RequestProductListModal } from "./Page/ServiceAdmission/RequestProductListModal";
+export { default as CreateFactorForService } from "./Page/ServiceAdmission/CreateFactorForService";
 export { default as RepairReceptionService } from "./Page/ServiceAdmission/RepairReceptionService";
 export { default as ServiceManagementModal } from "./Page/ServiceAdmission/ServiceManagementModal";
 export { default as ServiceAdmissionForm } from "./Page/ServiceAdmission/ServiceAdmissionForm";
