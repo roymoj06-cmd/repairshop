@@ -6,9 +6,8 @@ export const getRepairServiceFactorById = async (id: number) => {
   const queryString = convertObjectToQueryString({ id });
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getRepairServiceFactorById}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getRepairServiceFactorById}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -24,9 +23,17 @@ export const deleteRepairServiceFactor = async (id: number) => {
   const queryString = convertObjectToQueryString({ id });
   const reqConfig = {
     method: "DELETE",
-    url: `${proxyServerUrl.deleteRepairServiceFactor}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.deleteRepairServiceFactor}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const getAllRepairServiceFactor = async (repairReceptionId: number) => {
+  const queryString = convertObjectToQueryString({ repairReceptionId });
+  const reqConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getAllRepairServiceFactor}${queryString ? `?${queryString}` : ""
+      }`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+}

@@ -2,6 +2,7 @@ import { FC, useState } from "react";
 import {
   ServiceManagementModal,
   CreateFactorForService,
+  ViewServiceFactorsModal,
   ProjectSummary,
   ConfirmDialog,
   ProblemHeader,
@@ -32,6 +33,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
   details,
 }) => {
   const [showFactorModal, setShowFactorModal] = useState(false);
+  const [showViewFactorsModal, setShowViewFactorsModal] = useState(false);
 
   const {
     updateStatusMutation,
@@ -65,22 +67,38 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
         <Loading />
       ) : (
         <div className="service-management__content">
-          <AccessGuard accessId={ACCESS_IDS.CREATE_FACTOR}>
-            <Button
-              onClick={() => setShowFactorModal(true)}
-              variant="contained"
-              color="secondary"
-              size="large"
-              sx={{
-                maxWidth: "calc(50% - 8px)",
-                minWidth: "fit-content",
-                marginBottom: "1rem",
-                flex: "1 1 auto",
-              }}
-            >
-              ایجاد فاکتور خدمات
-            </Button>
-          </AccessGuard>
+          <div className="flex flex-wrap gap-2 mb-4">
+            <AccessGuard accessId={ACCESS_IDS.CREATE_FACTOR_REPAIR}>
+              <Button
+                onClick={() => setShowFactorModal(true)}
+                variant="contained"
+                color="secondary"
+                size="large"
+                sx={{
+                  maxWidth: "calc(50% - 8px)",
+                  minWidth: "fit-content",
+                  flex: "1 1 auto",
+                }}
+              >
+                ایجاد فاکتور خدمات
+              </Button>
+            </AccessGuard>
+            {/* <AccessGuard accessId={ACCESS_IDS.VIEW_FACTORS_REPAIR}> */}
+              <Button
+                onClick={() => setShowViewFactorsModal(true)}
+                variant="contained"
+                color="secondary"
+                size="large"
+                sx={{
+                  maxWidth: "calc(50% - 8px)",
+                  minWidth: "fit-content",
+                  flex: "1 1 auto",
+                }}
+              >
+                مشاهده فاکتور خدمات
+              </Button>
+            {/* </AccessGuard> */}
+          </div>
 
           {services?.problems?.length > 0 ? (
             <div className="space-y-6">
@@ -189,6 +207,15 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
           open={showFactorModal}
           onClose={() => setShowFactorModal(false)}
         // onSuccess={handleFactorSuccess}
+        />
+      )}
+
+      {/* View Service Factors Modal */}
+      {repairReceptionId && (
+        <ViewServiceFactorsModal
+          repairReceptionId={Number(repairReceptionId)}
+          open={showViewFactorsModal}
+          onClose={() => setShowViewFactorsModal(false)}
         />
       )}
     </div>

@@ -148,6 +148,7 @@ export const proxyServerUrl = {
 
   // RepairServiceFactor Controller
   getRepairServiceFactorById: `${panelServiceBaseUrl}/RepairServiceFactor/GetRepairServiceFactorById`,
+  getAllRepairServiceFactor: `${panelServiceBaseUrl}/RepairServiceFactor/GetAllRepairServiceFactor`,
   deleteRepairServiceFactor: `${panelServiceBaseUrl}/RepairServiceFactor/DeleteRepairServiceFactor`,
   saveRepairServiceFactor: `${panelServiceBaseUrl}/RepairServiceFactor/SaveRepairServiceFactor`,
 };

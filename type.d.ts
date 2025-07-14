@@ -583,6 +583,7 @@ interface IGetMechanicProductRequestByProblemId {
 }
 interface IGetRepairReceptionService {
   repairCustomerProblemDescription: string;
+  isSelectedForFactorLocal?: boolean;
   performedByMechanicName: string;
   repairCustomerProblemId: number;
   performedByMechanicId: number;
@@ -636,4 +637,38 @@ interface IGetRepairReceptionStatuses {
   persianName: string;
   name: string;
   id: number;
+}
+interface IGetAllRepairServiceFactor {
+  shamsiFactorDate: string
+  repairReceptionId: number
+  customerName: string
+  customerCode: string
+  plateNumber: string
+  description: string
+  factorDate: string
+  totalPrice: number
+  carInfo: string
+  code: number
+  vin: string
+  id: number
+  details:
+  {
+    overridedServiceTitle: string
+    problemDescription: string
+    overridedUnitPrice: number
+    estimatedMinute: number
+    serviceTitle: string
+    servicePrice: number
+    serviceCount: number
+    mechanicName: string
+    totalPrice: number
+    statusText: string
+    serviceId: number
+    startDate: string
+    unitPrice: number
+    quantity: number
+    endDate: string
+    status: number
+  }[];
+
 }

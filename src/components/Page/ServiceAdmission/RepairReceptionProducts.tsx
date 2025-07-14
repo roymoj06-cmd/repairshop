@@ -328,46 +328,46 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
               <TableCell sx={{ textAlign: "center" }}>
                 {product.brand} / {product.countryName}
               </TableCell>
-              {/* <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}> */}
-              <TableCell sx={{ textAlign: "center" }}>
-                <Box
-                  sx={{
-                    flexDirection: "column",
-                    alignItems: "center",
-                    display: "flex",
-                    gap: 1,
-                  }}
-                >
-                  <Switch
-                    checked={product.hasOldPart || false}
-                    onChange={(e) =>
-                      handleOldPartStatusChange(
-                        product.repairReceptionDetailId,
-                        e.target.checked
-                      )
-                    }
-                    disabled={updateHasOldPartMutation.isPending}
-                    color="primary"
-                    size="small"
-                  />
-                  {product.hasOldPart ? (
-                    <Chip
-                      icon={<CheckCircle />}
-                      label="تحویل شده"
-                      color="success"
+              <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
+                <TableCell sx={{ textAlign: "center" }}>
+                  <Box
+                    sx={{
+                      flexDirection: "column",
+                      alignItems: "center",
+                      display: "flex",
+                      gap: 1,
+                    }}
+                  >
+                    <Switch
+                      checked={product.hasOldPart || false}
+                      onChange={(e) =>
+                        handleOldPartStatusChange(
+                          product.repairReceptionDetailId,
+                          e.target.checked
+                        )
+                      }
+                      disabled={updateHasOldPartMutation.isPending}
+                      color="primary"
                       size="small"
                     />
-                  ) : (
-                    <Chip
-                      icon={<Cancel />}
-                      label="تحویل نشده"
-                      color="error"
-                      size="small"
-                    />
-                  )}
-                </Box>
-              </TableCell>
-              {/* </AccessGuard> */}
+                    {product.hasOldPart ? (
+                      <Chip
+                        icon={<CheckCircle />}
+                        label="تحویل شده"
+                        color="success"
+                        size="small"
+                      />
+                    ) : (
+                      <Chip
+                        icon={<Cancel />}
+                        label="تحویل نشده"
+                        color="error"
+                        size="small"
+                      />
+                    )}
+                  </Box>
+                </TableCell>
+              </AccessGuard>
               <TableCell sx={{ textAlign: "center" }}>
                 {hasAccess(ACCESS_IDS.DELETE_SCANNED_PART) && (
                   <IconButton
