@@ -5,21 +5,26 @@ import {
   DropCell,
   TaskEditModal,
 } from "@/components";
-import { days, workHours } from "@/utils/statics";
-import moment from "moment-jalaali";
-import { Fragment, useState, useEffect } from "react";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { toast } from "react-toastify";
-import { useQuery } from "@tanstack/react-query";
 import { getActiveMechanics } from "@/service/mechanic/mechanic.service";
 import { getAllMechanicLeave } from "@/service/repairMechanicLeaves/repairMechanicLeaves.service";
-import { getSchedulesByMechanicId } from "@/service/repairSchedule/repairSchedule.service";
-import DatePicker, { DateObject } from "react-multi-date-picker";
-import persian_fa from "react-date-object/locales/persian_fa";
-import persian from "react-date-object/calendars/persian";
+import {
+  createSchedule,
+  deleteSchedule,
+  getSchedulesByMechanicId,
+  updateSchedule,
+} from "@/service/repairSchedule/repairSchedule.service";
+import { workHours } from "@/utils/statics";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import moment from "moment-jalaali";
+import { Fragment, useEffect, useState } from "react";
 import gregorian from "react-date-object/calendars/gregorian";
+import persian from "react-date-object/calendars/persian";
 import gregorian_en from "react-date-object/locales/gregorian_en";
+import persian_fa from "react-date-object/locales/persian_fa";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import DatePicker, { DateObject } from "react-multi-date-picker";
+import { toast } from "react-toastify";
 
 // Configure moment-jalaali
 moment.loadPersian({ dialect: "persian-modern" });
@@ -97,7 +102,7 @@ export default function TaskManagement() {
   }, [toDatePicker]);
 
   // Query برای دریافت برنامه‌های مکانیک‌ها
-  const { data: schedulesData, refetch: refetchSchedules } = useQuery({
+  const { data: schedulesData } = useQuery({
     queryKey: ["mechanicSchedules", dateRange.fromDate, dateRange.toDate],
     queryFn: async () => {
       if (!mechanicsData || mechanicsData.length === 0) return [];
@@ -164,39 +169,9 @@ export default function TaskManagement() {
       return;
     }
 
-    const convertedTasks: Task[] = schedulesData.map(
-      (schedule: any, index: number) => {
-        const startDate = moment(schedule.startDatetime);
-        const endDate = moment(schedule.endDatetime);
-
-        // محاسبه روز شروع نسبت به اولین روز در بازه
-        const firstDay = moment(dateRange.fromDate);
-        const startDay = startDate.diff(firstDay, "days");
-
-        // محاسبه ساعت شروع (از 8 صبح)
-        const startHour = Math.max(0, startDate.hour() - 8);
-
-        // محاسبه مدت زمان به ساعت
-        const durationInHours = Math.ceil(schedule.durationInMinutes / 60);
-
-        // محاسبه روز و ساعت پایان
-        const endDay = endDate.diff(firstDay, "days");
-        const endHour = endDate.hour() - 8;
-
-        return {
-          id: schedule.id?.toString() || `temp-${index}`,
-          user: schedule.mechanicName,
-          startDay: Math.max(0, startDay),
-          startHour: Math.max(0, startHour),
-          duration: durationInHours,
-          title: schedule.receptionServiceId
-            ? `سرویس ${schedule.receptionServiceId}`
-            : "تسک بدون عنوان",
-          endDay: endDay > startDay ? endDay : undefined,
-          endHour: endDay > startDay ? Math.max(0, endHour) : undefined,
-        };
-      }
-    );
+    const convertedTasks: Task[] = schedulesData.map((schedule: any) => {
+      return convertScheduleToTask(schedule, schedule.mechanicName);
+    });
 
     setTasks(convertedTasks);
   }, [schedulesData, mechanicsData, dateRange]);
@@ -252,6 +227,47 @@ export default function TaskManagement() {
   const [selectedDay, setSelectedDay] = useState(0);
   const [selectedHour, setSelectedHour] = useState(0);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Query client for invalidating queries
+  const queryClient = useQueryClient();
+
+  // Mutation hooks for schedule operations
+  const createScheduleMutation = useMutation({
+    mutationFn: createSchedule,
+    onSuccess: () => {
+      toast.success("تسک با موفقیت ایجاد شد");
+      queryClient.invalidateQueries({ queryKey: ["mechanicSchedules"] });
+    },
+    onError: (error: any) => {
+      console.error("خطا در ایجاد تسک:", error);
+      toast.error("خطا در ایجاد تسک. لطفاً دوباره تلاش کنید.");
+    },
+  });
+
+  const updateScheduleMutation = useMutation({
+    mutationFn: updateSchedule,
+    onSuccess: () => {
+      toast.success("تسک با موفقیت به‌روزرسانی شد");
+      queryClient.invalidateQueries({ queryKey: ["mechanicSchedules"] });
+    },
+    onError: (error: any) => {
+      console.error("خطا در به‌روزرسانی تسک:", error);
+      toast.error("خطا در به‌روزرسانی تسک. لطفاً دوباره تلاش کنید.");
+    },
+  });
+
+  const deleteScheduleMutation = useMutation({
+    mutationFn: deleteSchedule,
+    onSuccess: () => {
+      toast.success("تسک با موفقیت حذف شد");
+      queryClient.invalidateQueries({ queryKey: ["mechanicSchedules"] });
+    },
+    onError: (error: any) => {
+      console.error("خطا در حذف تسک:", error);
+      toast.error("خطا در حذف تسک. لطفاً دوباره تلاش کنید.");
+    },
+  });
+
   // تنظیم کاربر پیش‌فرض وقتی داده‌ها لود شدند
   useEffect(() => {
     if (mechanicsData && mechanicsData.length > 0 && !selectedUser) {
@@ -333,12 +349,6 @@ export default function TaskManagement() {
     dayIndex: number
   ): boolean => {
     return isHoliday(dayIndex) || isMechanicOnLeave(mechanicName, dayIndex);
-  };
-
-  // تابع کمکی برای بررسی تعطیلی بودن روز با تاریخ
-  const isHolidayByDate = (date: string): boolean => {
-    const dayStart = moment(date).startOf("day").toISOString();
-    return holidays.includes(dayStart);
   };
 
   // تابع کمکی برای محاسبه ساعات باقی‌مانده در روز
@@ -547,6 +557,64 @@ export default function TaskManagement() {
     return -1; // هیچ روز در دسترسی نیست
   };
 
+  // Helper function to convert Task to Schedule API format
+  const convertTaskToSchedule = (task: Task) => {
+    const startDate = moment(days[task.startDay]).add(
+      8 + task.startHour,
+      "hours"
+    );
+    const endDate = moment(startDate).add(task.duration, "hours");
+
+    return {
+      repairSchedule: {
+        id:
+          task.id && task.id !== "temp-" + Date.now()
+            ? parseInt(task.id)
+            : undefined,
+        mechanicId: task.mechanicId || 0,
+        receptionServiceId: task.serviceId || 0,
+        startDatetime: startDate.toISOString(),
+        endDatetime: endDate.toISOString(),
+        durationInMinutes: task.duration * 60,
+      },
+    };
+  };
+
+  // Helper function to convert Schedule API format to Task
+  const convertScheduleToTask = (schedule: any, mechanicName: string) => {
+    const startDate = moment(schedule.startDatetime);
+    const endDate = moment(schedule.endDatetime);
+
+    // محاسبه روز شروع نسبت به اولین روز در بازه
+    const firstDay = moment(dateRange.fromDate);
+    const startDay = startDate.diff(firstDay, "days");
+
+    // محاسبه ساعت شروع (از 8 صبح)
+    const startHour = Math.max(0, startDate.hour() - 8);
+
+    // محاسبه مدت زمان به ساعت
+    const durationInHours = Math.ceil(schedule.durationInMinutes / 60);
+
+    // محاسبه روز و ساعت پایان
+    const endDay = endDate.diff(firstDay, "days");
+    const endHour = endDate.hour() - 8;
+
+    return {
+      id: schedule.id?.toString() || `temp-${Date.now()}`,
+      user: mechanicName,
+      startDay: Math.max(0, startDay),
+      startHour: Math.max(0, startHour),
+      duration: durationInHours,
+      title: schedule.receptionServiceId
+        ? `سرویس ${schedule.receptionServiceId}`
+        : "تسک بدون عنوان",
+      endDay: endDay > startDay ? endDay : undefined,
+      endHour: endDay > startDay ? Math.max(0, endHour) : undefined,
+      mechanicId: schedule.mechanicId,
+      serviceId: schedule.receptionServiceId,
+    };
+  };
+
   // پیدا کردن آخرین تسک برای قرار دادن تسک جدید در ادامه
   const getNextAvailableHour = (user: string, day: number) => {
     // بررسی تعطیلی یا مرخصی بودن روز
@@ -641,10 +709,18 @@ export default function TaskManagement() {
       endHour: endDay > newDay ? endHour : undefined,
     };
 
-    setTasks((prev) => {
-      const filtered = prev.filter((t) => t.id !== task.id);
-      return [...filtered, updatedTask];
-    });
+    // Check if it's a real task (has numeric ID) or temporary
+    if (task.id && !isNaN(parseInt(task.id))) {
+      // Update existing task via API
+      const scheduleData = convertTaskToSchedule(updatedTask);
+      updateScheduleMutation.mutate(scheduleData);
+    } else {
+      // For temporary tasks, just update local state
+      setTasks((prev) => {
+        const filtered = prev.filter((t) => t.id !== task.id);
+        return [...filtered, updatedTask];
+      });
+    }
   };
 
   const handleTaskClick = (task: Task) => {
@@ -653,10 +729,16 @@ export default function TaskManagement() {
   };
 
   const handleDeleteTask = (taskId: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    // Check if it's a real task (has numeric ID) or temporary
+    if (taskId && !isNaN(parseInt(taskId))) {
+      deleteScheduleMutation.mutate(parseInt(taskId));
+    } else {
+      // For temporary tasks, just remove from local state
+      setTasks((prev) => prev.filter((t) => t.id !== taskId));
+      toast.success("تسک با موفقیت حذف شد");
+    }
     setIsDeleteDialogOpen(false);
     handleCloseModal();
-    toast.success("تسک با موفقیت حذف شد");
   };
 
   const handleSaveTask = (updatedTask: Task) => {
@@ -716,10 +798,18 @@ export default function TaskManagement() {
       endHour: endDay > updatedTask.startDay ? endHour : undefined,
     };
 
-    setTasks((prev) => {
-      const filtered = prev.filter((t) => t.id !== updatedTask.id);
-      return [...filtered, taskToUpdate];
-    });
+    // Check if it's a real task (has numeric ID) or temporary
+    if (updatedTask.id && !isNaN(parseInt(updatedTask.id))) {
+      // Update existing task via API
+      const scheduleData = convertTaskToSchedule(taskToUpdate);
+      updateScheduleMutation.mutate(scheduleData);
+    } else {
+      // For temporary tasks, just update local state
+      setTasks((prev) => {
+        const filtered = prev.filter((t) => t.id !== updatedTask.id);
+        return [...filtered, taskToUpdate];
+      });
+    }
   };
 
   const handleCreateTask = () => {
@@ -824,7 +914,9 @@ export default function TaskManagement() {
       endHour: endDay > newTask.startDay ? endHour : undefined,
     };
 
-    setTasks((prev) => [...prev, taskToAdd]);
+    // Create task via API
+    const scheduleData = convertTaskToSchedule(taskToAdd);
+    createScheduleMutation.mutate(scheduleData);
   };
 
   const handleCloseModal = () => {
@@ -953,23 +1045,30 @@ export default function TaskManagement() {
           </div>
           <button
             onClick={handleCreateTask}
-            className="flex items-center gap-2 bg-gradient-to-l from-green-500 to-green-400 text-white px-5 py-2.5 rounded-lg shadow hover:from-green-600 hover:to-green-500 transition-all text-base font-bold mt-2 sm:mt-0"
+            disabled={createScheduleMutation.isPending}
+            className="flex items-center gap-2 bg-gradient-to-l from-green-500 to-green-400 text-white px-5 py-2.5 rounded-lg shadow hover:from-green-600 hover:to-green-500 transition-all text-base font-bold mt-2 sm:mt-0 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            ایجاد تسک جدید
+            {createScheduleMutation.isPending ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+            )}
+            {createScheduleMutation.isPending
+              ? "در حال ایجاد..."
+              : "ایجاد تسک جدید"}
           </button>
         </div>
 
@@ -1309,6 +1408,7 @@ export default function TaskManagement() {
           onSave={handleSaveTask}
           onDelete={() => setIsDeleteDialogOpen(true)}
           holidays={holidays}
+          isLoading={updateScheduleMutation.isPending}
         />
 
         {/* Create Task Modal */}
@@ -1320,6 +1420,7 @@ export default function TaskManagement() {
           selectedDay={selectedDay}
           selectedHour={selectedHour}
           holidays={holidays}
+          isLoading={createScheduleMutation.isPending}
         />
         <ConfirmDeleteDialog
           open={isDeleteDialogOpen}

@@ -6,6 +6,7 @@ import { days, workHours } from "@/utils/statics";
 import { useQuery } from "@tanstack/react-query";
 import moment from "moment-jalaali";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 // مودال ایجاد تسک جدید
 export default function CreateTaskModal({
@@ -16,6 +17,7 @@ export default function CreateTaskModal({
   selectedDay,
   selectedHour,
   holidays = [],
+  isLoading = false,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -24,6 +26,7 @@ export default function CreateTaskModal({
   selectedDay: number;
   selectedHour: number;
   holidays?: string[];
+  isLoading?: boolean;
 }) {
   // State for the workflow
   const [plateFilter, setPlateFilter] = useState<plateSection>({
@@ -61,6 +64,7 @@ export default function CreateTaskModal({
         plateSection2: plateFilter.plateSection2,
         plateSection3: plateFilter.plateSection3,
         plateSection4: plateFilter.plateSection4,
+        isDischarged: false,
       }),
     enabled:
       (plateFilter.plateSection1?.length || 0) >= 2 ||
@@ -89,7 +93,7 @@ export default function CreateTaskModal({
   });
 
   // Query برای دریافت پذیرش‌های پلاک انتخاب شده
-  const { data: receptionsData, isLoading: isLoadingReceptions } = useQuery({
+  const { data: receptionsData } = useQuery({
     queryKey: ["receptions", selectedPlate],
     queryFn: () =>
       getRepairReceptions({
@@ -99,15 +103,31 @@ export default function CreateTaskModal({
         plateSection2: selectedPlate?.plateSection2,
         plateSection3: selectedPlate?.plateSection3,
         plateSection4: selectedPlate?.plateSection4,
+        isDischarged: false,
       }),
     enabled: !!selectedPlate,
-    select: (data: any) =>
-      data?.data?.values?.map((reception: any) => ({
-        label: `پذیرش ${reception.code} - ${reception.customerName} -${reception.receptionDate} -${reception.receptionTime}`,
+    select: (data: any) => {
+      if (!data?.data?.values) return [];
+
+      return data.data.values.map((reception: any) => ({
+        label: `پذیرش ${reception.code} - ${reception.customerName} - ${reception.receptionDate} - ${reception.receptionTime}`,
         value: reception.id,
         reception: reception,
-      })) || [],
+        plateSection1: reception.plateSection1,
+        plateSection2: reception.plateSection2,
+        plateSection3: reception.plateSection3,
+        plateSection4: reception.plateSection4,
+      }));
+    },
   });
+
+  // اتوماتیک انتخاب اولین پذیرش وقتی پلاک انتخاب می‌شود
+  useEffect(() => {
+    if (receptionsData && receptionsData.length > 0 && !selectedReception) {
+      const firstReception = receptionsData[0];
+      setSelectedReception(firstReception);
+    }
+  }, [receptionsData, selectedReception]);
 
   // Query برای دریافت سرویس‌های پذیرش انتخاب شده
   const { data: servicesData, isLoading: isLoadingServices } = useQuery({
@@ -227,12 +247,12 @@ export default function CreateTaskModal({
 
     // بررسی تعطیلی بودن روز انتخاب شده
     if (isHoliday(formData.startDay)) {
-      alert("نمی‌توان در روز تعطیل تسک ایجاد کرد!");
+      toast.error("نمی‌توان در روز تعطیل تسک ایجاد کرد!");
       return;
     }
 
     if (!selectedService || !selectedMechanic) {
-      alert("لطفاً سرویس و مکانیک را انتخاب کنید!");
+      toast.error("لطفاً سرویس و مکانیک را انتخاب کنید!");
       return;
     }
 
@@ -265,7 +285,7 @@ export default function CreateTaskModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Step 1: Plate Search */}
-          <div className="max-w-72">
+          <div className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4  ">
             <label className="font-12">شماره پلاک</label>
             <PlateNumberDisplay
               state={plateFilter}
@@ -275,15 +295,13 @@ export default function CreateTaskModal({
             {isLoadingPlates && (
               <div className="text-sm text-gray-500 mt-1">در حال جستجو...</div>
             )}
-            {platesData && platesData.length > 0 && (
+            {platesData && platesData.length > 0 && !selectedPlate && (
               <div className="mt-2 max-h-32 overflow-y-auto border border-gray-200 rounded">
                 {platesData.map((plate: any) => (
                   <div
                     key={plate.value}
                     onClick={() => setSelectedPlate(plate)}
-                    className={`p-2 cursor-pointer hover:bg-gray-100 ${
-                      selectedPlate?.value === plate.value ? "bg-blue-100" : ""
-                    }`}
+                    className="p-2 cursor-pointer hover:bg-gray-100"
                   >
                     {plate.label}
                   </div>
@@ -292,36 +310,24 @@ export default function CreateTaskModal({
             )}
           </div>
 
-          {/* Step 2: Reception Selection */}
-          {selectedPlate && (
-            <div>
+          {/* Step 2: Reception Card */}
+          {selectedReception && (
+            <div className="mt-2">
               <label className="block text-sm font-medium mb-1">
-                انتخاب پذیرش
+                پذیرش انتخاب شده
               </label>
-              {isLoadingReceptions ? (
-                <div className="text-sm text-gray-500">
-                  در حال بارگذاری پذیرش‌ها...
+              <div className="p-3 border border-gray-300 rounded bg-gray-50">
+                <div className="font-medium text-gray-900">
+                  پذیرش {selectedReception.reception.code}
                 </div>
-              ) : (
-                <select
-                  value={selectedReception?.value || ""}
-                  onChange={(e) => {
-                    const reception = receptionsData?.find(
-                      (r: any) => r.value === parseInt(e.target.value)
-                    );
-                    setSelectedReception(reception);
-                  }}
-                  className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">انتخاب پذیرش</option>
-                  {receptionsData?.map((reception: any) => (
-                    <option key={reception.value} value={reception.value}>
-                      {reception.label}
-                    </option>
-                  ))}
-                </select>
-              )}
+                <div className="text-sm text-gray-600">
+                  مشتری: {selectedReception.reception.customerName}
+                </div>
+                <div className="text-sm text-gray-600">
+                  تاریخ: {selectedReception.reception.receptionDate} - ساعت:{" "}
+                  {selectedReception.reception.receptionTime}
+                </div>
+              </div>
             </div>
           )}
 
@@ -436,25 +442,46 @@ export default function CreateTaskModal({
             <div>
               <label className="block text-sm font-medium mb-1">
                 مدت زمان (ساعت)
+                {selectedService?.service?.estimatedMinute && (
+                  <span className="text-xs text-green-600 mr-2">
+                    (پیشنهادی:{" "}
+                    {Math.ceil(selectedService.service.estimatedMinute / 60)}{" "}
+                    ساعت)
+                  </span>
+                )}
               </label>
-              <div className="w-full p-2 border border-gray-300 rounded bg-gray-50 text-gray-700">
-                {duration} ساعت
-              </div>
+              <select
+                value={duration}
+                onChange={(e) => setDuration(parseInt(e.target.value))}
+                className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  selectedService?.service?.estimatedMinute
+                    ? "border-green-300 bg-green-50"
+                    : "border-gray-300"
+                }`}
+                required
+              >
+                {Array.from({ length: 100 }, (_, i) => i + 1).map((hour) => (
+                  <option key={hour} value={hour}>
+                    {hour} ساعت
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
           <div className="flex gap-2 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors"
-              disabled={!selectedService || !selectedMechanic}
+              className="flex-1 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading || !selectedService || !selectedMechanic}
             >
-              ایجاد
+              {isLoading ? "در حال ایجاد..." : "ایجاد"}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors"
+              disabled={isLoading}
+              className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               انصراف
             </button>
