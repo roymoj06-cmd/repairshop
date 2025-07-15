@@ -25,6 +25,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import DatePicker, { DateObject } from "react-multi-date-picker";
 import { toast } from "react-toastify";
+import { useTheme } from "@/context/ThemeContext";
 
 // Configure moment-jalaali
 moment.loadPersian({ dialect: "persian-modern" });
@@ -41,6 +42,8 @@ const persianDays = [
 ];
 
 export default function TaskManagement() {
+  const { mode } = useTheme();
+
   // تاریخ‌های پیش‌فرض: از امروز تا 3 هفته بعد
   const [dateRange, setDateRange] = useState({
     fromDate: moment().format("YYYY-MM-DD"),
@@ -993,11 +996,21 @@ export default function TaskManagement() {
     <DndProvider backend={HTML5Backend}>
       <div className="overflow-auto">
         {/* کنترل‌های ایجاد تسک */}
-        <div className="mb-6 p-4 bg-white rounded-xl shadow flex flex-col sm:flex-row sm:items-end gap-4 border border-gray-200">
+        <div
+          className={`mb-6 p-4 rounded-xl shadow flex flex-col sm:flex-row sm:items-end gap-4 border ${
+            mode === "dark"
+              ? "bg-gray-800 border-gray-600 text-white"
+              : "bg-white border-gray-200"
+          }`}
+        >
           {/* Date Range Filter */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end flex-1">
             <div>
-              <label className="block text-xs font-bold mb-1 text-gray-600">
+              <label
+                className={`block text-xs font-bold mb-1 ${
+                  mode === "dark" ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 بازه تاریخ از
               </label>
               <DatePicker
@@ -1020,7 +1033,11 @@ export default function TaskManagement() {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold mb-1 text-gray-600">
+              <label
+                className={`block text-xs font-bold mb-1 ${
+                  mode === "dark" ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 تا
               </label>
               <DatePicker
@@ -1075,11 +1092,31 @@ export default function TaskManagement() {
         <div className="relative">
           {/* Scrollable Body */}
           <div className="overflow-auto max-h-[70vh]">
-            <table className="table-fixed w-full border-collapse border text-center">
-              <thead className="sticky top-0 z-[11] bg-white shadow-sm">
+            <table
+              className={`table-fixed w-full border-collapse border text-center ${
+                mode === "dark" ? "border-gray-600" : "border-gray-300"
+              }`}
+            >
+              <thead
+                className={`sticky top-0 z-[11] shadow-sm ${
+                  mode === "dark" ? "bg-gray-800" : "bg-white"
+                }`}
+              >
                 <tr>
-                  <th className="bg-gray-100 w-32">کاربر</th>
-                  <th className="bg-gray-100 w-20">ساعت</th>
+                  <th
+                    className={`w-32 ${
+                      mode === "dark" ? "bg-gray-700 text-white" : "bg-gray-100"
+                    }`}
+                  >
+                    کاربر
+                  </th>
+                  <th
+                    className={`w-20 ${
+                      mode === "dark" ? "bg-gray-700 text-white" : "bg-gray-100"
+                    }`}
+                  >
+                    ساعت
+                  </th>
                   {days.map((day, i) => {
                     // بررسی اینکه آیا در این روز مکانیک‌هایی مرخصی دارند
                     const mechanicsOnLeave =
@@ -1088,12 +1125,20 @@ export default function TaskManagement() {
                       ) || [];
 
                     // تعیین رنگ هدر بر اساس تعطیل یا مرخصی بودن
-                    let headerClass = "bg-gray-100 text-sm w-24";
+                    let headerClass =
+                      mode === "dark"
+                        ? "bg-gray-700 text-white text-sm w-24"
+                        : "bg-gray-100 text-sm w-24";
                     if (isHoliday(i)) {
-                      headerClass = "bg-red-100 text-red-700 text-sm w-24";
+                      headerClass =
+                        mode === "dark"
+                          ? "bg-red-900 text-red-200 text-sm w-24"
+                          : "bg-red-100 text-red-700 text-sm w-24";
                     } else if (mechanicsOnLeave.length > 0) {
                       headerClass =
-                        "bg-orange-100 text-orange-700 text-sm w-24";
+                        mode === "dark"
+                          ? "bg-orange-900 text-orange-200 text-sm w-24"
+                          : "bg-orange-100 text-orange-700 text-sm w-24";
                     }
 
                     return (
@@ -1129,23 +1174,49 @@ export default function TaskManagement() {
                         key={`${user.fullName}-${hour}`}
                         className={`${
                           mechanicsData.indexOf(user) % 2 === 0
-                            ? "bg-white/50"
+                            ? mode === "dark"
+                              ? "bg-gray-800/50"
+                              : "bg-white/50"
+                            : mode === "dark"
+                            ? "bg-gray-700/50"
                             : "bg-gray-100/50"
                         }`}
                       >
                         {hour === 0 && (
                           <td
                             rowSpan={9}
-                            className="font-semibold border align-middle w-32"
+                            className={`font-semibold border align-middle w-32 ${
+                              mode === "dark"
+                                ? "border-gray-600"
+                                : "border-gray-300"
+                            }`}
                           >
                             <div className="text-center">
-                              <div className="font-bold text-lg">
+                              <div
+                                className={`font-bold text-lg ${
+                                  mode === "dark"
+                                    ? "text-white"
+                                    : "text-gray-900"
+                                }`}
+                              >
                                 {user.fullName}
                               </div>
-                              <div className="text-xs text-gray-600 mt-1">
+                              <div
+                                className={`text-xs mt-1 ${
+                                  mode === "dark"
+                                    ? "text-gray-300"
+                                    : "text-gray-600"
+                                }`}
+                              >
                                 ساعات کاری
                               </div>
-                              <div className="text-xs text-gray-500 mt-1">
+                              <div
+                                className={`text-xs mt-1 ${
+                                  mode === "dark"
+                                    ? "text-gray-400"
+                                    : "text-gray-500"
+                                }`}
+                              >
                                 8:00 - 17:00
                               </div>
                               {/* نمایش تعداد روزهای مرخصی */}
@@ -1165,8 +1236,12 @@ export default function TaskManagement() {
                         <td
                           className={`font-semibold text-sm border w-20 ${
                             mechanicsData.indexOf(user) % 2 === 0
-                              ? "bg-white"
-                              : "bg-gray-100"
+                              ? mode === "dark"
+                                ? "bg-gray-800 border-gray-600"
+                                : "bg-white border-gray-300"
+                              : mode === "dark"
+                              ? "bg-gray-700 border-gray-600"
+                              : "bg-gray-100 border-gray-300"
                           }`}
                         >
                           {hour + 8}:00
@@ -1186,9 +1261,13 @@ export default function TaskManagement() {
                           // تعیین رنگ پس‌زمینه سلول
                           let cellBgClass = "";
                           if (isHolidayDay) {
-                            cellBgClass = "bg-red-50";
+                            cellBgClass =
+                              mode === "dark" ? "bg-red-900/20" : "bg-red-50";
                           } else if (isMechanicLeave) {
-                            cellBgClass = "bg-orange-50";
+                            cellBgClass =
+                              mode === "dark"
+                                ? "bg-orange-900/20"
+                                : "bg-orange-50";
                           }
 
                           if (taskHere) {
@@ -1259,8 +1338,20 @@ export default function TaskManagement() {
                             >
                               <div className={`w-full h-full ${cellBgClass}`}>
                                 {isMechanicLeave && (
-                                  <div className="w-full h-full bg-orange-100 border border-orange-300 rounded flex items-center justify-center">
-                                    <span className="text-xs text-orange-700 font-semibold">
+                                  <div
+                                    className={`w-full h-full rounded flex items-center justify-center ${
+                                      mode === "dark"
+                                        ? "bg-orange-900/30 border border-orange-600"
+                                        : "bg-orange-100 border border-orange-300"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`text-xs font-semibold ${
+                                        mode === "dark"
+                                          ? "text-orange-200"
+                                          : "text-orange-700"
+                                      }`}
+                                    >
                                       مرخصی
                                     </span>
                                   </div>
@@ -1279,15 +1370,36 @@ export default function TaskManagement() {
         </div>
 
         {/* اطلاعات ساعات کاری */}
-        <div className="mt-4 p-4 bg-blue-50 rounded">
-          <h3 className="font-semibold mb-3 text-blue-800">
+        <div
+          className={`mt-4 p-4 rounded ${
+            mode === "dark"
+              ? "bg-blue-900/20 border border-blue-700"
+              : "bg-blue-50"
+          }`}
+        >
+          <h3
+            className={`font-semibold mb-3 ${
+              mode === "dark" ? "text-blue-200" : "text-blue-800"
+            }`}
+          >
             ساعات کاری هر کاربر:
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {mechanicsData?.map((user: { fullName: string }) => (
-              <div key={user.fullName} className="bg-white p-3 rounded border">
-                <h4 className="font-bold text-gray-800 mb-2">
+              <div
+                key={user.fullName}
+                className={`p-3 rounded border ${
+                  mode === "dark"
+                    ? "bg-gray-800 border-gray-600"
+                    : "bg-white border-gray-300"
+                }`}
+              >
+                <h4
+                  className={`font-bold mb-2 ${
+                    mode === "dark" ? "text-white" : "text-gray-800"
+                  }`}
+                >
                   {user.fullName}
                 </h4>
                 <div className="space-y-1">
@@ -1355,9 +1467,25 @@ export default function TaskManagement() {
         </div>
 
         {/* Legend */}
-        <div className="mt-4 p-4 bg-gray-50 rounded">
-          <h3 className="font-semibold mb-2">راهنما:</h3>
-          <ul className="text-sm space-y-1">
+        <div
+          className={`mt-4 p-4 rounded ${
+            mode === "dark"
+              ? "bg-gray-800 border border-gray-600"
+              : "bg-gray-50"
+          }`}
+        >
+          <h3
+            className={`font-semibold mb-2 ${
+              mode === "dark" ? "text-white" : "text-gray-900"
+            }`}
+          >
+            راهنما:
+          </h3>
+          <ul
+            className={`text-sm space-y-1 ${
+              mode === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
             <li>• هر روز 9 ساعت کاری (8:00 تا 17:00)</li>
             <li>• برای ایجاد تسک جدید از دکمه بالا استفاده کنید</li>
             <li>• برای ویرایش تسک، روی آن کلیک کنید</li>

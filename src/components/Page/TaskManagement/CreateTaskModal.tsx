@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import moment from "moment-jalaali";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useTheme } from "@/context/ThemeContext";
 
 // مودال ایجاد تسک جدید
 export default function CreateTaskModal({
@@ -28,6 +29,8 @@ export default function CreateTaskModal({
   holidays?: string[];
   isLoading?: boolean;
 }) {
+  const { mode } = useTheme();
+
   // State for the workflow
   const [plateFilter, setPlateFilter] = useState<plateSection>({
     plateSection1: "",
@@ -280,8 +283,18 @@ export default function CreateTaskModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full  md:w-3/6  max-w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">ایجاد تسک جدید</h2>
+      <div
+        className={`rounded-lg p-6 w-full md:w-3/6 max-w-full mx-4 max-h-[90vh] overflow-y-auto ${
+          mode === "dark" ? "bg-gray-800 text-white" : "bg-white"
+        }`}
+      >
+        <h2
+          className={`text-xl font-bold mb-4 ${
+            mode === "dark" ? "text-white" : "text-gray-900"
+          }`}
+        >
+          ایجاد تسک جدید
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Step 1: Plate Search */}
@@ -293,15 +306,31 @@ export default function CreateTaskModal({
               setPage={() => {}}
             />
             {isLoadingPlates && (
-              <div className="text-sm text-gray-500 mt-1">در حال جستجو...</div>
+              <div
+                className={`text-sm mt-1 ${
+                  mode === "dark" ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
+                در حال جستجو...
+              </div>
             )}
             {platesData && platesData.length > 0 && !selectedPlate && (
-              <div className="mt-2 max-h-32 overflow-y-auto border border-gray-200 rounded">
+              <div
+                className={`mt-2 max-h-32 overflow-y-auto border rounded ${
+                  mode === "dark"
+                    ? "border-gray-600 bg-gray-700"
+                    : "border-gray-200 bg-white"
+                }`}
+              >
                 {platesData.map((plate: any) => (
                   <div
                     key={plate.value}
                     onClick={() => setSelectedPlate(plate)}
-                    className="p-2 cursor-pointer hover:bg-gray-100"
+                    className={`p-2 cursor-pointer ${
+                      mode === "dark"
+                        ? "hover:bg-gray-600 text-white"
+                        : "hover:bg-gray-100"
+                    }`}
                   >
                     {plate.label}
                   </div>
@@ -313,17 +342,39 @@ export default function CreateTaskModal({
           {/* Step 2: Reception Card */}
           {selectedReception && (
             <div className="mt-2">
-              <label className="block text-sm font-medium mb-1">
+              <label
+                className={`block text-sm font-medium mb-1 ${
+                  mode === "dark" ? "text-white" : "text-gray-900"
+                }`}
+              >
                 پذیرش انتخاب شده
               </label>
-              <div className="p-3 border border-gray-300 rounded bg-gray-50">
-                <div className="font-medium text-gray-900">
+              <div
+                className={`p-3 border rounded ${
+                  mode === "dark"
+                    ? "border-gray-600 bg-gray-700"
+                    : "border-gray-300 bg-gray-50"
+                }`}
+              >
+                <div
+                  className={`font-medium ${
+                    mode === "dark" ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   پذیرش {selectedReception.reception.code}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div
+                  className={`text-sm ${
+                    mode === "dark" ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
                   مشتری: {selectedReception.reception.customerName}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div
+                  className={`text-sm ${
+                    mode === "dark" ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
                   تاریخ: {selectedReception.reception.receptionDate} - ساعت:{" "}
                   {selectedReception.reception.receptionTime}
                 </div>
@@ -350,7 +401,11 @@ export default function CreateTaskModal({
                     );
                     setSelectedService(service);
                   }}
-                  className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    mode === "dark"
+                      ? "border-gray-600 bg-gray-700 text-white"
+                      : "border-gray-300 bg-white text-gray-900"
+                  }`}
                   required
                 >
                   <option value="">انتخاب سرویس</option>
@@ -387,8 +442,12 @@ export default function CreateTaskModal({
                   selectedService?.service?.performedByMechanicId &&
                   selectedMechanic?.value ===
                     selectedService.service.performedByMechanicId
-                    ? "border-green-300 bg-green-50"
-                    : "border-gray-300"
+                    ? mode === "dark"
+                      ? "border-green-400 bg-green-900 text-white"
+                      : "border-green-300 bg-green-50"
+                    : mode === "dark"
+                    ? "border-gray-600 bg-gray-700 text-white"
+                    : "border-gray-300 bg-white text-gray-900"
                 }`}
                 required
                 disabled={isLoadingMechanics}
@@ -423,8 +482,12 @@ export default function CreateTaskModal({
                 onChange={(e) => setStartHour(parseInt(e.target.value))}
                 className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   selectedService?.service?.startDate
-                    ? "border-green-300 bg-green-50"
-                    : "border-gray-300"
+                    ? mode === "dark"
+                      ? "border-green-400 bg-green-900 text-white"
+                      : "border-green-300 bg-green-50"
+                    : mode === "dark"
+                    ? "border-gray-600 bg-gray-700 text-white"
+                    : "border-gray-300 bg-white text-gray-900"
                 }`}
                 required
               >
@@ -455,8 +518,12 @@ export default function CreateTaskModal({
                 onChange={(e) => setDuration(parseInt(e.target.value))}
                 className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   selectedService?.service?.estimatedMinute
-                    ? "border-green-300 bg-green-50"
-                    : "border-gray-300"
+                    ? mode === "dark"
+                      ? "border-green-400 bg-green-900 text-white"
+                      : "border-green-300 bg-green-50"
+                    : mode === "dark"
+                    ? "border-gray-600 bg-gray-700 text-white"
+                    : "border-gray-300 bg-white text-gray-900"
                 }`}
                 required
               >

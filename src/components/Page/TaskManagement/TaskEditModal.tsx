@@ -6,6 +6,7 @@ import { workHours, days } from "@/utils/statics";
 import { useQuery } from "@tanstack/react-query";
 import moment from "moment-jalaali";
 import { useEffect, useState } from "react";
+import { useTheme } from "@/context/ThemeContext";
 
 // Persian day names - mapping from English day of week to Persian
 const persianDays = [
@@ -36,6 +37,8 @@ export default function TaskEditModal({
   holidays?: string[];
   isLoading?: boolean;
 }) {
+  const { mode } = useTheme();
+
   // State for the workflow
   const [plateFilter, setPlateFilter] = useState<plateSection>({
     plateSection1: "",
@@ -357,8 +360,18 @@ export default function TaskEditModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full md:w-3/6 max-w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">ویرایش تسک</h2>
+      <div
+        className={`rounded-lg p-6 w-full md:w-3/6 max-w-full mx-4 max-h-[90vh] overflow-y-auto ${
+          mode === "dark" ? "bg-gray-800 text-white" : "bg-white"
+        }`}
+      >
+        <h2
+          className={`text-xl font-bold mb-4 ${
+            mode === "dark" ? "text-white" : "text-gray-900"
+          }`}
+        >
+          ویرایش تسک
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Step 1: Plate Search */}
@@ -427,7 +440,11 @@ export default function TaskEditModal({
                     );
                     setSelectedService(service);
                   }}
-                  className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    mode === "dark"
+                      ? "border-gray-600 bg-gray-700 text-white"
+                      : "border-gray-300 bg-white text-gray-900"
+                  }`}
                   required
                 >
                   <option value="">انتخاب سرویس</option>
@@ -464,8 +481,12 @@ export default function TaskEditModal({
                   selectedService?.service?.performedByMechanicId &&
                   selectedMechanic?.value ===
                     selectedService.service.performedByMechanicId
-                    ? "border-green-300 bg-green-50"
-                    : "border-gray-300"
+                    ? mode === "dark"
+                      ? "border-green-400 bg-green-900 text-white"
+                      : "border-green-300 bg-green-50"
+                    : mode === "dark"
+                    ? "border-gray-600 bg-gray-700 text-white"
+                    : "border-gray-300 bg-white text-gray-900"
                 }`}
                 required
                 disabled={isLoadingMechanics}
@@ -496,7 +517,11 @@ export default function TaskEditModal({
                     startDay: parseInt(e.target.value),
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  mode === "dark"
+                    ? "border-gray-600 bg-gray-700 text-white"
+                    : "border-gray-300 bg-white text-gray-900"
+                }`}
                 required
               >
                 {days.map((day, index) => {
@@ -534,8 +559,12 @@ export default function TaskEditModal({
                 onChange={(e) => setStartHour(parseInt(e.target.value))}
                 className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   selectedService?.service?.startDate
-                    ? "border-green-300 bg-green-50"
-                    : "border-gray-300"
+                    ? mode === "dark"
+                      ? "border-green-400 bg-green-900 text-white"
+                      : "border-green-300 bg-green-50"
+                    : mode === "dark"
+                    ? "border-gray-600 bg-gray-700 text-white"
+                    : "border-gray-300 bg-white text-gray-900"
                 }`}
                 required
               >
@@ -566,8 +595,12 @@ export default function TaskEditModal({
                 onChange={(e) => setDuration(parseInt(e.target.value))}
                 className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   selectedService?.service?.estimatedMinute
-                    ? "border-green-300 bg-green-50"
-                    : "border-gray-300"
+                    ? mode === "dark"
+                      ? "border-green-400 bg-green-900 text-white"
+                      : "border-green-300 bg-green-50"
+                    : mode === "dark"
+                    ? "border-gray-600 bg-gray-700 text-white"
+                    : "border-gray-300 bg-white text-gray-900"
                 }`}
                 required
               >
