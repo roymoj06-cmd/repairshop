@@ -1,4 +1,10 @@
 import { Box, Grid2 as Grid, Tab, Tabs, Typography } from "@mui/material";
+import TimePicker from "react-multi-date-picker/plugins/time_picker";
+import gregorian_en from "react-date-object/locales/gregorian_en";
+import DatePicker, { DateObject } from "react-multi-date-picker";
+import persian_fa from "react-date-object/locales/persian_fa";
+import gregorian from "react-date-object/calendars/gregorian";
+import persian from "react-date-object/calendars/persian";
 import { FC, useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -18,6 +24,7 @@ import {
   PlateManagementDialog,
   CustomerProblems,
   EnhancedSelect,
+  EnhancedInput,
   Loading,
   Button,
 } from "@/components";
@@ -30,6 +37,16 @@ const AddServiceAdmissionForm: FC = () => {
     string | undefined
   >();
   const [activeTab, setActiveTab] = useState(0);
+  // Date picker states
+  const [deliveryDate, setDeliveryDate] = useState<any>(null);
+  const [receptionDate, setReceptionDate] = useState<any>(() => {
+    // Set default to today with current time
+    const now = new Date();
+    return new DateObject({
+      calendar: persian,
+      date: now,
+    });
+  });
 
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -49,6 +66,16 @@ const AddServiceAdmissionForm: FC = () => {
       customerId: undefined,
       carId: undefined,
       files: [],
+      // New fields default values
+      customerEstimatedTime: undefined,
+      delivererPhone: "",
+      deliveryDateTime: undefined,
+      carKilometers: undefined,
+      delivererName: "",
+      receiverName: "",
+      receptionDateTime: undefined,
+      description: "",
+      carColor: "",
     },
   });
 
@@ -91,6 +118,12 @@ const AddServiceAdmissionForm: FC = () => {
         toast.success(data?.message);
         setRepairReceptionId(data?.data?.id);
         reset();
+        // Reset reception date to today
+        const now = new Date();
+        setReceptionDate(new DateObject({
+          calendar: persian,
+          date: now,
+        }));
       } else {
         toast?.error(data?.message);
       }
@@ -133,6 +166,22 @@ const AddServiceAdmissionForm: FC = () => {
       repairReception: {
         customerId: watch("customerId"),
         carId: watch("carId"),
+        // New fields
+        customerEstimatedTime: watch("customerEstimatedTime"),
+        delivererPhone: watch("delivererPhone"),
+        deliveryDateTime: deliveryDate
+          ?.convert(gregorian, gregorian_en)
+          .format("YYYY-MM-DDTHH:mm:ss")
+          .toString(),
+        carKilometers: watch("carKilometers"),
+        delivererName: watch("delivererName"),
+        receiverName: watch("receiverName"),
+        receptionDateTime: receptionDate
+          ?.convert(gregorian, gregorian_en)
+          .format("YYYY-MM-DDTHH:mm:ss")
+          .toString(),
+        description: watch("description"),
+        carColor: watch("carColor"),
       },
     });
   };
@@ -150,23 +199,24 @@ const AddServiceAdmissionForm: FC = () => {
     <form onSubmit={handleSubmit(onSubmit)}>
       {isLoading && <Loading />}
       <Grid container spacing={4}>
+        {/* ردیف اول - مشتری، پلاک و تاریخ پذیرش */}
         <Grid size={{ xs: 12, md: 4 }}>
           <EnhancedSelect
             helperText={errors.customerId?.message as string}
+            onInputChange={handleCustomerSearch}
+            onChange={handleCustomerChange}
             loading={isSearchingCustomers}
             error={!!errors.customerId}
             options={customerOptions}
             enableSpeechToText={true}
+            storeValueOnly={true}
             iconPosition="end"
             searchable={true}
             name="customerId"
+            control={control}
             disabled={false}
             label="مشتری"
             isRtl={true}
-            control={control}
-            storeValueOnly={true}
-            onChange={handleCustomerChange}
-            onInputChange={handleCustomerSearch}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
@@ -176,14 +226,14 @@ const AddServiceAdmissionForm: FC = () => {
               console.log("Vehicle search input:", value);
             }}
             placeholder="جستجوی پلاک خودرو"
-            error={!!errors.carId}
             loading={isPendingCustomerCars}
             options={customerVehicles}
-            control={control}
+            error={!!errors.carId}
             storeValueOnly={true}
             enableSpeechToText
-            searchable={true}
             label="پلاک خودرو"
+            control={control}
+            searchable={true}
             name="carId"
             isRtl
           />
@@ -199,21 +249,156 @@ const AddServiceAdmissionForm: FC = () => {
             </Button>
           </Box>
         </Grid>
-        {/* <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Box>
+            <DatePicker
+              className={`custom-datepicker ${errors.receptionDateTime ? "error" : ""}`}
+              containerClassName="w-full custom-datepicker-container"
+              onChange={(e: DateObject) => setReceptionDate(e)}
+              placeholder="انتخاب تاریخ و زمان پذیرش"
+              calendarPosition="bottom-left"
+              onOpenPickNewDate={false}
+              format="YYYY/MM/DD HH:mm"
+              value={receptionDate}
+              locale={persian_fa}
+              calendar={persian}
+              portal={true}
+              zIndex={2001}
+              plugins={[
+                <TimePicker position="bottom" />
+              ]}
+              style={{
+                width: "100%",
+                height: "56px",
+              }}
+            />
+          </Box>
+        </Grid>
+
+        {/* ردیف دوم - فیلدهای کوچک */}
+        <Grid size={{ xs: 12, md: 3 }}>
           <EnhancedInput
-            helperText={errors.preferredRepairTime?.message as string}
-            error={!!errors.preferredRepairTime}
-            enableSpeechToText={false}
-            name="preferredRepairTime"
-            label="زمان ترجیحی تعمیر"
-            icon={<span>روز</span>}
-            type="datetime-local"
+            helperText={errors.customerEstimatedTime?.message as string}
+            error={!!errors.customerEstimatedTime}
+            name="customerEstimatedTime"
+            label="زمان تخمینی (روز)"
+            enableSpeechToText={true}
             iconPosition="end"
-            isTextArea
-            fullWidth
-            rows={1}
+            control={control}
+            type="number"
+            isRtl={true}
           />
-        </Grid> */}
+        </Grid>
+        <Grid size={{ xs: 12, md: 3 }}>
+          <EnhancedInput
+            helperText={errors.carKilometers?.message as string}
+            error={!!errors.carKilometers}
+            enableSpeechToText={true}
+            name="carKilometers"
+            label="کیلومتر خودرو"
+            iconPosition="end"
+            control={control}
+            type="number"
+            isRtl={true}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 3 }}>
+          <EnhancedInput
+            helperText={errors.carColor?.message as string}
+            error={!!errors.carColor}
+            iconPosition="end"
+            label="رنگ خودرو"
+            control={control}
+            name="carColor"
+            disabled={true}
+            isRtl={true}
+            type="text"
+          />
+        </Grid>
+        {/* ردیف سوم - اطلاعات تحویل دهنده */}
+        <Grid size={{ xs: 12, md: 6 }}>
+          <EnhancedInput
+            helperText={errors.delivererName?.message as string}
+            error={!!errors.delivererName}
+            enableSpeechToText={true}
+            label="نام تحویل دهنده"
+            name="delivererName"
+            iconPosition="end"
+            control={control}
+            isRtl={true}
+            type="text"
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <EnhancedInput
+            helperText={errors.delivererPhone?.message as string}
+            error={!!errors.delivererPhone}
+            label="شماره تلفن تحویل دهنده"
+            enableSpeechToText={true}
+            name="delivererPhone"
+            iconPosition="end"
+            control={control}
+            isRtl={true}
+            type="tel"
+          />
+        </Grid>
+
+        {/* ردیف چهارم - اطلاعات تحویل گیرنده */}
+        <Grid size={{ xs: 12, md: 6 }}>
+          <EnhancedInput
+            helperText={errors.receiverName?.message as string}
+            error={!!errors.receiverName}
+            enableSpeechToText={true}
+            label="نام تحویل گیرنده"
+            name="receiverName"
+            iconPosition="end"
+            control={control}
+            isRtl={true}
+            type="text"
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Box>
+            <DatePicker
+              className={`custom-datepicker ${errors.deliveryDateTime ? "error" : ""}`}
+              containerClassName="w-full custom-datepicker-container"
+              onChange={(e: DateObject) => setDeliveryDate(e)}
+              placeholder="انتخاب تاریخ و زمان تحویل"
+              calendarPosition="bottom-left"
+              onOpenPickNewDate={false}
+              format="YYYY/MM/DD HH:mm"
+              value={deliveryDate}
+              locale={persian_fa}
+              calendar={persian}
+              portal={true}
+              zIndex={2001}
+              plugins={[
+                <TimePicker position="bottom" />
+              ]}
+              style={{
+                width: "100%",
+                height: "56px",
+              }}
+            />
+          </Box>
+        </Grid>
+
+        {/* ردیف پنجم - توضیحات */}
+        <Grid size={{ xs: 12 }}>
+          <EnhancedInput
+            helperText={errors.description?.message as string}
+            error={!!errors.description}
+            enableSpeechToText={true}
+            name="description"
+            iconPosition="end"
+            control={control}
+            label="توضیحات"
+            isRtl={true}
+            type="text"
+            isTextArea
+            rows={3}
+          />
+        </Grid>
         <Grid
           size={{ xs: 12, md: 4 }}
           sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}

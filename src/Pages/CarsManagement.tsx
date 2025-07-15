@@ -179,14 +179,14 @@ const CarsManagement: FC = () => {
         mode={dialogMode}
       />
       <ConfirmDialog
-        open={showDeleteDialog}
-        title="حذف پلاک"
         message="آیا از حذف این پلاک اطمینان دارید؟"
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
+        open={showDeleteDialog}
         loading={isDeletingCar}
-        confirmText="حذف"
         cancelText="انصراف"
+        confirmText="حذف"
+        title="حذف پلاک"
       />
     </Box>
   );

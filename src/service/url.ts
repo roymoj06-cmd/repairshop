@@ -40,6 +40,7 @@ export const proxyServerUrl = {
   createRepairFactorRequest: `${panelServiceBaseUrl}/Repair/CreateRepairFactorRequest`,
   dischargeRepairReception: `${panelServiceBaseUrl}/Repair/DischargeRepairReception`,
   repairReceptionSummary: `${panelServiceBaseUrl}/Repair/repair-reception-summary`,
+  getRepairReceptionById: `${panelServiceBaseUrl}/Repair/GetRepairReceptionById`,
   createRepairReception: `${panelServiceBaseUrl}/Repair/CreateRepairReception`,
   updateRepairReception: `${panelServiceBaseUrl}/Repair/UpdateRepairReception`,
   deleteRepairReception: `${panelServiceBaseUrl}/Repair/DeleteRepairReception`,

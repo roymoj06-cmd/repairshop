@@ -12,6 +12,7 @@ interface IPlateNumberDisplayProps {
   state?: plateSection;
   carCompany?: string;
   carTipId?: number;
+  carColor?: string;
 }
 
 const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({

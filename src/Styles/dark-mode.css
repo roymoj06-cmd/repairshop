@@ -81,6 +81,12 @@
   background-color: #000000 !important;
 }
 
+/* Dark mode styles for product selection boxes */
+.dark .product-selection-box {
+  background-color: #000000 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
 .dark .MuiInputBase-root {
   color: white !important;
 }

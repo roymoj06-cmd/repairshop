@@ -116,6 +116,7 @@ export const getRepairReceptions = async (data: {
   plateSection4?: string;
   customerId?: number;
   isDischarged?: boolean | null;
+  carColor?: string;
 }) => {
   const queryString = convertObjectToQueryString(data);
   const reqConfig: AxiosRequestConfig = {
@@ -143,6 +144,13 @@ export const createRepairFactorRequest = async (
     method: "POST",
     url: `${proxyServerUrl.createRepairFactorRequest}`,
     data,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+export const getRepairReceptionById = async (id: number) => {
+  const reqConfig: AxiosRequestConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getRepairReceptionById}${id}`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };

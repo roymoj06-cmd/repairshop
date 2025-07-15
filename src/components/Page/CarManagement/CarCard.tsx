@@ -18,6 +18,7 @@ interface CarCardProps {
     plateSection4: string;
     carCompany: string;
     carTipId?: number;
+    carColor: string;
     id: number;
   };
   onEdit: (car: any) => void;

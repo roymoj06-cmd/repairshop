@@ -348,6 +348,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                       {request.selectedProducts.map((product) => (
                         <Box
                           key={product.productId}
+                          className="product-selection-box"
                           sx={{
                             p: 1,
                             border: "1px solid #e0e0e0",
@@ -528,6 +529,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                       {request.selectedProducts.map((product) => (
                         <Box
                           key={product.productId}
+                          className="product-selection-box"
                           sx={{
                             p: 1,
                             border: "1px solid #e0e0e0",

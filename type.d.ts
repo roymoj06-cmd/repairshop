@@ -31,51 +31,34 @@ interface IUpdateRepairReceptionByProblem {
     }[];
   };
 }
-interface IUpdateRepairReception2 {
-  repairReception: {
-    customerEstimateTime: number;
-    receptionDate: string;
-    description: string;
-    customerId: number;
-    carId: number;
-    details: {
-      repairReceptionDetailId: number;
-      overridedUnitPrice: number;
-      isCustomerOwner: boolean;
-      productId: number;
-      barcodeId: number;
-      mechanic: string;
-      scanCode: string;
-      qty: number;
-    }[];
-    receptionDateTime: string;
-    deliveryDateTime: string;
-    delivererPhone: string;
-    carKilometers: number;
-    delivererName: string;
-    receiverName: string;
-    carColor: string;
-  };
-}
 interface IUpdateRepairReception {
   repairReception: {
+    customerEstimatedTime?: number;
     repairReceptionId?: number;
+    receptionDateTime?: Date;
+    delivererPhone?: string;
+    deliveryDateTime?: Date;
+    carKilometers?: number;
+    delivererName?: string;
+    receiverName?: string;
+    receptionDate?: Date;
     description?: string;
     customerId?: number;
-    fileIds?: number[];
+    // fileIds: number[];
+    carColor?: string;
     carId?: number;
     details?: {
-      repairReceptionDetailId: number;
-      overridedUnitPrice: number;
-      isCustomerOwner: boolean;
-      productId: number;
-      unitPrice: number;
-      barcodeId: number;
-      mechanic: string;
-      scanCode: string;
-      qty: number;
+      repairReceptionDetailId?: number;
+      overridedUnitPrice?: number;
+      isCustomerOwner?: boolean;
+      productId?: number;
+      barcodeId?: number;
+      unitPrice?: number;
+      mechanic?: string;
+      scanCode?: string;
+      qty?: number;
     }[];
-  };
+  }
 }
 interface IUpdateCarRepair {
   plateSection1?: string;
@@ -84,6 +67,7 @@ interface IUpdateCarRepair {
   plateSection4?: string;
   customerId: number;
   carCompany: string;
+  carColor?: string;
   carType: string;
   carTipId: any;
   id?: number;
@@ -111,6 +95,7 @@ interface IGetRepairReceptions {
   vehicleName: string;
   plateNumber: string;
   description: string;
+  carColor: string;
   totalPrice: number;
   code: number;
   status: true;
@@ -165,6 +150,7 @@ type plateSection = {
   carCompany?: string;
   isDischarged?: any;
   carTipId?: number;
+  carColor?: string;
 };
 interface ICustomer {
   customerId: number;
@@ -196,6 +182,16 @@ interface IServiceAdmissionForm {
   carType: string;
   files: File[];
   carId: number;
+  // New fields for service admission
+  customerEstimatedTime?: number;
+  delivererPhone?: string;
+  deliveryDateTime?: Date;
+  carKilometers?: number;
+  delivererName?: string;
+  receiverName?: string;
+  receptionDateTime?: Date;
+  description?: string;
+  carColor?: string;
 }
 interface IGetAllRepairServices {
   commissionPercent: number;
@@ -478,6 +474,7 @@ interface IGetReceptionProductRequestsById {
   plateSection2: string;
   plateSection3: string;
   plateSection4: string;
+  carColor: string;
   receptionDate: string;
   receptionTime: string;
   customerName: string;
@@ -541,6 +538,7 @@ type Task = {
   plateSection3?: string;
   plateSection4?: string;
   receptionId?: number;
+  carColor?: string;
   serviceId?: number;
   mechanicId?: number;
 };
@@ -577,6 +575,7 @@ interface IMechanicPerformanceResponse {
 interface IGetMechanicProductRequestByProblemId {
   problemTitle: string;
   productTitle: string;
+  registered: boolean;
   problemId: number;
   fileId: number;
   id: number;

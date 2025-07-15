@@ -16,6 +16,7 @@ import { carCompany, carTipTypes } from "@/utils/statics";
 import {
   PlateNumberDisplay,
   EnhancedSelect,
+  EnhancedInput,
   Loading,
   Button,
 } from "@/components";
@@ -32,6 +33,7 @@ interface PlateManagementDialogProps {
     plateSection3?: string;
     plateSection4?: string;
     carCompany?: string;
+    carColor?: string;
     carTipId?: number;
   };
   onSuccess?: () => void;
@@ -111,10 +113,11 @@ const PlateManagementDialog: FC<PlateManagementDialogProps> = ({
       plateSection2: plateData.plateSection2,
       plateSection3: plateData.plateSection3,
       plateSection4: plateData.plateSection4,
-      customerId,
       carCompany: plateData.carCompany,
       carTipId: plateData.carTipId,
-      carType: "کامیونت", // Default car type, can be modified if needed
+      carColor: plateData.carColor,
+      carType: "کامیونت",
+      customerId,
     };
 
     try {
@@ -137,6 +140,7 @@ const PlateManagementDialog: FC<PlateManagementDialogProps> = ({
           plateSection4: editData.plateSection4,
           carCompany: editData.carCompany,
           carTipId: editData.carTipId,
+          carColor: editData.carColor,
         });
       } else {
         setPlateData({});
@@ -166,7 +170,7 @@ const PlateManagementDialog: FC<PlateManagementDialogProps> = ({
           )}
 
           <EnhancedSelect
-            placeholder="شرکت خودرو سازی را انتخاب کنید"
+            placeholder="ّبرند خودرو سازی را انتخاب کنید"
             value={carCompany?.find(
               (i) => `${i.label}` === plateData.carCompany
             )}
@@ -199,6 +203,25 @@ const PlateManagementDialog: FC<PlateManagementDialogProps> = ({
               setPlateData((prev) => ({
                 ...prev,
                 carTipId: value.value,
+              }));
+            }}
+          />
+
+          <EnhancedInput
+            placeholder="رنگ خودرو را وارد کنید"
+            value={plateData.carColor || ""}
+            containerClassName="mb-5"
+            enableSpeechToText={true}
+            label="رنگ خودرو"
+            name="carColor"
+            type="text"
+            iconPosition="end"
+            isRtl={true}
+            fullWidth
+            onChange={(e) => {
+              setPlateData((prev) => ({
+                ...prev,
+                carColor: e.target.value,
               }));
             }}
           />
