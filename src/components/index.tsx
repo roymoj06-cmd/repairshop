@@ -12,6 +12,7 @@ export { default as ServiceAdmissionForm } from "./Page/ServiceAdmission/Service
 export { default as RequestProductModal } from "./Page/ServiceAdmission/RequestProductModal";
 export { default as ProductFactorModal } from "./Page/ServiceAdmission/ProductFactorModal";
 export { default as CircularProgressWithLabel } from "./common/CircularProgressWithLabel";
+export { default as ProductRequestCard } from "./Page/ProductRequest/ProductRequestCard";
 export { default as CustomerProblems } from "./Page/ServiceAdmission/CustomerProblems";
 export { default as MechanicLedger } from "./Page/mechanicManagement/MechanicLedger";
 export { default as ProjectSummary } from "./Page/ServiceAdmission/ProjectSummary";

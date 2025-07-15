@@ -124,6 +124,7 @@ export const proxyServerUrl = {
   updateRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/UpdateRepairProductRequest`,
   deleteRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/DeleteRepairProductRequest`,
   reviewRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/ReviewRepairProductRequest`,
+  updateStatusToBuyCompleted: `${panelServiceBaseUrl}/RepairProductRequest/UpdateStatusToBuyCompleted`,
   getOutOfStockRequests: `${panelServiceBaseUrl}/RepairProductRequest/GetOutOfStockRequests`,
   buyRequest: `${panelServiceBaseUrl}/RepairProductRequest/BuyRequest`,
 

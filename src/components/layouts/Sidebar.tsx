@@ -4,6 +4,7 @@ import {
   CalendarMonth,
   CarRepair,
   DirectionsCar,
+  Inventory,
   Logout,
   Person,
   Task,
@@ -89,6 +90,12 @@ const navConfig: NavItemProps[] = [
     path: dir.mechanicPerformance,
     icon: <BarChart />,
     guid: "8a374872-ee31-4ece-b2bb-342edbe45bc2",
+  },
+  {
+    title: "کسری کالا",
+    path: dir.productRequests,
+    icon: <Inventory />,
+    guid: "6328008c-de7c-4d26-84be-0b42793c61d8",
   },
 ];
 

@@ -43,6 +43,10 @@ export const routesConfig: RouteConfig[] = [
         path: dir.mechanicPerformance,
         title: "گزارش عملکرد",
       },
+      {
+        path: dir.productRequests,
+        title: "کسری کالا",
+      },
     ],
   },
 ];

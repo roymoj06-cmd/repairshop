@@ -1,0 +1,119 @@
+.product-requests-container {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+
+    .pagination-container {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+
+    // Table styles for desktop view
+    .table-container {
+        .MuiTable-root {
+            min-width: 1200px;
+        }
+
+        .MuiTableHead-root {
+            .MuiTableCell-root {
+                background-color: var(--primary-color);
+                color: white;
+                font-weight: 600;
+                font-size: 0.875rem;
+                padding: 12px 16px;
+                white-space: nowrap;
+            }
+        }
+
+        .MuiTableBody-root {
+            .MuiTableRow-root {
+                &:nth-child(even) {
+                    background-color: rgba(0, 0, 0, 0.04);
+                }
+
+                &:hover {
+                    background-color: rgba(0, 0, 0, 0.08);
+                }
+
+                .MuiTableCell-root {
+                    padding: 12px 16px;
+                    font-size: 0.875rem;
+                    vertical-align: middle;
+                    white-space: nowrap;
+                    
+                    &:first-child {
+                        font-weight: 600;
+                        color: var(--primary-color);
+                    }
+                }
+            }
+        }
+
+        .MuiChip-root {
+            font-size: 0.75rem;
+            height: 24px;
+            
+            .MuiChip-icon {
+                font-size: 0.875rem;
+            }
+        }
+
+        .MuiButton-root {
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            min-width: 100px;
+            white-space: nowrap;
+        }
+    }
+}
+
+// Dark mode styles
+.dark-mode {
+    .product-requests-container {
+        .table-container {
+            .MuiTableHead-root {
+                .MuiTableCell-root {
+                    background-color: var(--primary-color);
+                }
+            }
+
+            .MuiTableBody-root {
+                .MuiTableRow-root {
+                    &:nth-child(even) {
+                        background-color: rgba(255, 255, 255, 0.04);
+                    }
+
+                    &:hover {
+                        background-color: rgba(255, 255, 255, 0.08);
+                    }
+
+                    .MuiTableCell-root {
+                        &:first-child {
+                            color: var(--primary-color);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Mobile and tablet styles (existing card styles)
+@media (max-width: 1199.98px) {
+    .product-requests-container {
+        .table-container {
+            display: none;
+        }
+    }
+}
+
+// Desktop styles
+@media (min-width: 1200px) {
+    .product-requests-container {
+        .table-container {
+            display: block;
+        }
+    }
+} 

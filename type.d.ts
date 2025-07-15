@@ -670,5 +670,31 @@ interface IGetAllRepairServiceFactor {
     endDate: string
     status: number
   }[];
-
+}
+interface IGetAllRepairProductRequests {
+  buyRequestedByUserFullname: string;
+  repairCustomerProblemId: number;
+  requestedByUserFullname: string;
+  buyRequestedByUserId: number;
+  problemDescription: string;
+  statusDescription: string;
+  requestedByUserId: number;
+  buyRejectReason: string;
+  requestedQty: number;
+  rejectReason: string;
+  plateNumber: string;
+  requestedId: number;
+  productCode: string;
+  productName: string;
+  countryName: string;
+  barcodeCode: string;
+  buyDateTime: string;
+  createDate: string;
+  brandName: string;
+  productId: number;
+  barcodeId: number;
+  statusId: number;
+  realQty: number;
+  usedQty: number;
+  status: number;
 }

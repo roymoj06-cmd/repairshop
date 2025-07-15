@@ -8,9 +8,8 @@ export const getRepairProductRequestsByReceptionId = async (
   const queryString = convertObjectToQueryString(data);
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getRepairProductRequestsByReceptionId}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getRepairProductRequestsByReceptionId}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -20,9 +19,8 @@ export const getRepairProductRequestsByProblemId = async (
   const queryString = convertObjectToQueryString(data);
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getRepairProductRequestsByProblemId}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getRepairProductRequestsByProblemId}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -32,9 +30,8 @@ export const getPendingRepairProductRequests = async (
   const queryString = convertObjectToQueryString(data);
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getPendingRepairProductRequests}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getPendingRepairProductRequests}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -64,9 +61,8 @@ export const getRepairProductRequestSummary = async (
   const queryString = convertObjectToQueryString({ repairReceptionId });
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getRepairProductRequestSummary}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getRepairProductRequestSummary}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -97,9 +93,8 @@ export const updateRepairProductRequest = async (
   const queryString = convertObjectToQueryString({ id });
   const reqConfig = {
     method: "POST",
-    url: `${proxyServerUrl.updateRepairProductRequest}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.updateRepairProductRequest}${queryString ? `?${queryString}` : ""
+      }`,
     data,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
@@ -108,9 +103,8 @@ export const deleteRepairProductRequest = async (id: number) => {
   const queryString = convertObjectToQueryString({ id });
   const reqConfig = {
     method: "POST",
-    url: `${proxyServerUrl.deleteRepairProductRequest}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.deleteRepairProductRequest}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -128,9 +122,8 @@ export const getOutOfStockRequests = async (repairReceptionId: number) => {
   const queryString = convertObjectToQueryString({ repairReceptionId });
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getOutOfStockRequests}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getOutOfStockRequests}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -138,9 +131,8 @@ export const getRepairProductRequestById = async (id: number) => {
   const queryString = convertObjectToQueryString({ id });
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getRepairProductRequestById}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getRepairProductRequestById}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -150,9 +142,8 @@ export const getAllRepairProductRequestsByReceptionId = async (
   const queryString = convertObjectToQueryString({ receptionId });
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getAllRepairProductRequestsByReceptionId}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getAllRepairProductRequestsByReceptionId}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -162,9 +153,8 @@ export const getAllProductRequestsByReceptionId = async (
   const queryString = convertObjectToQueryString({ receptionId });
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getAllProductRequestsByReceptionId}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getAllProductRequestsByReceptionId}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -173,6 +163,15 @@ export const buyRequest = async (data: IBuyRequest) => {
     method: "PUT",
     url: `${proxyServerUrl.buyRequest}`,
     data,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+export const updateStatusToBuyCompleted = async (id: number) => {
+  const queryString = convertObjectToQueryString({ id });
+  const reqConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.updateStatusToBuyCompleted}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
