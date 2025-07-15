@@ -210,8 +210,6 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
         queryClient.invalidateQueries({
           queryKey: ["getAllRepairProductRequestsByReceptionId"],
         });
-
-        // Call onSuccess to refresh parent component data
         onSuccess?.();
       } else {
         toast.error(data?.message || "خطا در اضافه کردن کالا");
