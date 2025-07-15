@@ -331,6 +331,7 @@ interface getRepairProductRequestsByProblemId extends IPaginationForService {
 interface ICreateBatchRepairProductRequest {
   repairCustomerProblemId: number;
   products: {
+    mechanicRequestId: number;
     productId: number;
     qty: number;
   }[];

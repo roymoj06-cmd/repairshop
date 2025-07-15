@@ -1,5 +1,5 @@
 import { Dispatch, FC, SetStateAction, useState, useEffect } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Add, Remove, Delete } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import {
@@ -40,18 +40,19 @@ interface IRequestProductModalProps {
 }
 
 interface SelectedProduct {
-  productId: number;
   productName: string;
+  productId: number;
   quantity: number;
 }
 
 interface MechanicRequest {
-  id: number;
+  selectedProducts: SelectedProduct[];
   problemTitle: string;
   productTitle: string;
+  registered: boolean;
   problemId: number;
   fileId: number;
-  selectedProducts: SelectedProduct[];
+  id: number;
 }
 
 const RequestProductModal: FC<IRequestProductModalProps> = ({
@@ -62,7 +63,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
-
+  const queryClient = useQueryClient();
   const [selectedProblem, setSelectedProblem] = useState<any>(null);
   const [mechanicRequests, setMechanicRequests] = useState<MechanicRequest[]>(
     []
@@ -74,7 +75,6 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
   const [showProductSelectionModal, setShowProductSelectionModal] =
     useState(false);
 
-  // Query for getting customer problems
   const { data: problems = [] } = useQuery({
     queryKey: ["customerProblems", repairReceptionId],
     queryFn: () =>
@@ -90,16 +90,12 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
         label: problem.description,
       })) || [],
   });
-
-  // Query for getting mechanic product requests by problem ID
   const { data: mechanicRequestsData = [] } = useQuery({
     queryKey: ["mechanicProductRequests", selectedProblem?.value],
     queryFn: () => getMechanicProductRequestByProblemId(selectedProblem?.value),
     enabled: !!selectedProblem?.value,
     select: (data) => data?.data || [],
   });
-
-  // Mutation for product search
   const {
     isPending: isPendingGetProductsThatContainsText,
     mutateAsync: mutateGetProductsThatContainsText,
@@ -113,8 +109,6 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
       setProducts([...temp]);
     },
   });
-
-  // Mutation for creating batch repair product request
   const {
     isPending: isPendingCreateBatchRepairProductRequest,
     mutateAsync: mutateCreateBatchRepairProductRequest,
@@ -123,9 +117,17 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
     onSuccess: (data: any) => {
       if (data?.isSuccess) {
         toast?.success(data?.message);
-        setShowModal(false);
-        setSelectedProblem(null);
-        setMechanicRequests([]);
+        // بروزرسانی query برای نمایش وضعیت جدید
+        queryClient.invalidateQueries({
+          queryKey: ["mechanicProductRequests", selectedProblem?.value],
+        });
+        // پاک کردن کالاهای انتخاب شده پس از ثبت موفق
+        setMechanicRequests(prev => 
+          prev.map(request => ({
+            ...request,
+            selectedProducts: []
+          }))
+        );
         setCurrentEditingRequestId(null);
         setShowProductSelectionModal(false);
       } else {
@@ -133,29 +135,20 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
       }
     },
   });
-
-  // Handle problem selection
   const handleProblemSelection = (problem: any) => {
     setSelectedProblem(problem);
     setMechanicRequests([]);
     setCurrentEditingRequestId(null);
   };
-
-  // Handle product search
   const handleSearchProduct = (value: any) => {
     if (value.length > 2) {
       mutateGetProductsThatContainsText(value);
     }
   };
-
-  // Handle product selection for a specific request
   const handleProductSelectionForRequest = (
     requestId: number,
     selectedOptions: SelectOption[] | any
   ) => {
-    console.log("handleProductSelectionForRequest received:", selectedOptions);
-
-    // Handle different data formats from EnhancedSelect
     let selectedOption;
     if (Array.isArray(selectedOptions) && selectedOptions.length > 0) {
       selectedOption = selectedOptions[0];
@@ -165,104 +158,87 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
       console.log("No valid option selected");
       return;
     }
-
     if (!selectedOption || !selectedOption.value) {
       console.log("Invalid selectedOption:", selectedOption);
       return;
     }
-
     const selectedProduct = {
       productId: Number(selectedOption.value),
       productName: selectedOption.label || selectedOption.value,
       quantity: 1,
     };
-
-    console.log("Created selectedProduct:", selectedProduct);
-
     setMechanicRequests((prev) =>
       prev.map((request) =>
         request.id === requestId
           ? {
-              ...request,
-              selectedProducts: [...request.selectedProducts, selectedProduct],
-            }
+            ...request,
+            selectedProducts: [...request.selectedProducts, selectedProduct],
+          }
           : request
       )
     );
     setCurrentEditingRequestId(null);
   };
-
-  // Handle quantity change for a specific product in a request
   const handleQuantityChange = (
     requestId: number,
     productId: number,
     newQuantity: number
   ) => {
     if (newQuantity < 1) return;
-
     setMechanicRequests((prev) =>
       prev.map((request) =>
         request.id === requestId
           ? {
-              ...request,
-              selectedProducts: request.selectedProducts.map((product) =>
-                product.productId === productId
-                  ? { ...product, quantity: newQuantity }
-                  : product
-              ),
-            }
+            ...request,
+            selectedProducts: request.selectedProducts.map((product) =>
+              product.productId === productId
+                ? { ...product, quantity: newQuantity }
+                : product
+            ),
+          }
           : request
       )
     );
   };
-
-  // Handle removing product from a request
   const handleRemoveProduct = (requestId: number, productId: number) => {
     setMechanicRequests((prev) =>
       prev.map((request) =>
         request.id === requestId
           ? {
-              ...request,
-              selectedProducts: request.selectedProducts.filter(
-                (p) => p.productId !== productId
-              ),
-            }
+            ...request,
+            selectedProducts: request.selectedProducts.filter(
+              (p) => p.productId !== productId
+            ),
+          }
           : request
       )
     );
   };
-
-  // Handle submit
   const handleSubmit = () => {
     const requestsWithProducts = mechanicRequests.filter(
       (request) => request.selectedProducts.length > 0
     );
-
     if (requestsWithProducts.length === 0) {
       toast.error("لطفا حداقل یک کالا برای یکی از درخواست‌ها انتخاب کنید");
       return;
     }
-
     if (!repairReceptionId) {
       toast.error("شناسه پذیرش تعمیر یافت نشد");
       return;
     }
-
-    // Group products by problem ID and create batch request
     const productsByProblem = requestsWithProducts.reduce((acc, request) => {
       if (!acc[request.problemId]) {
         acc[request.problemId] = [];
       }
       request.selectedProducts.forEach((product) => {
         acc[request.problemId].push({
+          mechanicRequestId: request.id,
           productId: product.productId,
           qty: product.quantity,
         });
       });
       return acc;
-    }, {} as Record<number, Array<{ productId: number; qty: number }>>);
-
-    // Submit each problem's products
+    }, {} as Record<number, Array<{ mechanicRequestId: number; productId: number; qty: number }>>);
     Object.entries(productsByProblem).forEach(([problemId, products]) => {
       const requestData = {
         repairCustomerProblemId: Number(problemId),
@@ -271,8 +247,6 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
       mutateCreateBatchRepairProductRequest(requestData);
     });
   };
-
-  // Update mechanic requests when data changes
   useEffect(() => {
     if (mechanicRequestsData.length > 0) {
       setMechanicRequests(
@@ -281,6 +255,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
             id: request.id,
             problemTitle: request.problemTitle,
             productTitle: request.productTitle,
+            registered: request.registered,
             problemId: request.problemId,
             fileId: request.fileId,
             selectedProducts: [],
@@ -289,19 +264,14 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
       );
     }
   }, [mechanicRequestsData]);
-
-  // Handle opening product selection modal
   const handleOpenProductSelection = (requestId: number) => {
     setCurrentEditingRequestId(requestId);
     setShowProductSelectionModal(true);
   };
-
-  // Handle closing product selection modal
   const handleCloseProductSelection = () => {
     setShowProductSelectionModal(false);
     setCurrentEditingRequestId(null);
   };
-
   const renderRequestList = () => {
     if (isMobile) {
       return (
@@ -322,19 +292,30 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
               }}
             >
               <CardContent sx={{ p: 2 }}>
-                <Typography
-                  variant="subtitle2"
-                  sx={{ mb: 1, fontWeight: "bold" }}
-                >
-                  {request.productTitle}
-                </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: "bold" }}
+                  >
+                    {request.productTitle}
+                  </Typography>
+                  <Box sx={{
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 1,
+                    backgroundColor: request.registered ? "#e8f5e8" : "#fff3e0",
+                    border: request.registered ? "1px solid #4caf50" : "1px solid #ff9800"
+                  }}>
+                    <Typography variant="caption" sx={{
+                      color: request.registered ? "#2e7d32" : "#f57c00",
+                      fontWeight: "bold"
+                    }}>
+                      {request.registered ? "ثبت شده" : "ثبت نشده"}
+                    </Typography>
+                  </Box>
+                </Box>
 
-                {/* Debug info */}
-                <Typography variant="caption" color="text.secondary">
-                  تعداد کالاهای انتخاب شده: {request.selectedProducts.length}
-                </Typography>
 
-                {/* Temporarily show this section always for debugging */}
                 <Box sx={{ mb: 2 }}>
                   <Typography
                     variant="body2"
@@ -376,6 +357,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                                   product.productId
                                 )
                               }
+                              disabled={request.registered}
                             >
                               <Delete fontSize="small" />
                             </IconButton>
@@ -396,6 +378,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                                   product.quantity + 1
                                 )
                               }
+                              disabled={request.registered}
                             >
                               <Add fontSize="small" />
                             </IconButton>
@@ -410,6 +393,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                                   value
                                 );
                               }}
+                              disabled={request.registered}
                               sx={{ width: 60 }}
                               inputProps={{
                                 min: 1,
@@ -428,7 +412,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                                   product.quantity - 1
                                 )
                               }
-                              disabled={product.quantity <= 1}
+                              disabled={product.quantity <= 1 || request.registered}
                             >
                               <Remove fontSize="small" />
                             </IconButton>
@@ -448,41 +432,17 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                     variant="outlined"
                     size="small"
                     onClick={() => handleOpenProductSelection(request.id)}
+                    disabled={request.registered}
                     fullWidth
                   >
-                    {request.selectedProducts.length > 0
-                      ? "افزودن کالای دیگر"
-                      : "انتخاب کالا"}
+                    {request.registered
+                      ? "درخواست ثبت شده"
+                      : request.selectedProducts.length > 0
+                        ? "افزودن کالای دیگر"
+                        : "انتخاب کالا"}
                   </Button>
 
-                  {/* Test button for debugging */}
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={() => {
-                      const testProduct = {
-                        productId: 999,
-                        productName: "کالای تست",
-                        quantity: 1,
-                      };
-                      setMechanicRequests((prev) =>
-                        prev.map((req) =>
-                          req.id === request.id
-                            ? {
-                                ...req,
-                                selectedProducts: [
-                                  ...req.selectedProducts,
-                                  testProduct,
-                                ],
-                              }
-                            : req
-                        )
-                      );
-                    }}
-                    sx={{ mt: 1 }}
-                  >
-                    تست اضافه کردن کالا
-                  </Button>
+
                 </Box>
               </CardContent>
             </Card>
@@ -497,6 +457,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
           <TableHead sx={{ backgroundColor: "#f0f0f0" }}>
             <TableRow>
               <TableCell>عنوان درخواست</TableCell>
+              <TableCell sx={{ textAlign: "center" }}>وضعیت</TableCell>
               <TableCell sx={{ textAlign: "center" }}>
                 کالاهای انتخاب شده
               </TableCell>
@@ -522,6 +483,22 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
               >
                 <TableCell sx={{ textAlign: "left" }}>
                   {request.productTitle}
+                </TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  <Box sx={{
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 1,
+                    backgroundColor: request.registered ? "#e8f5e8" : "#fff3e0",
+                    border: request.registered ? "1px solid #4caf50" : "1px solid #ff9800"
+                  }}>
+                    <Typography variant="caption" sx={{
+                      color: request.registered ? "#2e7d32" : "#f57c00",
+                      fontWeight: "bold"
+                    }}>
+                      {request.registered ? "ثبت شده" : "ثبت نشده"}
+                    </Typography>
+                  </Box>
                 </TableCell>
                 <TableCell sx={{ textAlign: "center" }}>
                   {request.selectedProducts.length > 0 ? (
@@ -562,6 +539,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                                   product.quantity + 1
                                 )
                               }
+                              disabled={request.registered}
                             >
                               <Add fontSize="small" />
                             </IconButton>
@@ -576,6 +554,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                                   value
                                 );
                               }}
+                              disabled={request.registered}
                               sx={{ width: 60 }}
                               inputProps={{
                                 min: 1,
@@ -594,7 +573,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                                   product.quantity - 1
                                 )
                               }
-                              disabled={product.quantity <= 1}
+                              disabled={product.quantity <= 1 || request.registered}
                             >
                               <Remove fontSize="small" />
                             </IconButton>
@@ -607,6 +586,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                                   product.productId
                                 )
                               }
+                              disabled={request.registered}
                             >
                               <Delete fontSize="small" />
                             </IconButton>
@@ -625,10 +605,13 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
                     variant="outlined"
                     size="small"
                     onClick={() => handleOpenProductSelection(request.id)}
+                    disabled={request.registered}
                   >
-                    {request.selectedProducts.length > 0
-                      ? "افزودن کالا"
-                      : "انتخاب کالا"}
+                    {request.registered
+                      ? "درخواست ثبت شده"
+                      : request.selectedProducts.length > 0
+                        ? "افزودن کالا"
+                        : "انتخاب کالا"}
                   </Button>
                 </TableCell>
               </TableRow>
