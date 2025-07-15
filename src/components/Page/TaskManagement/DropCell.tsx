@@ -1,6 +1,7 @@
 import { useDrop } from "react-dnd";
 import moment from "moment-jalaali";
 import { days } from "@/utils/statics";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function DropCell({
   dayIndex,
@@ -24,6 +25,8 @@ export default function DropCell({
   children?: React.ReactNode;
   holidays?: string[];
 }) {
+  const { mode } = useTheme();
+
   const [, drop] = useDrop({
     accept: "TASK",
     drop: (item: { task: Task }) => {
@@ -50,8 +53,14 @@ export default function DropCell({
   return (
     <td
       ref={drop}
-      className={`border h-[30px] relative cursor-pointer w-24 group hover:bg-gray-50 overflow-visible ${
-        isHolidayDay ? "bg-red-50 hover:bg-red-100" : ""
+      className={`border h-[30px] relative cursor-pointer w-24 group overflow-visible ${
+        mode === "dark" ? "border-gray-600" : "border-gray-300"
+      } ${mode === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-50"} ${
+        isHolidayDay
+          ? mode === "dark"
+            ? "bg-red-900/20 hover:bg-red-900/30"
+            : "bg-red-50 hover:bg-red-100"
+          : ""
       }`}
       onDoubleClick={() => onCreateTask(user, dayIndex, hourIndex)}
     >

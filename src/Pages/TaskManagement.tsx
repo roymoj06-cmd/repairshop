@@ -5,21 +5,27 @@ import {
   DropCell,
   TaskEditModal,
 } from "@/components";
-import { days, workHours } from "@/utils/statics";
-import moment from "moment-jalaali";
-import { Fragment, useState, useEffect } from "react";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { toast } from "react-toastify";
-import { useQuery } from "@tanstack/react-query";
 import { getActiveMechanics } from "@/service/mechanic/mechanic.service";
 import { getAllMechanicLeave } from "@/service/repairMechanicLeaves/repairMechanicLeaves.service";
-import { getSchedulesByMechanicId } from "@/service/repairSchedule/repairSchedule.service";
-import DatePicker, { DateObject } from "react-multi-date-picker";
-import persian_fa from "react-date-object/locales/persian_fa";
-import persian from "react-date-object/calendars/persian";
+import {
+  createSchedule,
+  deleteSchedule,
+  getSchedulesByMechanicId,
+  updateSchedule,
+} from "@/service/repairSchedule/repairSchedule.service";
+import { workHours } from "@/utils/statics";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import moment from "moment-jalaali";
+import { Fragment, useEffect, useState } from "react";
 import gregorian from "react-date-object/calendars/gregorian";
+import persian from "react-date-object/calendars/persian";
 import gregorian_en from "react-date-object/locales/gregorian_en";
+import persian_fa from "react-date-object/locales/persian_fa";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import DatePicker, { DateObject } from "react-multi-date-picker";
+import { toast } from "react-toastify";
+import { useTheme } from "@/context/ThemeContext";
 
 // Configure moment-jalaali
 moment.loadPersian({ dialect: "persian-modern" });
@@ -36,6 +42,8 @@ const persianDays = [
 ];
 
 export default function TaskManagement() {
+  const { mode } = useTheme();
+
   // تاریخ‌های پیش‌فرض: از امروز تا 3 هفته بعد
   const [dateRange, setDateRange] = useState({
     fromDate: moment().format("YYYY-MM-DD"),
@@ -97,7 +105,7 @@ export default function TaskManagement() {
   }, [toDatePicker]);
 
   // Query برای دریافت برنامه‌های مکانیک‌ها
-  const { data: schedulesData, refetch: refetchSchedules } = useQuery({
+  const { data: schedulesData } = useQuery({
     queryKey: ["mechanicSchedules", dateRange.fromDate, dateRange.toDate],
     queryFn: async () => {
       if (!mechanicsData || mechanicsData.length === 0) return [];
@@ -164,39 +172,9 @@ export default function TaskManagement() {
       return;
     }
 
-    const convertedTasks: Task[] = schedulesData.map(
-      (schedule: any, index: number) => {
-        const startDate = moment(schedule.startDatetime);
-        const endDate = moment(schedule.endDatetime);
-
-        // محاسبه روز شروع نسبت به اولین روز در بازه
-        const firstDay = moment(dateRange.fromDate);
-        const startDay = startDate.diff(firstDay, "days");
-
-        // محاسبه ساعت شروع (از 8 صبح)
-        const startHour = Math.max(0, startDate.hour() - 8);
-
-        // محاسبه مدت زمان به ساعت
-        const durationInHours = Math.ceil(schedule.durationInMinutes / 60);
-
-        // محاسبه روز و ساعت پایان
-        const endDay = endDate.diff(firstDay, "days");
-        const endHour = endDate.hour() - 8;
-
-        return {
-          id: schedule.id?.toString() || `temp-${index}`,
-          user: schedule.mechanicName,
-          startDay: Math.max(0, startDay),
-          startHour: Math.max(0, startHour),
-          duration: durationInHours,
-          title: schedule.receptionServiceId
-            ? `سرویس ${schedule.receptionServiceId}`
-            : "تسک بدون عنوان",
-          endDay: endDay > startDay ? endDay : undefined,
-          endHour: endDay > startDay ? Math.max(0, endHour) : undefined,
-        };
-      }
-    );
+    const convertedTasks: Task[] = schedulesData.map((schedule: any) => {
+      return convertScheduleToTask(schedule, schedule.mechanicName);
+    });
 
     setTasks(convertedTasks);
   }, [schedulesData, mechanicsData, dateRange]);
@@ -252,6 +230,47 @@ export default function TaskManagement() {
   const [selectedDay, setSelectedDay] = useState(0);
   const [selectedHour, setSelectedHour] = useState(0);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Query client for invalidating queries
+  const queryClient = useQueryClient();
+
+  // Mutation hooks for schedule operations
+  const createScheduleMutation = useMutation({
+    mutationFn: createSchedule,
+    onSuccess: () => {
+      toast.success("تسک با موفقیت ایجاد شد");
+      queryClient.invalidateQueries({ queryKey: ["mechanicSchedules"] });
+    },
+    onError: (error: any) => {
+      console.error("خطا در ایجاد تسک:", error);
+      toast.error("خطا در ایجاد تسک. لطفاً دوباره تلاش کنید.");
+    },
+  });
+
+  const updateScheduleMutation = useMutation({
+    mutationFn: updateSchedule,
+    onSuccess: () => {
+      toast.success("تسک با موفقیت به‌روزرسانی شد");
+      queryClient.invalidateQueries({ queryKey: ["mechanicSchedules"] });
+    },
+    onError: (error: any) => {
+      console.error("خطا در به‌روزرسانی تسک:", error);
+      toast.error("خطا در به‌روزرسانی تسک. لطفاً دوباره تلاش کنید.");
+    },
+  });
+
+  const deleteScheduleMutation = useMutation({
+    mutationFn: deleteSchedule,
+    onSuccess: () => {
+      toast.success("تسک با موفقیت حذف شد");
+      queryClient.invalidateQueries({ queryKey: ["mechanicSchedules"] });
+    },
+    onError: (error: any) => {
+      console.error("خطا در حذف تسک:", error);
+      toast.error("خطا در حذف تسک. لطفاً دوباره تلاش کنید.");
+    },
+  });
+
   // تنظیم کاربر پیش‌فرض وقتی داده‌ها لود شدند
   useEffect(() => {
     if (mechanicsData && mechanicsData.length > 0 && !selectedUser) {
@@ -333,12 +352,6 @@ export default function TaskManagement() {
     dayIndex: number
   ): boolean => {
     return isHoliday(dayIndex) || isMechanicOnLeave(mechanicName, dayIndex);
-  };
-
-  // تابع کمکی برای بررسی تعطیلی بودن روز با تاریخ
-  const isHolidayByDate = (date: string): boolean => {
-    const dayStart = moment(date).startOf("day").toISOString();
-    return holidays.includes(dayStart);
   };
 
   // تابع کمکی برای محاسبه ساعات باقی‌مانده در روز
@@ -547,6 +560,64 @@ export default function TaskManagement() {
     return -1; // هیچ روز در دسترسی نیست
   };
 
+  // Helper function to convert Task to Schedule API format
+  const convertTaskToSchedule = (task: Task) => {
+    const startDate = moment(days[task.startDay]).add(
+      8 + task.startHour,
+      "hours"
+    );
+    const endDate = moment(startDate).add(task.duration, "hours");
+
+    return {
+      repairSchedule: {
+        id:
+          task.id && task.id !== "temp-" + Date.now()
+            ? parseInt(task.id)
+            : undefined,
+        mechanicId: task.mechanicId || 0,
+        receptionServiceId: task.serviceId || 0,
+        startDatetime: startDate.toISOString(),
+        endDatetime: endDate.toISOString(),
+        durationInMinutes: task.duration * 60,
+      },
+    };
+  };
+
+  // Helper function to convert Schedule API format to Task
+  const convertScheduleToTask = (schedule: any, mechanicName: string) => {
+    const startDate = moment(schedule.startDatetime);
+    const endDate = moment(schedule.endDatetime);
+
+    // محاسبه روز شروع نسبت به اولین روز در بازه
+    const firstDay = moment(dateRange.fromDate);
+    const startDay = startDate.diff(firstDay, "days");
+
+    // محاسبه ساعت شروع (از 8 صبح)
+    const startHour = Math.max(0, startDate.hour() - 8);
+
+    // محاسبه مدت زمان به ساعت
+    const durationInHours = Math.ceil(schedule.durationInMinutes / 60);
+
+    // محاسبه روز و ساعت پایان
+    const endDay = endDate.diff(firstDay, "days");
+    const endHour = endDate.hour() - 8;
+
+    return {
+      id: schedule.id?.toString() || `temp-${Date.now()}`,
+      user: mechanicName,
+      startDay: Math.max(0, startDay),
+      startHour: Math.max(0, startHour),
+      duration: durationInHours,
+      title: schedule.receptionServiceId
+        ? `سرویس ${schedule.receptionServiceId}`
+        : "تسک بدون عنوان",
+      endDay: endDay > startDay ? endDay : undefined,
+      endHour: endDay > startDay ? Math.max(0, endHour) : undefined,
+      mechanicId: schedule.mechanicId,
+      serviceId: schedule.receptionServiceId,
+    };
+  };
+
   // پیدا کردن آخرین تسک برای قرار دادن تسک جدید در ادامه
   const getNextAvailableHour = (user: string, day: number) => {
     // بررسی تعطیلی یا مرخصی بودن روز
@@ -641,10 +712,18 @@ export default function TaskManagement() {
       endHour: endDay > newDay ? endHour : undefined,
     };
 
-    setTasks((prev) => {
-      const filtered = prev.filter((t) => t.id !== task.id);
-      return [...filtered, updatedTask];
-    });
+    // Check if it's a real task (has numeric ID) or temporary
+    if (task.id && !isNaN(parseInt(task.id))) {
+      // Update existing task via API
+      const scheduleData = convertTaskToSchedule(updatedTask);
+      updateScheduleMutation.mutate(scheduleData);
+    } else {
+      // For temporary tasks, just update local state
+      setTasks((prev) => {
+        const filtered = prev.filter((t) => t.id !== task.id);
+        return [...filtered, updatedTask];
+      });
+    }
   };
 
   const handleTaskClick = (task: Task) => {
@@ -653,10 +732,16 @@ export default function TaskManagement() {
   };
 
   const handleDeleteTask = (taskId: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    // Check if it's a real task (has numeric ID) or temporary
+    if (taskId && !isNaN(parseInt(taskId))) {
+      deleteScheduleMutation.mutate(parseInt(taskId));
+    } else {
+      // For temporary tasks, just remove from local state
+      setTasks((prev) => prev.filter((t) => t.id !== taskId));
+      toast.success("تسک با موفقیت حذف شد");
+    }
     setIsDeleteDialogOpen(false);
     handleCloseModal();
-    toast.success("تسک با موفقیت حذف شد");
   };
 
   const handleSaveTask = (updatedTask: Task) => {
@@ -716,10 +801,18 @@ export default function TaskManagement() {
       endHour: endDay > updatedTask.startDay ? endHour : undefined,
     };
 
-    setTasks((prev) => {
-      const filtered = prev.filter((t) => t.id !== updatedTask.id);
-      return [...filtered, taskToUpdate];
-    });
+    // Check if it's a real task (has numeric ID) or temporary
+    if (updatedTask.id && !isNaN(parseInt(updatedTask.id))) {
+      // Update existing task via API
+      const scheduleData = convertTaskToSchedule(taskToUpdate);
+      updateScheduleMutation.mutate(scheduleData);
+    } else {
+      // For temporary tasks, just update local state
+      setTasks((prev) => {
+        const filtered = prev.filter((t) => t.id !== updatedTask.id);
+        return [...filtered, taskToUpdate];
+      });
+    }
   };
 
   const handleCreateTask = () => {
@@ -824,7 +917,9 @@ export default function TaskManagement() {
       endHour: endDay > newTask.startDay ? endHour : undefined,
     };
 
-    setTasks((prev) => [...prev, taskToAdd]);
+    // Create task via API
+    const scheduleData = convertTaskToSchedule(taskToAdd);
+    createScheduleMutation.mutate(scheduleData);
   };
 
   const handleCloseModal = () => {
@@ -901,11 +996,21 @@ export default function TaskManagement() {
     <DndProvider backend={HTML5Backend}>
       <div className="overflow-auto">
         {/* کنترل‌های ایجاد تسک */}
-        <div className="mb-6 p-4 bg-white rounded-xl shadow flex flex-col sm:flex-row sm:items-end gap-4 border border-gray-200">
+        <div
+          className={`mb-6 p-4 rounded-xl shadow flex flex-col sm:flex-row sm:items-end gap-4 border ${
+            mode === "dark"
+              ? "bg-gray-800 border-gray-600 text-white"
+              : "bg-white border-gray-200"
+          }`}
+        >
           {/* Date Range Filter */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end flex-1">
             <div>
-              <label className="block text-xs font-bold mb-1 text-gray-600">
+              <label
+                className={`block text-xs font-bold mb-1 ${
+                  mode === "dark" ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 بازه تاریخ از
               </label>
               <DatePicker
@@ -928,7 +1033,11 @@ export default function TaskManagement() {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold mb-1 text-gray-600">
+              <label
+                className={`block text-xs font-bold mb-1 ${
+                  mode === "dark" ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 تا
               </label>
               <DatePicker
@@ -953,34 +1062,61 @@ export default function TaskManagement() {
           </div>
           <button
             onClick={handleCreateTask}
-            className="flex items-center gap-2 bg-gradient-to-l from-green-500 to-green-400 text-white px-5 py-2.5 rounded-lg shadow hover:from-green-600 hover:to-green-500 transition-all text-base font-bold mt-2 sm:mt-0"
+            disabled={createScheduleMutation.isPending}
+            className="flex items-center gap-2 bg-gradient-to-l from-green-500 to-green-400 text-white px-5 py-2.5 rounded-lg shadow hover:from-green-600 hover:to-green-500 transition-all text-base font-bold mt-2 sm:mt-0 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            ایجاد تسک جدید
+            {createScheduleMutation.isPending ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+            )}
+            {createScheduleMutation.isPending
+              ? "در حال ایجاد..."
+              : "ایجاد تسک جدید"}
           </button>
         </div>
 
         <div className="relative">
           {/* Scrollable Body */}
           <div className="overflow-auto max-h-[70vh]">
-            <table className="table-fixed w-full border-collapse border text-center">
-              <thead className="sticky top-0 z-[11] bg-white shadow-sm">
+            <table
+              className={`table-fixed w-full border-collapse border text-center ${
+                mode === "dark" ? "border-gray-600" : "border-gray-300"
+              }`}
+            >
+              <thead
+                className={`sticky top-0 z-[11] shadow-sm ${
+                  mode === "dark" ? "bg-gray-800" : "bg-white"
+                }`}
+              >
                 <tr>
-                  <th className="bg-gray-100 w-32">کاربر</th>
-                  <th className="bg-gray-100 w-20">ساعت</th>
+                  <th
+                    className={`w-32 ${
+                      mode === "dark" ? "bg-gray-700 text-white" : "bg-gray-100"
+                    }`}
+                  >
+                    کاربر
+                  </th>
+                  <th
+                    className={`w-20 ${
+                      mode === "dark" ? "bg-gray-700 text-white" : "bg-gray-100"
+                    }`}
+                  >
+                    ساعت
+                  </th>
                   {days.map((day, i) => {
                     // بررسی اینکه آیا در این روز مکانیک‌هایی مرخصی دارند
                     const mechanicsOnLeave =
@@ -989,12 +1125,20 @@ export default function TaskManagement() {
                       ) || [];
 
                     // تعیین رنگ هدر بر اساس تعطیل یا مرخصی بودن
-                    let headerClass = "bg-gray-100 text-sm w-24";
+                    let headerClass =
+                      mode === "dark"
+                        ? "bg-gray-700 text-white text-sm w-24"
+                        : "bg-gray-100 text-sm w-24";
                     if (isHoliday(i)) {
-                      headerClass = "bg-red-100 text-red-700 text-sm w-24";
+                      headerClass =
+                        mode === "dark"
+                          ? "bg-red-900 text-red-200 text-sm w-24"
+                          : "bg-red-100 text-red-700 text-sm w-24";
                     } else if (mechanicsOnLeave.length > 0) {
                       headerClass =
-                        "bg-orange-100 text-orange-700 text-sm w-24";
+                        mode === "dark"
+                          ? "bg-orange-900 text-orange-200 text-sm w-24"
+                          : "bg-orange-100 text-orange-700 text-sm w-24";
                     }
 
                     return (
@@ -1030,23 +1174,49 @@ export default function TaskManagement() {
                         key={`${user.fullName}-${hour}`}
                         className={`${
                           mechanicsData.indexOf(user) % 2 === 0
-                            ? "bg-white/50"
+                            ? mode === "dark"
+                              ? "bg-gray-800/50"
+                              : "bg-white/50"
+                            : mode === "dark"
+                            ? "bg-gray-700/50"
                             : "bg-gray-100/50"
                         }`}
                       >
                         {hour === 0 && (
                           <td
                             rowSpan={9}
-                            className="font-semibold border align-middle w-32"
+                            className={`font-semibold border align-middle w-32 ${
+                              mode === "dark"
+                                ? "border-gray-600"
+                                : "border-gray-300"
+                            }`}
                           >
                             <div className="text-center">
-                              <div className="font-bold text-lg">
+                              <div
+                                className={`font-bold text-lg ${
+                                  mode === "dark"
+                                    ? "text-white"
+                                    : "text-gray-900"
+                                }`}
+                              >
                                 {user.fullName}
                               </div>
-                              <div className="text-xs text-gray-600 mt-1">
+                              <div
+                                className={`text-xs mt-1 ${
+                                  mode === "dark"
+                                    ? "text-gray-300"
+                                    : "text-gray-600"
+                                }`}
+                              >
                                 ساعات کاری
                               </div>
-                              <div className="text-xs text-gray-500 mt-1">
+                              <div
+                                className={`text-xs mt-1 ${
+                                  mode === "dark"
+                                    ? "text-gray-400"
+                                    : "text-gray-500"
+                                }`}
+                              >
                                 8:00 - 17:00
                               </div>
                               {/* نمایش تعداد روزهای مرخصی */}
@@ -1066,8 +1236,12 @@ export default function TaskManagement() {
                         <td
                           className={`font-semibold text-sm border w-20 ${
                             mechanicsData.indexOf(user) % 2 === 0
-                              ? "bg-white"
-                              : "bg-gray-100"
+                              ? mode === "dark"
+                                ? "bg-gray-800 border-gray-600"
+                                : "bg-white border-gray-300"
+                              : mode === "dark"
+                              ? "bg-gray-700 border-gray-600"
+                              : "bg-gray-100 border-gray-300"
                           }`}
                         >
                           {hour + 8}:00
@@ -1087,9 +1261,13 @@ export default function TaskManagement() {
                           // تعیین رنگ پس‌زمینه سلول
                           let cellBgClass = "";
                           if (isHolidayDay) {
-                            cellBgClass = "bg-red-50";
+                            cellBgClass =
+                              mode === "dark" ? "bg-red-900/20" : "bg-red-50";
                           } else if (isMechanicLeave) {
-                            cellBgClass = "bg-orange-50";
+                            cellBgClass =
+                              mode === "dark"
+                                ? "bg-orange-900/20"
+                                : "bg-orange-50";
                           }
 
                           if (taskHere) {
@@ -1160,8 +1338,20 @@ export default function TaskManagement() {
                             >
                               <div className={`w-full h-full ${cellBgClass}`}>
                                 {isMechanicLeave && (
-                                  <div className="w-full h-full bg-orange-100 border border-orange-300 rounded flex items-center justify-center">
-                                    <span className="text-xs text-orange-700 font-semibold">
+                                  <div
+                                    className={`w-full h-full rounded flex items-center justify-center ${
+                                      mode === "dark"
+                                        ? "bg-orange-900/30 border border-orange-600"
+                                        : "bg-orange-100 border border-orange-300"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`text-xs font-semibold ${
+                                        mode === "dark"
+                                          ? "text-orange-200"
+                                          : "text-orange-700"
+                                      }`}
+                                    >
                                       مرخصی
                                     </span>
                                   </div>
@@ -1180,15 +1370,36 @@ export default function TaskManagement() {
         </div>
 
         {/* اطلاعات ساعات کاری */}
-        <div className="mt-4 p-4 bg-blue-50 rounded">
-          <h3 className="font-semibold mb-3 text-blue-800">
+        <div
+          className={`mt-4 p-4 rounded ${
+            mode === "dark"
+              ? "bg-blue-900/20 border border-blue-700"
+              : "bg-blue-50"
+          }`}
+        >
+          <h3
+            className={`font-semibold mb-3 ${
+              mode === "dark" ? "text-blue-200" : "text-blue-800"
+            }`}
+          >
             ساعات کاری هر کاربر:
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {mechanicsData?.map((user: { fullName: string }) => (
-              <div key={user.fullName} className="bg-white p-3 rounded border">
-                <h4 className="font-bold text-gray-800 mb-2">
+              <div
+                key={user.fullName}
+                className={`p-3 rounded border ${
+                  mode === "dark"
+                    ? "bg-gray-800 border-gray-600"
+                    : "bg-white border-gray-300"
+                }`}
+              >
+                <h4
+                  className={`font-bold mb-2 ${
+                    mode === "dark" ? "text-white" : "text-gray-800"
+                  }`}
+                >
                   {user.fullName}
                 </h4>
                 <div className="space-y-1">
@@ -1256,9 +1467,25 @@ export default function TaskManagement() {
         </div>
 
         {/* Legend */}
-        <div className="mt-4 p-4 bg-gray-50 rounded">
-          <h3 className="font-semibold mb-2">راهنما:</h3>
-          <ul className="text-sm space-y-1">
+        <div
+          className={`mt-4 p-4 rounded ${
+            mode === "dark"
+              ? "bg-gray-800 border border-gray-600"
+              : "bg-gray-50"
+          }`}
+        >
+          <h3
+            className={`font-semibold mb-2 ${
+              mode === "dark" ? "text-white" : "text-gray-900"
+            }`}
+          >
+            راهنما:
+          </h3>
+          <ul
+            className={`text-sm space-y-1 ${
+              mode === "dark" ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
             <li>• هر روز 9 ساعت کاری (8:00 تا 17:00)</li>
             <li>• برای ایجاد تسک جدید از دکمه بالا استفاده کنید</li>
             <li>• برای ویرایش تسک، روی آن کلیک کنید</li>
@@ -1309,6 +1536,7 @@ export default function TaskManagement() {
           onSave={handleSaveTask}
           onDelete={() => setIsDeleteDialogOpen(true)}
           holidays={holidays}
+          isLoading={updateScheduleMutation.isPending}
         />
 
         {/* Create Task Modal */}
@@ -1320,6 +1548,7 @@ export default function TaskManagement() {
           selectedDay={selectedDay}
           selectedHour={selectedHour}
           holidays={holidays}
+          isLoading={createScheduleMutation.isPending}
         />
         <ConfirmDeleteDialog
           open={isDeleteDialogOpen}

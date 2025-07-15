@@ -107,7 +107,16 @@ export const deleteRepairReception = async (data: {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
-export const getRepairReceptions = async (data: {
+export const getRepairReceptions = async ({
+  page = 1,
+  size = 18,
+  plateSection1,
+  plateSection2,
+  plateSection3,
+  plateSection4,
+  customerId,
+  isDischarged,
+}: {
   page: number | string;
   size: number | string;
   plateSection1?: string;
@@ -118,7 +127,16 @@ export const getRepairReceptions = async (data: {
   isDischarged?: boolean | null;
   carColor?: string;
 }) => {
-  const queryString = convertObjectToQueryString(data);
+  const queryString = convertObjectToQueryString({
+    page,
+    size,
+    plateSection1,
+    plateSection2,
+    plateSection3,
+    plateSection4,
+    customerId,
+    isDischarged,
+  });
   const reqConfig: AxiosRequestConfig = {
     method: "GET",
     url: `${proxyServerUrl.getRepairReceptions}${

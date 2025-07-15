@@ -26,7 +26,7 @@ import {
 
 const Vehicle: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filter, setFilter] = useState<plateSection>({});
+  const [filter, setFilter] = useState<plateSection>({ isDischarged: "false" });
   const navigate = useNavigate();
   const page = searchParams.get("page") ?? 1;
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
@@ -51,7 +51,8 @@ const Vehicle: FC = () => {
       getRepairReceptions({
         page: page ? +page : 1,
         size: 18,
-        isDischarged: filter?.isDischarged,
+        isDischarged:
+          filter?.isDischarged !== null ? filter?.isDischarged : undefined,
         customerId: filter?.customerId,
         plateSection1: filter?.plateSection1,
         plateSection2: filter?.plateSection2,
@@ -77,23 +78,11 @@ const Vehicle: FC = () => {
     },
   });
   const handleStatusChange = (newValue: any) => {
-    if (!newValue?.value) {
-      setFilter({
-        plateSection1: filter?.plateSection1,
-        plateSection2: filter?.plateSection2,
-        plateSection3: filter?.plateSection3,
-        plateSection4: filter?.plateSection4,
-        carCompany: filter?.carCompany,
-        customerId: filter?.customerId,
-        carTipId: filter?.carTipId,
-      });
-    } else {
-      setFilter({
-        ...filter,
-        isDischarged: !newValue.value ? null : newValue.value,
-      });
-      setSearchParams({ page: "1" });
-    }
+    setFilter({
+      ...filter,
+      isDischarged: newValue?.value,
+    });
+    setSearchParams({ page: "1" });
   };
   const handleCustomerSearch = (newValue: any) => {
     if (newValue?.value) {
@@ -180,9 +169,10 @@ const Vehicle: FC = () => {
               </Grid>
               <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }}>
                 <EnhancedSelect
-                  defaultValue={
-                    statusOptions?.find((option) => option.value === "false")
-                      ?.label
+                  value={
+                    statusOptions?.find(
+                      (option) => option.value === filter?.isDischarged
+                    ) || statusOptions[0]
                   }
                   onChange={handleStatusChange}
                   enableSpeechToText={true}

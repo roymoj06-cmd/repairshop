@@ -20,10 +20,19 @@ type ICreateSchedule = {
   };
 };
 export const createSchedule = async (schedule: ICreateSchedule) => {
+  const data: ICreateSchedule = {
+    repairSchedule: {
+      mechanicId: schedule?.repairSchedule?.mechanicId,
+      receptionServiceId: schedule?.repairSchedule?.receptionServiceId,
+      startDatetime: schedule?.repairSchedule?.startDatetime,
+      endDatetime: schedule?.repairSchedule?.endDatetime,
+      durationInMinutes: schedule?.repairSchedule?.durationInMinutes,
+    },
+  };
   const reqConfig = {
     method: "POST",
     url: `${proxyServerUrl.createSchedule}`,
-    data: schedule,
+    data,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -39,6 +48,14 @@ export const getScheduleById = async (id: number) => {
   const reqConfig = {
     method: "GET",
     url: `${proxyServerUrl.getScheduleById}${id}`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+
+export const deleteSchedule = async (id: number) => {
+  const reqConfig = {
+    method: "DELETE",
+    url: `${proxyServerUrl.deleteSchedule}${id}`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };

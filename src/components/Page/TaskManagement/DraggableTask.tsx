@@ -1,6 +1,7 @@
 import { useDrag } from "react-dnd";
 import moment from "moment-jalaali";
 import { days } from "@/utils/statics";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function DraggableTask({
   task,
@@ -20,6 +21,8 @@ export default function DraggableTask({
   holidays?: string[];
   mechanicLeavesMap?: { [mechanicName: string]: string[] };
 }) {
+  const { mode } = useTheme();
+
   // تابع کمکی برای بررسی تعطیلی بودن روز
   const isHoliday = (dayIndex: number): boolean => {
     const dayDate = moment(days[dayIndex]);
@@ -132,19 +135,25 @@ export default function DraggableTask({
     if (isHolidayDay) {
       // برای روزهای تعطیل، تسک را با رنگ قرمز نمایش بده
       if (isContinuing) {
-        return `${baseClass} bg-red-600/90 text-white hover:bg-red-700/90 border-l-4 border-red-300`;
+        return `${baseClass} bg-red-600/90 text-white hover:bg-red-700/90 border-l-4 ${
+          mode === "dark" ? "border-red-400" : "border-red-300"
+        }`;
       }
       return `${baseClass} bg-red-600/90 text-white hover:bg-red-700/90`;
     } else if (isMechanicLeaveDay) {
       // برای روزهای مرخصی، تسک را با رنگ نارنجی نمایش بده
       if (isContinuing) {
-        return `${baseClass} bg-orange-600/90 text-white hover:bg-orange-700/90 border-l-4 border-orange-300`;
+        return `${baseClass} bg-orange-600/90 text-white hover:bg-orange-700/90 border-l-4 ${
+          mode === "dark" ? "border-orange-400" : "border-orange-300"
+        }`;
       }
       return `${baseClass} bg-orange-600/90 text-white hover:bg-orange-700/90`;
     } else {
       // برای روزهای عادی
       if (isContinuing) {
-        return `${baseClass} bg-purple-500 text-white hover:bg-purple-600 border-l-4 border-yellow-300`;
+        return `${baseClass} bg-purple-500 text-white hover:bg-purple-600 border-l-4 ${
+          mode === "dark" ? "border-yellow-400" : "border-yellow-300"
+        }`;
       }
       return `${baseClass} bg-blue-500 text-white hover:bg-blue-600`;
     }
