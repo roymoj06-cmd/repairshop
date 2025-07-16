@@ -85,28 +85,28 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
           {userAccesses?.find(
             (item: string) => item === "faddee5d-7277-420f-9452-ccb315b15f1e"
           ) && (
-            <div className="delete-button">
-              <IconButton
-                onClick={handleDeleteClick}
-                size="small"
-                sx={{
-                  backgroundColor:
-                    mode === "dark"
-                      ? "rgba(239, 68, 68, 0.1)"
-                      : "rgba(239, 68, 68, 0.1)",
-                  color: "#ef4444",
-                  "&:hover": {
+              <div className="delete-button">
+                <IconButton
+                  onClick={handleDeleteClick}
+                  size="small"
+                  sx={{
                     backgroundColor:
                       mode === "dark"
-                        ? "rgba(239, 68, 68, 0.2)"
-                        : "rgba(239, 68, 68, 0.2)",
-                  },
-                }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </div>
-          )}
+                        ? "rgba(239, 68, 68, 0.1)"
+                        : "rgba(239, 68, 68, 0.1)",
+                    color: "#ef4444",
+                    "&:hover": {
+                      backgroundColor:
+                        mode === "dark"
+                          ? "rgba(239, 68, 68, 0.2)"
+                          : "rgba(239, 68, 68, 0.2)",
+                    },
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </div>
+            )}
 
           <div className="py-2 w-full mx-auto">
             <PlateNumberDisplay
@@ -194,11 +194,11 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
       </Modal>
 
       <ConfirmDeleteDialog
-        open={showDeleteDialog}
-        onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        title="حذف پذیرش"
         content={`آیا مطمئن هستید که می‌خواهید پذیرش مشتری "${vehicle.customerName}" را حذف کنید؟`}
+        onConfirm={handleConfirmDelete}
+        onClose={handleCancelDelete}
+        open={showDeleteDialog}
+        title="حذف پذیرش"
       />
     </>
   );

@@ -4,7 +4,7 @@ import { Add, Delete, Check } from "@mui/icons-material";
 import { FC, useState } from "react";
 import { toast } from "react-toastify";
 
-import { Button, EnhancedInput } from "@/components";
+import { Button, EnhancedInput, ConfirmDeleteDialog } from "@/components";
 import {
   createCustomerProblem,
   updateCustomerProblem,
@@ -41,6 +41,8 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
   const [serverProblemChanges, setServerProblemChanges] = useState<
     ServerProblemChange[]
   >([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [problemToDelete, setProblemToDelete] = useState<number | null>(null);
 
   const { data: serverProblems = [], isLoading } = useQuery({
     queryKey: ["customerProblems", repairReceptionId],
@@ -80,7 +82,6 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
       toast.error("خطا در ایجاد مشکل");
     },
   });
-
   const updateMutation = useMutation({
     mutationFn: updateCustomerProblem,
     onSuccess: (data: any) => {
@@ -89,7 +90,6 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
       });
       if (data?.isSuccess) {
         toast.success("مشکل با موفقیت بروزرسانی شد");
-        // Clear the change tracking for this problem
         setServerProblemChanges((prev) =>
           prev.filter((change) => change.id !== data.data?.id)
         );
@@ -101,7 +101,6 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
       toast.error("خطا در بروزرسانی مشکل");
     },
   });
-
   const deleteMutation = useMutation({
     mutationFn: deleteCustomerProblem,
     onSuccess: () => {
@@ -114,7 +113,6 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
       toast.error("خطا در حذف مشکل");
     },
   });
-
   const addProblem = () => {
     const newProblem: LocalProblem = {
       repairReceptionId: repairReceptionId || "",
@@ -123,7 +121,6 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
     };
     setLocalProblems([...localProblems, newProblem]);
   };
-
   const updateProblemDescription = (index: number, description: string) => {
     const isLocalProblem = index >= serverProblems.length;
     if (isLocalProblem) {
@@ -135,14 +132,11 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
       };
       setLocalProblems(newLocalProblems);
     } else {
-      // Handle server problem changes
       const problem = serverProblems[index];
       const existingChange = serverProblemChanges.find(
         (change) => change.id === problem.id
       );
-
       if (existingChange) {
-        // Update existing change
         setServerProblemChanges((prev) =>
           prev.map((change) =>
             change.id === problem.id
@@ -151,7 +145,6 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
           )
         );
       } else {
-        // Create new change tracking
         setServerProblemChanges((prev) => [
           ...prev,
           {
@@ -163,7 +156,6 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
       }
     }
   };
-
   const getProblemDescription = (index: number) => {
     const isLocalProblem = index >= serverProblems.length;
     if (isLocalProblem) {
@@ -175,7 +167,6 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
       return change ? change.currentDescription : problem.description;
     }
   };
-
   const hasChanges = (index: number) => {
     const isLocalProblem = index >= serverProblems.length;
     if (isLocalProblem) {
@@ -191,7 +182,6 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
       );
     }
   };
-
   const saveProblem = async (index: number) => {
     const isLocalProblem = index >= serverProblems.length;
     if (isLocalProblem) {
@@ -223,20 +213,33 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
       });
     }
   };
-
   const removeProblem = async (index: number) => {
-    const isLocalProblem = index >= serverProblems.length;
+    setProblemToDelete(index);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (problemToDelete === null) return;
+
+    const isLocalProblem = problemToDelete >= serverProblems.length;
     if (isLocalProblem) {
-      const localIndex = index - serverProblems.length;
+      const localIndex = problemToDelete - serverProblems.length;
       const newLocalProblems = localProblems.filter((_, i) => i !== localIndex);
       setLocalProblems(newLocalProblems);
-      return;
+    } else {
+      const problem = serverProblems[problemToDelete];
+      if (problem.id) {
+        deleteMutation.mutate(problem.id);
+      }
     }
-    const problem = serverProblems[index];
-    if (!problem.id) return;
-    if (window.confirm("آیا مطمئن هستید که می‌خواهید این مشکل را حذف کنید؟")) {
-      deleteMutation.mutate(problem.id);
-    }
+
+    setDeleteDialogOpen(false);
+    setProblemToDelete(null);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setProblemToDelete(null);
   };
 
   return (
@@ -299,7 +302,7 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
                 <Check />
               </IconButton>
             )}
-            {allProblems.length > 1 && hasAccess(ACCESS_IDS.DELETE_PROBLEM) && (
+            {hasAccess(ACCESS_IDS.DELETE_PROBLEM) && (
               <IconButton
                 color="error"
                 onClick={() => removeProblem(index)}
@@ -316,6 +319,14 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
           </Box>
         );
       })}
+
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        title="حذف مشکل"
+        content="آیا مطمئن هستید که می‌خواهید این مشکل را حذف کنید؟"
+      />
     </Box>
   );
 };

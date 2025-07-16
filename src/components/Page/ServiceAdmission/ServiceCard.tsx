@@ -198,7 +198,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           </div>
         </div>
 
-        {statusButtonInfo && hasAccess(ACCESS_IDS.TEST_REPAIR) && !isTested && (
+        {statusButtonInfo && hasAccess(ACCESS_IDS.CHANGE_STATUS_REPAIR) && !isTested && (
           <button
             onClick={handleStatusUpdate}
             disabled={service.statusId === 3}

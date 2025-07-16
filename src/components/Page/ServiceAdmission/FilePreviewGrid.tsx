@@ -1,4 +1,17 @@
-import { Close, FolderOpen, Visibility } from "@mui/icons-material";
+import { 
+  Close, 
+  FolderOpen, 
+  Visibility, 
+  VideoFile, 
+  AudioFile, 
+  PictureAsPdf, 
+  Description, 
+  TableChart, 
+  Slideshow, 
+  Archive, 
+  InsertDriveFile, 
+  Image
+} from "@mui/icons-material";
 import { Dialog } from "@mui/material";
 import { useState } from "react";
 
@@ -14,6 +27,43 @@ interface FilePreviewGridProps {
   isLoading?: boolean;
 }
 
+// تابع برای تشخیص نوع فایل و برگرداندن ایکون مناسب
+const getFileIcon = (fileType: string, mode: string) => {
+  const iconColor = mode === "dark" ? "rgba(255, 255, 255, 0.8)" : "#1976d2";
+  const iconSize = "large";
+
+  if (fileType.startsWith("video/")) {
+    return <VideoFile fontSize={iconSize} sx={{ color: "#ff5722" }} />;
+  } else if (fileType.startsWith("audio/")) {
+    return <AudioFile fontSize={iconSize} sx={{ color: "#9c27b0" }} />;
+  } else if (fileType === "application/pdf") {
+    return <PictureAsPdf fontSize={iconSize} sx={{ color: "#d32f2f" }} />;
+  } else if (
+    fileType === "application/msword" ||
+    fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  ) {
+    return <Description fontSize={iconSize} sx={{ color: "#1976d2" }} />;
+  } else if (
+    fileType === "application/vnd.ms-excel" ||
+    fileType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  ) {
+    return <TableChart fontSize={iconSize} sx={{ color: "#388e3c" }} />;
+  } else if (
+    fileType === "application/vnd.ms-powerpoint" ||
+    fileType === "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+  ) {
+    return <Slideshow fontSize={iconSize} sx={{ color: "#f57c00" }} />;
+  } else if (
+    fileType === "application/zip" ||
+    fileType === "application/x-zip-compressed" ||
+    fileType === "application/x-rar-compressed"
+  ) {
+    return <Archive fontSize={iconSize} sx={{ color: "#795548" }} />;
+  } else {
+    return <Image fontSize={iconSize} sx={{ color: iconColor }} />;
+  }
+};
+
 const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
   files,
   removeFile,
@@ -27,21 +77,18 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
   if (files?.length || isLoading) {
     return (
       <div
-        className={`flex justify-start gap-2 w-full p-2 overflow-x-auto ${
-          mode === "dark" ? "bg-gray-800" : "bg-white"
-        }`}
+        className={`flex justify-start gap-2 w-full p-2 overflow-x-auto ${mode === "dark" ? "bg-gray-800" : "bg-white"
+          }`}
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {isLoading && (
           <div
-            className={`relative w-[80px] min-w-[80px] h-[80px] flex items-center justify-center border rounded-md ${
-              mode === "dark" ? "border-gray-600" : "border-gray-300"
-            }`}
+            className={`relative w-[80px] min-w-[80px] h-[80px] flex items-center justify-center border rounded-md ${mode === "dark" ? "border-gray-600" : "border-gray-300"
+              }`}
           >
             <div
-              className={`w-full h-full relative flex items-center justify-center ${
-                mode === "dark" ? "bg-gray-700" : "bg-gray-200"
-              }`}
+              className={`w-full h-full relative flex items-center justify-center ${mode === "dark" ? "bg-gray-700" : "bg-gray-200"
+                }`}
             >
               {progressMap && Object.keys(progressMap).length > 0 && (
                 <CircularProgressWithLabel
@@ -58,9 +105,8 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
           return (
             <div
               key={fileObj.id}
-              className={`relative w-[80px] min-w-[80px] h-[80px] flex items-center justify-center border rounded-md ${
-                mode === "dark" ? "border-gray-600" : "border-gray-300"
-              }`}
+              className={`relative w-[80px] min-w-[80px] h-[80px] flex items-center justify-center border rounded-md ${mode === "dark" ? "border-gray-600" : "border-gray-300"
+                }`}
             >
               {isImage || fileObj.downloadUrl ? (
                 <img
@@ -73,13 +119,12 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
                   className="w-full h-full object-cover"
                   onLoad={(e) =>
                     URL?.revokeObjectURL((e.target as HTMLImageElement).src)
-                  } // آزاد کردن حافظه
+                  }
                 />
               ) : (
                 <div
-                  className={`w-full h-full relative flex items-center justify-center ${
-                    mode === "dark" ? "bg-gray-700" : "bg-gray-200"
-                  }`}
+                  className={`w-full h-full relative flex items-center justify-center ${mode === "dark" ? "bg-gray-700" : "bg-gray-200"
+                    }`}
                 >
                   <FolderOpen
                     fontSize="small"
@@ -91,9 +136,8 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
                     }}
                   />
                   <pre
-                    className={`absolute bottom-0 font-8 is-word-break text-xs w-16 text-center px-1 ${
-                      mode === "dark" ? "text-gray-300" : "text-gray-600"
-                    }`}
+                    className={`absolute bottom-0 font-8 is-word-break text-xs w-16 text-center px-1 ${mode === "dark" ? "text-gray-300" : "text-gray-600"
+                      }`}
                   >
                     {fileObj?.name}
                   </pre>
@@ -130,8 +174,7 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
                   className="absolute top-0 right-0 bg-secondary-main text-white p-1 shadow"
                 />
               </AccessGuard>
-              <Visibility
-                fontSize="medium"
+              <div
                 onClick={() =>
                   setModalDetail({
                     show: true,
@@ -139,10 +182,15 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
                     data: fileObj,
                   })
                 }
-                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl p-1 shadow ${
-                  mode === "dark" ? "text-gray-300" : "text-primary-light"
-                }`}
-              />
+                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer shadow ${mode === "dark" ? "text-gray-300" : "text-primary-light"
+                  }`}
+              >
+                {isImage ? (
+                  <Visibility fontSize="medium" />
+                ) : (
+                  getFileIcon(fileObj.type || fileObj.mimeType, mode)
+                )}
+              </div>
             </div>
           );
         })}

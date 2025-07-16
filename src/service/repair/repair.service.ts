@@ -139,9 +139,8 @@ export const getRepairReceptions = async ({
   });
   const reqConfig: AxiosRequestConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getRepairReceptions}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getRepairReceptions}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };

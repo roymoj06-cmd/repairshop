@@ -11,13 +11,14 @@ import { Add } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
-import { useAccessControl, ACCESS_IDS } from "@/utils/accessControl";
+import { useAccessControl, ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 import { getCustomers } from "@/service/customer/customer.service";
 import {
   getRepairReceptionForUpdateById,
   createRepairReception,
   updateRepairReception,
   getCustomerCars,
+  dischargeRepairReception,
 } from "@/service/repair/repair.service";
 import {
   RepairReceptionProducts,
@@ -29,6 +30,7 @@ import {
   UploaderDocs,
   Loading,
   Button,
+  ConfirmDialog,
 } from "@/components";
 
 interface IServiceAdmissionFormProps {
@@ -41,6 +43,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   const { hasCategoryAccess } = useAccessControl();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [showNewPlateDialog, setShowNewPlateDialog] = useState<boolean>(false);
+  const [showDischargeConfirmDialog, setShowDischargeConfirmDialog] = useState<boolean>(false);
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
   const [initialDataLoaded, setInitialDataLoaded] = useState<boolean>(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
@@ -218,6 +221,19 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
+  const {
+    mutateAsync: mutateAsyncDischargeRepairReception,
+    isPending: isPendingDischargeRepairReception,
+  } = useMutation({
+    mutationFn: dischargeRepairReception,
+    onSuccess: (data: any) => {
+      if (data?.isSuccess) {
+        toast.success(data?.message || "پذیرش با موفقیت بروزرسانی شد");
+      } else {
+        toast?.error(data?.message);
+      }
+    },
+  });
   const handleCustomerChange = (value: any) => {
     if (value?.value) {
       mutateAsyncCustomerCars(value.value);
@@ -232,6 +248,17 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         searchCustomers(searchText);
       }
     }, 300);
+  };
+
+  const handleDischargeConfirm = () => {
+    if (repairReceptionId) {
+      mutateAsyncDischargeRepairReception({ repairReceptionId: +repairReceptionId });
+    }
+    setShowDischargeConfirmDialog(false);
+  };
+
+  const handleDischargeCancel = () => {
+    setShowDischargeConfirmDialog(false);
   };
   const handleAddNewPlate = () => {
     setShowNewPlateDialog(true);
@@ -344,6 +371,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
     };
   }, []);
   const isLoading =
+    isPendingDischargeRepairReception ||
     isPendingCreateRepairReception ||
     isPendingUpdateRepairReception ||
     isFetchingRepairReception;
@@ -352,7 +380,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
     <form onSubmit={handleSubmit(onSubmit)}>
       {isLoading && <Loading />}
       <Grid container spacing={4}>
-        {/* ردیف اول - مشتری، پلاک و تاریخ پذیرش */}
         <Grid size={{ xs: 12, md: 4 }}>
           <EnhancedSelect
             helperText={errors.customerId?.message as string}
@@ -427,8 +454,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             />
           </Box>
         </Grid>
-
-        {/* ردیف دوم - فیلدهای کوچک */}
         <Grid size={{ xs: 12, md: 3 }}>
           <EnhancedInput
             helperText={errors.customerEstimatedTime?.message as string}
@@ -466,15 +491,13 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             type="text"
           />
         </Grid>
-
-        {/* ردیف سوم - اطلاعات تحویل دهنده */}
         <Grid size={{ xs: 12, md: 6 }}>
           <EnhancedInput
             helperText={errors.delivererName?.message as string}
             error={!!errors.delivererName}
             enableSpeechToText={true}
             name="delivererName"
-            label="نام تحویل دهنده"
+            label="نام تحویل دهنده (راننده)"
             iconPosition="end"
             control={control}
             isRtl={true}
@@ -485,7 +508,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
           <EnhancedInput
             helperText={errors.delivererPhone?.message as string}
             error={!!errors.delivererPhone}
-            label="شماره تلفن تحویل دهنده"
+            label="شماره تلفن تحویل دهنده (راننده)"
             name="delivererPhone"
             iconPosition="end"
             control={control}
@@ -493,13 +516,11 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             type="tel"
           />
         </Grid>
-
-        {/* ردیف چهارم - اطلاعات تحویل گیرنده */}
         <Grid size={{ xs: 12, md: 6 }}>
           <EnhancedInput
             helperText={errors.receiverName?.message as string}
             error={!!errors.receiverName}
-            label="نام تحویل گیرنده"
+            label="نام ترخیص کننده"
             enableSpeechToText={true}
             name="receiverName"
             iconPosition="end"
@@ -514,7 +535,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
               className={`custom-datepicker ${errors.deliveryDateTime ? "error" : ""}`}
               containerClassName="w-full custom-datepicker-container"
               onChange={(e: DateObject) => setDeliveryDate(e)}
-              placeholder="انتخاب تاریخ و زمان تحویل"
+              placeholder="انتخاب تاریخ و زمان ترخیص"
               calendarPosition="bottom-left"
               onOpenPickNewDate={false}
               locale={persian_fa}
@@ -533,8 +554,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             />
           </Box>
         </Grid>
-
-        {/* ردیف پنجم - توضیحات */}
         <Grid size={{ xs: 12 }}>
           <EnhancedInput
             helperText={errors.description?.message as string}
@@ -554,20 +573,52 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
           size={{ xs: 12, md: 12 }}
           sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
         >
-          <Button
-            type="submit"
-            variant="contained"
-            color="secondary"
-            size="large"
-            disabled={
-              (!watch("carId") &&
-                watch("carId") !== 0 &&
-                !watch("isReturnedVehicle")) ||
-              (isEditMode && !initialDataLoaded)
-            }
-          >
-            {isEditMode ? "بروزرسانی پذیرش" : "ثبت پذیرش"}
-          </Button>
+          {isEditMode ? (
+            <AccessGuard accessId={ACCESS_IDS.EDIT_REPAIR}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="secondary"
+                size="large"
+                disabled={
+                  (!watch("carId") &&
+                    watch("carId") !== 0 &&
+                    !watch("isReturnedVehicle")) ||
+                  (isEditMode && !initialDataLoaded)
+                }
+              >
+                {isEditMode ? "بروزرسانی پذیرش" : "ثبت پذیرش"}
+              </Button>
+            </AccessGuard>
+          ) : (
+            <Button
+              type="submit"
+              variant="contained"
+              color="secondary"
+              size="large"
+              disabled={
+                (!watch("carId") &&
+                  watch("carId") !== 0 &&
+                  !watch("isReturnedVehicle")) ||
+                (isEditMode && !initialDataLoaded)
+              }
+            >
+              {isEditMode ? "بروزرسانی پذیرش" : "ثبت پذیرش"}
+            </Button>
+          )}
+          <AccessGuard accessId={ACCESS_IDS.DISCHARGE_REPAIR_RECEPTION}>
+
+            <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{ ml: 3 }}
+              onClick={() => setShowDischargeConfirmDialog(true)}
+              disabled={!repairReceptionId}
+            >
+              ترخیص خودرو
+            </Button>
+          </AccessGuard>
         </Grid>
         {isEditMode || createRepairReceptionData?.isSuccess ? (
           <Grid size={{ xs: 12 }}>
@@ -644,6 +695,16 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         open={showNewPlateDialog}
         title="ثبت پلاک جدید"
         mode="add"
+      />
+      <ConfirmDialog
+        message="آیا از ترخیص این خودرو اطمینان دارید؟ این عمل قابل بازگشت نیست."
+        loading={isPendingDischargeRepairReception}
+        onConfirm={handleDischargeConfirm}
+        open={showDischargeConfirmDialog}
+        onCancel={handleDischargeCancel}
+        title="تأیید ترخیص خودرو"
+        confirmText="ترخیص خودرو"
+        cancelText="انصراف"
       />
     </form>
   );

@@ -28,8 +28,11 @@ import {
   Loading,
   Button,
 } from "@/components";
+import { useNavigate } from "react-router-dom";
+import dir from "@/Router/dir";
 
 const AddServiceAdmissionForm: FC = () => {
+  const navigate = useNavigate();
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
   const [showNewPlateDialog, setShowNewPlateDialog] = useState(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
@@ -116,14 +119,10 @@ const AddServiceAdmissionForm: FC = () => {
     onSuccess: (data: any) => {
       if (data?.isSuccess) {
         toast.success(data?.message);
-        setRepairReceptionId(data?.data?.id);
-        reset();
-        // Reset reception date to today
-        const now = new Date();
-        setReceptionDate(new DateObject({
-          calendar: persian,
-          date: now,
-        }));
+        navigate({
+          pathname: `${dir.serviceAdmission}`,
+          search: `repairReceptionId=${data?.data?.id}`,
+        });
       } else {
         toast?.error(data?.message);
       }
@@ -164,24 +163,23 @@ const AddServiceAdmissionForm: FC = () => {
   const onSubmit = () => {
     mutateAsyncCreateRepairReception({
       repairReception: {
-        customerId: watch("customerId"),
-        carId: watch("carId"),
-        // New fields
         customerEstimatedTime: watch("customerEstimatedTime"),
         delivererPhone: watch("delivererPhone"),
+        carKilometers: watch("carKilometers"),
+        delivererName: watch("delivererName"),
+        receiverName: watch("receiverName"),
+        description: watch("description"),
+        customerId: watch("customerId"),
         deliveryDateTime: deliveryDate
           ?.convert(gregorian, gregorian_en)
           .format("YYYY-MM-DDTHH:mm:ss")
           .toString(),
-        carKilometers: watch("carKilometers"),
-        delivererName: watch("delivererName"),
-        receiverName: watch("receiverName"),
         receptionDateTime: receptionDate
           ?.convert(gregorian, gregorian_en)
           .format("YYYY-MM-DDTHH:mm:ss")
           .toString(),
-        description: watch("description"),
         carColor: watch("carColor"),
+        carId: watch("carId"),
       },
     });
   };
@@ -280,8 +278,8 @@ const AddServiceAdmissionForm: FC = () => {
           <EnhancedInput
             helperText={errors.customerEstimatedTime?.message as string}
             error={!!errors.customerEstimatedTime}
+            label="زمان تخمینی مشتری (روز)"
             name="customerEstimatedTime"
-            label="زمان تخمینی (روز)"
             enableSpeechToText={true}
             iconPosition="end"
             control={control}
@@ -321,7 +319,7 @@ const AddServiceAdmissionForm: FC = () => {
             helperText={errors.delivererName?.message as string}
             error={!!errors.delivererName}
             enableSpeechToText={true}
-            label="نام تحویل دهنده"
+            label="نام تحویل دهنده (راننده)"
             name="delivererName"
             iconPosition="end"
             control={control}
@@ -333,7 +331,7 @@ const AddServiceAdmissionForm: FC = () => {
           <EnhancedInput
             helperText={errors.delivererPhone?.message as string}
             error={!!errors.delivererPhone}
-            label="شماره تلفن تحویل دهنده"
+            label="شماره تلفن تحویل دهنده (راننده)"
             enableSpeechToText={true}
             name="delivererPhone"
             iconPosition="end"
@@ -349,7 +347,7 @@ const AddServiceAdmissionForm: FC = () => {
             helperText={errors.receiverName?.message as string}
             error={!!errors.receiverName}
             enableSpeechToText={true}
-            label="نام تحویل گیرنده"
+            label="نام ترخیص کننده"
             name="receiverName"
             iconPosition="end"
             control={control}
@@ -363,7 +361,7 @@ const AddServiceAdmissionForm: FC = () => {
               className={`custom-datepicker ${errors.deliveryDateTime ? "error" : ""}`}
               containerClassName="w-full custom-datepicker-container"
               onChange={(e: DateObject) => setDeliveryDate(e)}
-              placeholder="انتخاب تاریخ و زمان تحویل"
+              placeholder="انتخاب تاریخ و زمان ترخیص"
               calendarPosition="bottom-left"
               onOpenPickNewDate={false}
               format="YYYY/MM/DD HH:mm"
@@ -400,7 +398,7 @@ const AddServiceAdmissionForm: FC = () => {
           />
         </Grid>
         <Grid
-          size={{ xs: 12, md: 4 }}
+          size={{ xs: 12, md: 12 }}
           sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}
         >
           <AccessGuard accessId={ACCESS_IDS.ADMISSION}>
