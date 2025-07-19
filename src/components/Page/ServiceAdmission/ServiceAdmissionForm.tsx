@@ -1,4 +1,4 @@
-import { Box, Grid2 as Grid, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Grid2 as Grid, Tab, Tabs, Typography, Divider } from "@mui/material";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import gregorian_en from "react-date-object/locales/gregorian_en";
 import DatePicker, { DateObject } from "react-multi-date-picker";
@@ -77,18 +77,22 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       customerId: undefined,
       carId: undefined,
       files: [],
-      // New fields default values
+      // Updated fields default values
       customerEstimatedTime: undefined,
-      delivererPhone: "",
-      deliveryDateTime: undefined,
       carKilometers: undefined,
-      delivererName: "",
-      receiverName: "",
-      receptionDateTime: undefined,
       description: "",
       carColor: "",
+      receiverNameAtReception: "",
+      receptionDateTime: undefined,
+      driverNameAtDelivery: "",
+      driverPhoneAtDelivery: "",
+      staffNameAtReturn: "",
+      returnDateTime: undefined,
+      customerNameAtReturn: "",
+      customerPhoneAtReturn: "",
     },
   });
+
   const {
     mutateAsync: fetchRepairReception,
     isPending: isFetchingRepairReception,
@@ -101,25 +105,28 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         setValue("carId", repairData.carId);
         // Set new field values
         setValue("customerEstimatedTime", repairData.customerEstimatedTime);
-        setValue("delivererPhone", repairData.delivererPhone);
+        setValue("driverPhoneAtDelivery", repairData.driverPhoneAtDelivery);
         setValue("carKilometers", repairData.carKilometers);
-        setValue("delivererName", repairData.delivererName);
-        setValue("receiverName", repairData.receiverName);
+        setValue("driverNameAtDelivery", repairData.driverNameAtDelivery);
+        setValue("receiverNameAtReception", repairData.receiverNameAtReception);
         setValue("description", repairData.description);
         setValue("carColor", repairData.carColor);
+        setValue("staffNameAtReturn", repairData.staffNameAtReturn);
+        setValue("customerNameAtReturn", repairData.customerNameAtReturn);
+        setValue("customerPhoneAtReturn", repairData.customerPhoneAtReturn);
 
         // Set date picker values
-        if (repairData.deliveryDateTime) {
+        if (repairData.returnDateTime) {
           let deliveryDateValue;
-          if (repairData.deliveryDateTime.includes("T")) {
+          if (repairData.returnDateTime.includes("T")) {
             deliveryDateValue = new DateObject({
               calendar: persian,
-              date: new Date(repairData.deliveryDateTime),
+              date: new Date(repairData.returnDateTime),
             });
           } else {
             deliveryDateValue = new DateObject({
               calendar: persian,
-              date: new Date(repairData.deliveryDateTime),
+              date: new Date(repairData.returnDateTime),
             });
           }
           setDeliveryDate(deliveryDateValue);
@@ -158,6 +165,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
+
   const { mutateAsync: searchCustomers, isPending: isSearchingCustomers } =
     useMutation({
       mutationFn: getCustomers,
@@ -169,6 +177,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         setCustomerOptions(customerOptions || []);
       },
     });
+
   const {
     mutateAsync: mutateAsyncCustomerCars,
     isPending: isPendingCustomerCars,
@@ -186,6 +195,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
+
   const {
     mutateAsync: mutateAsyncCreateRepairReception,
     isPending: isPendingCreateRepairReception,
@@ -221,6 +231,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
+
   const {
     mutateAsync: mutateAsyncDischargeRepairReception,
     isPending: isPendingDischargeRepairReception,
@@ -234,11 +245,13 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     },
   });
+
   const handleCustomerChange = (value: any) => {
     if (value?.value) {
       mutateAsyncCustomerCars(value.value);
     }
   };
+
   const handleCustomerSearch = (searchText: string) => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -260,12 +273,15 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   const handleDischargeCancel = () => {
     setShowDischargeConfirmDialog(false);
   };
+
   const handleAddNewPlate = () => {
     setShowNewPlateDialog(true);
   };
+
   const handleCloseNewPlateDialog = () => {
     setShowNewPlateDialog(false);
   };
+
   const handlePlateSuccess = () => {
     const customerId = watch("customerId");
     if (customerId) {
@@ -276,6 +292,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
+
   const onSubmit = () => {
     if (isEditMode && repairReceptionId) {
       mutateAsyncUpdateRepairReception({
@@ -283,22 +300,25 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
           repairReceptionId: Number(repairReceptionId),
           customerId: watch("customerId"),
           carId: watch("carId"),
-          // New fields
+          // Updated fields
           customerEstimatedTime: watch("customerEstimatedTime"),
-          delivererPhone: watch("delivererPhone"),
-          deliveryDateTime: deliveryDate
+          driverPhoneAtDelivery: watch("driverPhoneAtDelivery"),
+          returnDateTime: deliveryDate
             ?.convert(gregorian, gregorian_en)
             .format("YYYY-MM-DDTHH:mm:ss")
             .toString(),
           carKilometers: watch("carKilometers"),
-          delivererName: watch("delivererName"),
-          receiverName: watch("receiverName"),
+          driverNameAtDelivery: watch("driverNameAtDelivery"),
+          receiverNameAtReception: watch("receiverNameAtReception"),
           receptionDateTime: receptionDate
             ?.convert(gregorian, gregorian_en)
             .format("YYYY-MM-DDTHH:mm:ss")
             .toString(),
           description: watch("description"),
           carColor: watch("carColor"),
+          staffNameAtReturn: watch("staffNameAtReturn"),
+          customerNameAtReturn: watch("customerNameAtReturn"),
+          customerPhoneAtReturn: watch("customerPhoneAtReturn"),
         },
       });
     } else {
@@ -306,26 +326,30 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         repairReception: {
           customerId: watch("customerId"),
           carId: watch("carId"),
-          // New fields
+          // Updated fields
           customerEstimatedTime: watch("customerEstimatedTime"),
-          delivererPhone: watch("delivererPhone"),
-          deliveryDateTime: deliveryDate
+          driverPhoneAtDelivery: watch("driverPhoneAtDelivery"),
+          returnDateTime: deliveryDate
             ?.convert(gregorian, gregorian_en)
             .format("YYYY-MM-DDTHH:mm:ss")
             .toString(),
           carKilometers: watch("carKilometers"),
-          delivererName: watch("delivererName"),
-          receiverName: watch("receiverName"),
+          driverNameAtDelivery: watch("driverNameAtDelivery"),
+          receiverNameAtReception: watch("receiverNameAtReception"),
           receptionDateTime: receptionDate
             ?.convert(gregorian, gregorian_en)
             .format("YYYY-MM-DDTHH:mm:ss")
             .toString(),
           description: watch("description"),
           carColor: watch("carColor"),
+          staffNameAtReturn: watch("staffNameAtReturn"),
+          customerNameAtReturn: watch("customerNameAtReturn"),
+          customerPhoneAtReturn: watch("customerPhoneAtReturn"),
         },
       });
     }
   };
+
   useEffect(() => {
     if (repairReceptionId) {
       setIsEditMode(true);
@@ -343,16 +367,19 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         customerId: undefined,
         carId: undefined,
         files: [],
-        // Reset new fields
+        // Reset updated fields
         customerEstimatedTime: undefined,
-        delivererPhone: "",
-        deliveryDateTime: undefined,
         carKilometers: undefined,
-        delivererName: "",
-        receiverName: "",
-        receptionDateTime: undefined,
         description: "",
         carColor: "",
+        receiverNameAtReception: "",
+        receptionDateTime: undefined,
+        driverNameAtDelivery: "",
+        driverPhoneAtDelivery: "",
+        staffNameAtReturn: "",
+        returnDateTime: undefined,
+        customerNameAtReturn: "",
+        customerPhoneAtReturn: "",
       });
       // Reset reception date to today
       const now = new Date();
@@ -363,6 +390,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       setInitialDataLoaded(false);
     }
   }, [repairReceptionId, isEditMode, fetchRepairReception, reset]);
+
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
@@ -370,6 +398,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       }
     };
   }, []);
+
   const isLoading =
     isPendingDischargeRepairReception ||
     isPendingCreateRepairReception ||
@@ -379,8 +408,8 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       {isLoading && <Loading />}
-      <Grid container spacing={4}>
-        <Grid size={{ xs: 12, md: 4 }}>
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <EnhancedSelect
             helperText={errors.customerId?.message as string}
             loading={isSearchingCustomers}
@@ -397,27 +426,28 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             storeValueOnly={true}
             onChange={handleCustomerChange}
             onInputChange={handleCustomerSearch}
+            size="small"
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <EnhancedSelect
             helperText={errors.carId?.message as string}
             onInputChange={(value) => {
               console.log("Vehicle search input:", value);
             }}
-            placeholder="جستجوی پلاک خودرو"
+            placeholder="جستجوی پلاک"
             error={!!errors.carId}
             loading={isPendingCustomerCars}
             options={customerVehicles}
             control={control}
             storeValueOnly={true}
-            enableSpeechToText
             searchable={true}
-            label="پلاک خودرو"
+            label="پلاک"
             name="carId"
             isRtl
+            size="small"
           />
-          <Box className="mb-2 flex justify-end mt-2 items-center">
+          <Box className="mb-2 flex justify-end mt-1 items-center">
             <Button
               disabled={watch("customerId") === undefined}
               onClick={handleAddNewPlate}
@@ -429,13 +459,27 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             </Button>
           </Box>
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+          <EnhancedInput
+            helperText={errors.carColor?.message as string}
+            error={!!errors.carColor}
+            iconPosition="end"
+            label="رنگ"
+            control={control}
+            name="carColor"
+            disabled={true}
+            isRtl={true}
+            type="text"
+            size="small"
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <Box>
             <DatePicker
               className={`custom-datepicker ${errors.receptionDateTime ? "error" : ""}`}
               containerClassName="w-full custom-datepicker-container"
               onChange={(e: DateObject) => setReceptionDate(e)}
-              placeholder="انتخاب تاریخ و زمان پذیرش"
+              placeholder="تاریخ و زمان پذیرش"
               calendarPosition="bottom-left"
               onOpenPickNewDate={false}
               locale={persian_fa}
@@ -449,93 +493,96 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
               ]}
               style={{
                 width: "100%",
-                height: "56px",
+                height: "45px",
               }}
             />
           </Box>
         </Grid>
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 1 }}>
           <EnhancedInput
             helperText={errors.customerEstimatedTime?.message as string}
             error={!!errors.customerEstimatedTime}
-            label="زمان تخمینی مشتری (روز)"
+            label="زمان تخمینی (روز)"
             name="customerEstimatedTime"
             iconPosition="end"
             control={control}
             type="number"
             isRtl={true}
+            size="small"
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 2 }}>
           <EnhancedInput
             helperText={errors.carKilometers?.message as string}
             error={!!errors.carKilometers}
-            label="کیلومتر خودرو"
+            label="کیلومتر"
             name="carKilometers"
             iconPosition="end"
             control={control}
             type="number"
             isRtl={true}
+            size="small"
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <EnhancedInput
-            helperText={errors.carColor?.message as string}
-            error={!!errors.carColor}
-            iconPosition="end"
-            label="رنگ خودرو"
-            control={control}
-            name="carColor"
-            disabled={true}
-            isRtl={true}
-            type="text"
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <EnhancedInput
-            helperText={errors.delivererName?.message as string}
-            error={!!errors.delivererName}
+            helperText={errors.driverNameAtDelivery?.message as string}
+            error={!!errors.driverNameAtDelivery}
             enableSpeechToText={true}
-            name="delivererName"
-            label="نام تحویل دهنده (راننده)"
+            name="driverNameAtDelivery"
+            label="نام راننده تحویل دهنده"
             iconPosition="end"
             control={control}
             isRtl={true}
             type="text"
+            size="small"
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <EnhancedInput
-            helperText={errors.delivererPhone?.message as string}
-            error={!!errors.delivererPhone}
-            label="شماره تلفن تحویل دهنده (راننده)"
-            name="delivererPhone"
+            helperText={errors.driverPhoneAtDelivery?.message as string}
+            error={!!errors.driverPhoneAtDelivery}
+            label="تلفن راننده تحویل دهنده"
+            name="driverPhoneAtDelivery"
             iconPosition="end"
             control={control}
             isRtl={true}
             type="tel"
+            size="small"
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <EnhancedInput
-            helperText={errors.receiverName?.message as string}
-            error={!!errors.receiverName}
-            label="نام ترخیص کننده"
+            helperText={errors.receiverNameAtReception?.message as string}
+            error={!!errors.receiverNameAtReception}
+            label="نام تحویل گیرنده پذیرش"
             enableSpeechToText={true}
-            name="receiverName"
+            name="receiverNameAtReception"
             iconPosition="end"
             control={control}
             isRtl={true}
             type="text"
+            size="small"
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
+
+        {/* جداکننده بین بخش پذیرش و ترخیص */}
+        <Grid size={{ xs: 12 }}>
+          <Divider sx={{ my: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              اطلاعات ترخیص
+            </Typography>
+          </Divider>
+        </Grid>
+
+        {/* بخش ترخیص - اطلاعات تحویل به مشتری */}
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <Box>
             <DatePicker
-              className={`custom-datepicker ${errors.deliveryDateTime ? "error" : ""}`}
+              className={`custom-datepicker ${errors.returnDateTime ? "error" : ""}`}
               containerClassName="w-full custom-datepicker-container"
               onChange={(e: DateObject) => setDeliveryDate(e)}
-              placeholder="انتخاب تاریخ و زمان ترخیص"
+              placeholder="تاریخ و زمان ترخیص"
               calendarPosition="bottom-left"
               onOpenPickNewDate={false}
               locale={persian_fa}
@@ -549,11 +596,64 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
               ]}
               style={{
                 width: "100%",
-                height: "56px",
+                height: "45px",
               }}
             />
           </Box>
         </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+          <EnhancedInput
+            helperText={errors.staffNameAtReturn?.message as string}
+            error={!!errors.staffNameAtReturn}
+            enableSpeechToText={true}
+            label="نام کارمند ترخیص"
+            name="staffNameAtReturn"
+            iconPosition="end"
+            control={control}
+            isRtl={true}
+            type="text"
+            size="small"
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+          <EnhancedInput
+            helperText={errors.customerNameAtReturn?.message as string}
+            error={!!errors.customerNameAtReturn}
+            enableSpeechToText={true}
+            label="نام مشتری تحویل گیرنده"
+            name="customerNameAtReturn"
+            iconPosition="end"
+            control={control}
+            isRtl={true}
+            type="text"
+            size="small"
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+          <EnhancedInput
+            helperText={errors.customerPhoneAtReturn?.message as string}
+            error={!!errors.customerPhoneAtReturn}
+            enableSpeechToText={true}
+            label="تلفن مشتری تحویل گیرنده"
+            name="customerPhoneAtReturn"
+            iconPosition="end"
+            control={control}
+            isRtl={true}
+            type="tel"
+            size="small"
+          />
+        </Grid>
+
+        {/* جداکننده برای توضیحات */}
+        <Grid size={{ xs: 12 }}>
+          <Divider sx={{ my: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              توضیحات
+            </Typography>
+          </Divider>
+        </Grid>
+
+        {/* بخش توضیحات */}
         <Grid size={{ xs: 12 }}>
           <EnhancedInput
             helperText={errors.description?.message as string}
@@ -567,6 +667,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             control={control}
             isTextArea
             rows={3}
+            size="small"
           />
         </Grid>
         <Grid
@@ -607,7 +708,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             </Button>
           )}
           <AccessGuard accessId={ACCESS_IDS.DISCHARGE_REPAIR_RECEPTION}>
-
             <Button
               variant="contained"
               color="secondary"
@@ -676,8 +776,8 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
                   <Box className="mt-4">
                     <Typography variant="h6" className="mb-2">
                       آپلود فایل
-                      <UploaderDocs repairReceptionId={repairReceptionId} />
                     </Typography>
+                    <UploaderDocs repairReceptionId={repairReceptionId} />
                   </Box>
                 </Grid>
               </Box>

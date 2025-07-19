@@ -1,4 +1,4 @@
-import { Box, Grid2 as Grid, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Grid2 as Grid, Tab, Tabs, Typography, Divider } from "@mui/material";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import gregorian_en from "react-date-object/locales/gregorian_en";
 import DatePicker, { DateObject } from "react-multi-date-picker";
@@ -69,16 +69,19 @@ const AddServiceAdmissionForm: FC = () => {
       customerId: undefined,
       carId: undefined,
       files: [],
-      // New fields default values
+      // Updated fields default values
       customerEstimatedTime: undefined,
-      delivererPhone: "",
-      deliveryDateTime: undefined,
       carKilometers: undefined,
-      delivererName: "",
-      receiverName: "",
-      receptionDateTime: undefined,
       description: "",
       carColor: "",
+      receiverNameAtReception: "",
+      receptionDateTime: undefined,
+      driverNameAtDelivery: "",
+      driverPhoneAtDelivery: "",
+      staffNameAtReturn: "",
+      returnDateTime: undefined,
+      customerNameAtReturn: "",
+      customerPhoneAtReturn: "",
     },
   });
 
@@ -164,13 +167,13 @@ const AddServiceAdmissionForm: FC = () => {
     mutateAsyncCreateRepairReception({
       repairReception: {
         customerEstimatedTime: watch("customerEstimatedTime"),
-        delivererPhone: watch("delivererPhone"),
+        driverPhoneAtDelivery: watch("driverPhoneAtDelivery"),
         carKilometers: watch("carKilometers"),
-        delivererName: watch("delivererName"),
-        receiverName: watch("receiverName"),
+        driverNameAtDelivery: watch("driverNameAtDelivery"),
+        receiverNameAtReception: watch("receiverNameAtReception"),
         description: watch("description"),
         customerId: watch("customerId"),
-        deliveryDateTime: deliveryDate
+        returnDateTime: deliveryDate
           ?.convert(gregorian, gregorian_en)
           .format("YYYY-MM-DDTHH:mm:ss")
           .toString(),
@@ -180,6 +183,9 @@ const AddServiceAdmissionForm: FC = () => {
           .toString(),
         carColor: watch("carColor"),
         carId: watch("carId"),
+        staffNameAtReturn: watch("staffNameAtReturn"),
+        customerNameAtReturn: watch("customerNameAtReturn"),
+        customerPhoneAtReturn: watch("customerPhoneAtReturn"),
       },
     });
   };
@@ -196,9 +202,9 @@ const AddServiceAdmissionForm: FC = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       {isLoading && <Loading />}
-      <Grid container spacing={4}>
-        {/* ردیف اول - مشتری، پلاک و تاریخ پذیرش */}
-        <Grid size={{ xs: 12, md: 4 }}>
+      <Grid container spacing={2}>
+        {/* ردیف اول - مشتری، پلاک، رنگ و تاریخ پذیرش */}
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <EnhancedSelect
             helperText={errors.customerId?.message as string}
             onInputChange={handleCustomerSearch}
@@ -215,27 +221,28 @@ const AddServiceAdmissionForm: FC = () => {
             disabled={false}
             label="مشتری"
             isRtl={true}
+            size="small"
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <EnhancedSelect
             helperText={errors.carId?.message as string}
             onInputChange={(value) => {
               console.log("Vehicle search input:", value);
             }}
-            placeholder="جستجوی پلاک خودرو"
+            placeholder="جستجوی پلاک"
             loading={isPendingCustomerCars}
             options={customerVehicles}
             error={!!errors.carId}
             storeValueOnly={true}
-            enableSpeechToText
-            label="پلاک خودرو"
             control={control}
             searchable={true}
+            label="پلاک"
             name="carId"
+            size="small"
             isRtl
           />
-          <Box className="mb-2 flex justify-end mt-2 items-center">
+          <Box className="mb-2 flex justify-end mt-1 items-center">
             <Button
               disabled={watch("customerId") === undefined}
               onClick={handleAddNewPlate}
@@ -247,13 +254,27 @@ const AddServiceAdmissionForm: FC = () => {
             </Button>
           </Box>
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+          <EnhancedInput
+            helperText={errors.carColor?.message as string}
+            error={!!errors.carColor}
+            iconPosition="end"
+            label="رنگ"
+            control={control}
+            name="carColor"
+            disabled={true}
+            isRtl={true}
+            type="text"
+            size="small"
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <Box>
             <DatePicker
               className={`custom-datepicker ${errors.receptionDateTime ? "error" : ""}`}
               containerClassName="w-full custom-datepicker-container"
               onChange={(e: DateObject) => setReceptionDate(e)}
-              placeholder="انتخاب تاریخ و زمان پذیرش"
+              placeholder="تاریخ و زمان پذیرش"
               calendarPosition="bottom-left"
               onOpenPickNewDate={false}
               format="YYYY/MM/DD HH:mm"
@@ -267,101 +288,100 @@ const AddServiceAdmissionForm: FC = () => {
               ]}
               style={{
                 width: "100%",
-                height: "56px",
+                height: "45px",
               }}
             />
           </Box>
         </Grid>
 
         {/* ردیف دوم - فیلدهای کوچک */}
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 1 }}>
           <EnhancedInput
             helperText={errors.customerEstimatedTime?.message as string}
             error={!!errors.customerEstimatedTime}
-            label="زمان تخمینی مشتری (روز)"
+            label="زمان تخمینی"
             name="customerEstimatedTime"
-            enableSpeechToText={true}
             iconPosition="end"
             control={control}
             type="number"
             isRtl={true}
+            size="small"
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 2 }}>
           <EnhancedInput
             helperText={errors.carKilometers?.message as string}
             error={!!errors.carKilometers}
-            enableSpeechToText={true}
             name="carKilometers"
-            label="کیلومتر خودرو"
+            label="کیلومتر"
             iconPosition="end"
             control={control}
             type="number"
             isRtl={true}
+            size="small"
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 3 }}>
-          <EnhancedInput
-            helperText={errors.carColor?.message as string}
-            error={!!errors.carColor}
-            iconPosition="end"
-            label="رنگ خودرو"
-            control={control}
-            name="carColor"
-            disabled={true}
-            isRtl={true}
-            type="text"
-          />
-        </Grid>
+        
         {/* ردیف سوم - اطلاعات تحویل دهنده */}
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <EnhancedInput
-            helperText={errors.delivererName?.message as string}
-            error={!!errors.delivererName}
+            helperText={errors.driverNameAtDelivery?.message as string}
+            error={!!errors.driverNameAtDelivery}
             enableSpeechToText={true}
-            label="نام تحویل دهنده (راننده)"
-            name="delivererName"
+            label="نام راننده تحویل دهنده"
+            name="driverNameAtDelivery"
             iconPosition="end"
             control={control}
             isRtl={true}
             type="text"
+            size="small"
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <EnhancedInput
-            helperText={errors.delivererPhone?.message as string}
-            error={!!errors.delivererPhone}
-            label="شماره تلفن تحویل دهنده (راننده)"
-            enableSpeechToText={true}
-            name="delivererPhone"
+            helperText={errors.driverPhoneAtDelivery?.message as string}
+            error={!!errors.driverPhoneAtDelivery}
+            label="تلفن راننده تحویل دهنده"
+            name="driverPhoneAtDelivery"
             iconPosition="end"
             control={control}
             isRtl={true}
             type="tel"
+            size="small"
           />
         </Grid>
-
-        {/* ردیف چهارم - اطلاعات تحویل گیرنده */}
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <EnhancedInput
-            helperText={errors.receiverName?.message as string}
-            error={!!errors.receiverName}
+            helperText={errors.receiverNameAtReception?.message as string}
+            error={!!errors.receiverNameAtReception}
             enableSpeechToText={true}
-            label="نام ترخیص کننده"
-            name="receiverName"
+            label="نام تحویل گیرنده پذیرش"
+            name="receiverNameAtReception"
             iconPosition="end"
             control={control}
             isRtl={true}
             type="text"
+            size="small"
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
+
+        {/* جداکننده بین بخش پذیرش و ترخیص */}
+        <Grid size={{ xs: 12 }}>
+          <Divider sx={{ my: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              اطلاعات ترخیص
+            </Typography>
+          </Divider>
+        </Grid>
+
+        {/* بخش ترخیص - اطلاعات تحویل به مشتری */}
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <Box>
             <DatePicker
-              className={`custom-datepicker ${errors.deliveryDateTime ? "error" : ""}`}
+              className={`custom-datepicker ${errors.returnDateTime ? "error" : ""}`}
               containerClassName="w-full custom-datepicker-container"
               onChange={(e: DateObject) => setDeliveryDate(e)}
-              placeholder="انتخاب تاریخ و زمان ترخیص"
+              placeholder="تاریخ و زمان ترخیص"
               calendarPosition="bottom-left"
               onOpenPickNewDate={false}
               format="YYYY/MM/DD HH:mm"
@@ -375,13 +395,64 @@ const AddServiceAdmissionForm: FC = () => {
               ]}
               style={{
                 width: "100%",
-                height: "56px",
+                height: "45px",
               }}
             />
           </Box>
         </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+          <EnhancedInput
+            helperText={errors.staffNameAtReturn?.message as string}
+            error={!!errors.staffNameAtReturn}
+            enableSpeechToText={true}
+            label="نام کارمند ترخیص"
+            name="staffNameAtReturn"
+            iconPosition="end"
+            control={control}
+            isRtl={true}
+            type="text"
+            size="small"
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+          <EnhancedInput
+            helperText={errors.customerNameAtReturn?.message as string}
+            error={!!errors.customerNameAtReturn}
+            enableSpeechToText={true}
+            label="نام مشتری تحویل گیرنده"
+            name="customerNameAtReturn"
+            iconPosition="end"
+            control={control}
+            isRtl={true}
+            type="text"
+            size="small"
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+          <EnhancedInput
+            helperText={errors.customerPhoneAtReturn?.message as string}
+            error={!!errors.customerPhoneAtReturn}
+            enableSpeechToText={true}
+            label="تلفن مشتری تحویل گیرنده"
+            name="customerPhoneAtReturn"
+            iconPosition="end"
+            control={control}
+            isRtl={true}
+            type="tel"
+            size="small"
+          />
+        </Grid>
 
-        {/* ردیف پنجم - توضیحات */}
+        {/* جداکننده برای توضیحات */}
+        <Grid size={{ xs: 12 }}>
+          <Divider sx={{ my: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              توضیحات
+            </Typography>
+          </Divider>
+        </Grid>
+
+        {/* بخش توضیحات */}
         <Grid size={{ xs: 12 }}>
           <EnhancedInput
             helperText={errors.description?.message as string}
@@ -395,6 +466,7 @@ const AddServiceAdmissionForm: FC = () => {
             type="text"
             isTextArea
             rows={3}
+            size="small"
           />
         </Grid>
         <Grid

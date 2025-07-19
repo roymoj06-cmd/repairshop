@@ -33,31 +33,21 @@ interface IUpdateRepairReceptionByProblem {
 }
 interface IUpdateRepairReception {
   repairReception: {
+    receiverNameAtReception?: string;
+    driverPhoneAtDelivery?: string;
+    customerPhoneAtReturn?: string;
     customerEstimatedTime?: number;
-    repairReceptionId?: number;
-    receptionDateTime?: Date;
-    delivererPhone?: string;
-    deliveryDateTime?: Date;
+    driverNameAtDelivery?: string;
+    customerNameAtReturn?: string;
+    receptionDateTime?: string;
+    staffNameAtReturn?: string;
+    returnDateTime?: string;
     carKilometers?: number;
-    delivererName?: string;
-    receiverName?: string;
-    receptionDate?: Date;
     description?: string;
-    customerId?: number;
-    // fileIds: number[];
+    customerId: number;
     carColor?: string;
-    carId?: number;
-    details?: {
-      repairReceptionDetailId?: number;
-      overridedUnitPrice?: number;
-      isCustomerOwner?: boolean;
-      productId?: number;
-      barcodeId?: number;
-      unitPrice?: number;
-      mechanic?: string;
-      scanCode?: string;
-      qty?: number;
-    }[];
+    carId: number;
+    repairReceptionId?: number;
   }
 }
 interface IUpdateCarRepair {
@@ -182,16 +172,19 @@ interface IServiceAdmissionForm {
   carType: string;
   files: File[];
   carId: number;
-  // New fields for service admission
+  // Updated fields based on new model
   customerEstimatedTime?: number;
-  delivererPhone?: string;
-  deliveryDateTime?: Date;
   carKilometers?: number;
-  delivererName?: string;
-  receiverName?: string;
-  receptionDateTime?: Date;
   description?: string;
   carColor?: string;
+  receiverNameAtReception?: string;
+  receptionDateTime?: Date;
+  driverNameAtDelivery?: string;
+  driverPhoneAtDelivery?: string;
+  staffNameAtReturn?: string;
+  returnDateTime?: Date;
+  customerNameAtReturn?: string;
+  customerPhoneAtReturn?: string;
 }
 interface IGetAllRepairServices {
   commissionPercent: number;
