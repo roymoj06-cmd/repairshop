@@ -7,8 +7,8 @@ import gregorian from "react-date-object/calendars/gregorian";
 import persian from "react-date-object/calendars/persian";
 import { FC, useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Add } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
+import { Add } from "@mui/icons-material";
 import { toast } from "react-toastify";
 
 import { useAccessControl, ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
@@ -409,43 +409,43 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
     <form onSubmit={handleSubmit(onSubmit)}>
       {isLoading && <Loading />}
       <Grid container spacing={2}>
-        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+        <Grid size={{ xs: 12, md: 6, lg: 3 }}>
           <EnhancedSelect
             helperText={errors.customerId?.message as string}
+            onInputChange={handleCustomerSearch}
+            onChange={handleCustomerChange}
             loading={isSearchingCustomers}
             error={!!errors.customerId}
             options={customerOptions}
             enableSpeechToText={true}
+            storeValueOnly={true}
             iconPosition="end"
             searchable={true}
             name="customerId"
+            control={control}
             disabled={false}
             label="مشتری"
             isRtl={true}
-            control={control}
-            storeValueOnly={true}
-            onChange={handleCustomerChange}
-            onInputChange={handleCustomerSearch}
             size="small"
           />
         </Grid>
-        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+        <Grid size={{ xs: 12, md: 6, lg: 3 }}>
           <EnhancedSelect
             helperText={errors.carId?.message as string}
             onInputChange={(value) => {
               console.log("Vehicle search input:", value);
             }}
-            placeholder="جستجوی پلاک"
-            error={!!errors.carId}
             loading={isPendingCustomerCars}
             options={customerVehicles}
-            control={control}
+            placeholder="جستجوی پلاک"
+            error={!!errors.carId}
             storeValueOnly={true}
+            control={control}
             searchable={true}
             label="پلاک"
             name="carId"
-            isRtl
             size="small"
+            isRtl
           />
           <Box className="mb-2 flex justify-end mt-1 items-center">
             <Button
@@ -530,7 +530,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             error={!!errors.driverNameAtDelivery}
             enableSpeechToText={true}
             name="driverNameAtDelivery"
-            label="نام راننده تحویل دهنده"
+            label="نام تحویل دهنده"
             iconPosition="end"
             control={control}
             isRtl={true}
@@ -542,7 +542,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
           <EnhancedInput
             helperText={errors.driverPhoneAtDelivery?.message as string}
             error={!!errors.driverPhoneAtDelivery}
-            label="تلفن راننده تحویل دهنده"
+            label="تلفن تحویل دهنده"
             name="driverPhoneAtDelivery"
             iconPosition="end"
             control={control}
@@ -555,7 +555,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
           <EnhancedInput
             helperText={errors.receiverNameAtReception?.message as string}
             error={!!errors.receiverNameAtReception}
-            label="نام تحویل گیرنده پذیرش"
+            label="نام پذیرش کننده"
             enableSpeechToText={true}
             name="receiverNameAtReception"
             iconPosition="end"
@@ -606,7 +606,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             helperText={errors.staffNameAtReturn?.message as string}
             error={!!errors.staffNameAtReturn}
             enableSpeechToText={true}
-            label="نام کارمند ترخیص"
+            label="ترخیص کننده"
             name="staffNameAtReturn"
             iconPosition="end"
             control={control}
@@ -620,7 +620,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             helperText={errors.customerNameAtReturn?.message as string}
             error={!!errors.customerNameAtReturn}
             enableSpeechToText={true}
-            label="نام مشتری تحویل گیرنده"
+            label="نام تحویل گیرنده"
             name="customerNameAtReturn"
             iconPosition="end"
             control={control}
@@ -634,7 +634,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             helperText={errors.customerPhoneAtReturn?.message as string}
             error={!!errors.customerPhoneAtReturn}
             enableSpeechToText={true}
-            label="تلفن مشتری تحویل گیرنده"
+            label="تلفن تحویل گیرنده"
             name="customerPhoneAtReturn"
             iconPosition="end"
             control={control}

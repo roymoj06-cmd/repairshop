@@ -204,7 +204,7 @@ const AddServiceAdmissionForm: FC = () => {
       {isLoading && <Loading />}
       <Grid container spacing={2}>
         {/* ردیف اول - مشتری، پلاک، رنگ و تاریخ پذیرش */}
-        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+        <Grid size={{ xs: 12, md: 6, lg: 3 }}>
           <EnhancedSelect
             helperText={errors.customerId?.message as string}
             onInputChange={handleCustomerSearch}
@@ -224,7 +224,7 @@ const AddServiceAdmissionForm: FC = () => {
             size="small"
           />
         </Grid>
-        <Grid size={{ xs: 6, md: 6, lg: 3 }}>
+        <Grid size={{ xs: 12, md: 6, lg: 3 }}>
           <EnhancedSelect
             helperText={errors.carId?.message as string}
             onInputChange={(value) => {
@@ -321,14 +321,14 @@ const AddServiceAdmissionForm: FC = () => {
             size="small"
           />
         </Grid>
-        
+
         {/* ردیف سوم - اطلاعات تحویل دهنده */}
         <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <EnhancedInput
             helperText={errors.driverNameAtDelivery?.message as string}
             error={!!errors.driverNameAtDelivery}
             enableSpeechToText={true}
-            label="نام راننده تحویل دهنده"
+            label="نام تحویل دهنده"
             name="driverNameAtDelivery"
             iconPosition="end"
             control={control}
@@ -341,7 +341,7 @@ const AddServiceAdmissionForm: FC = () => {
           <EnhancedInput
             helperText={errors.driverPhoneAtDelivery?.message as string}
             error={!!errors.driverPhoneAtDelivery}
-            label="تلفن راننده تحویل دهنده"
+            label="تلفن تحویل دهنده"
             name="driverPhoneAtDelivery"
             iconPosition="end"
             control={control}
@@ -355,7 +355,7 @@ const AddServiceAdmissionForm: FC = () => {
             helperText={errors.receiverNameAtReception?.message as string}
             error={!!errors.receiverNameAtReception}
             enableSpeechToText={true}
-            label="نام تحویل گیرنده پذیرش"
+            label="نام پذیرش کننده"
             name="receiverNameAtReception"
             iconPosition="end"
             control={control}
@@ -405,7 +405,7 @@ const AddServiceAdmissionForm: FC = () => {
             helperText={errors.staffNameAtReturn?.message as string}
             error={!!errors.staffNameAtReturn}
             enableSpeechToText={true}
-            label="نام کارمند ترخیص"
+            label="ترخیص کننده"
             name="staffNameAtReturn"
             iconPosition="end"
             control={control}
@@ -419,7 +419,7 @@ const AddServiceAdmissionForm: FC = () => {
             helperText={errors.customerNameAtReturn?.message as string}
             error={!!errors.customerNameAtReturn}
             enableSpeechToText={true}
-            label="نام مشتری تحویل گیرنده"
+            label="نام تحویل گیرنده"
             name="customerNameAtReturn"
             iconPosition="end"
             control={control}
@@ -432,8 +432,7 @@ const AddServiceAdmissionForm: FC = () => {
           <EnhancedInput
             helperText={errors.customerPhoneAtReturn?.message as string}
             error={!!errors.customerPhoneAtReturn}
-            enableSpeechToText={true}
-            label="تلفن مشتری تحویل گیرنده"
+            label="تلفن تحویل گیرنده"
             name="customerPhoneAtReturn"
             iconPosition="end"
             control={control}

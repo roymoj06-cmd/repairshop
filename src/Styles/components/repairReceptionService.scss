@@ -465,3 +465,12 @@
     background: linear-gradient(135deg, #ef4444, #dc2626);
   }
 }
+
+.service-item__grid--four-cols {
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  align-items: end;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}

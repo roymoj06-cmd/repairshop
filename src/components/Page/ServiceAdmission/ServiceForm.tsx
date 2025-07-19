@@ -1,8 +1,8 @@
-import { Paper } from "@mui/material";
-import DatePicker, { DateObject } from "react-multi-date-picker";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
+import DatePicker, { DateObject } from "react-multi-date-picker";
 import persian_fa from "react-date-object/locales/persian_fa";
 import persian from "react-date-object/calendars/persian";
+import { Paper } from "@mui/material";
 
 import { EnhancedSelect, EnhancedInput } from "@/components";
 import { formatTimeDisplay, ServiceFormData } from "@/utils";
@@ -46,17 +46,15 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
             !service.isDeleted && (
               <Paper
                 key={index}
-                className={`service-item service-item--${
-                  index % 2 === 0 ? "even" : "odd"
-                } service-item--border-${
-                  index % 4 === 0
+                className={`service-item service-item--${index % 2 === 0 ? "even" : "odd"
+                  } service-item--border-${index % 4 === 0
                     ? "blue"
                     : index % 4 === 1
-                    ? "green"
-                    : index % 4 === 2
-                    ? "orange"
-                    : "red"
-                }`}
+                      ? "green"
+                      : index % 4 === 2
+                        ? "orange"
+                        : "red"
+                  }`}
               >
                 <div className="service-item__content">
                   <div className="service-item__grid service-item__grid--two-cols">
@@ -89,9 +87,10 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                     <EnhancedInput
                       value={service.servicePrice?.toString() || ""}
                       name={`servicePrice_${index}`}
+                      formatNumber={true}
                       label="قیمت"
                       type="number"
-                      formatNumber={true}
+                      isRtl={true}
                       onChange={(e) =>
                         onServiceChange(
                           index,
@@ -164,9 +163,9 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         value={
                           service.startDate
                             ? new DateObject({
-                                calendar: persian,
-                                date: new Date(service.startDate),
-                              })
+                              calendar: persian,
+                              date: new Date(service.startDate),
+                            })
                             : null
                         }
                         onChange={(date: DateObject) => {
@@ -202,9 +201,9 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         value={
                           service.endDate
                             ? new DateObject({
-                                calendar: persian,
-                                date: new Date(service.endDate),
-                              })
+                              calendar: persian,
+                              date: new Date(service.endDate),
+                            })
                             : null
                         }
                         onChange={(date: DateObject) => {

@@ -520,6 +520,14 @@ const EnhancedInputInternal = forwardRef<
           minRows={isTextArea ? minRows : undefined}
           maxRows={isTextArea ? maxRows : undefined}
           disabled={disabled}
+          {...(isNumberType && {
+            sx: {
+              '& .MuiInputBase-input': {
+                textAlign: 'right',
+                direction: 'rtl'
+              }
+            }
+          })}
           InputProps={{
             startAdornment:
               icon && iconPosition === "start" ? (
