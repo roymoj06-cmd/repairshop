@@ -3,8 +3,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { Person, Lock } from "@mui/icons-material";
 import { useState } from "react";
 
+import { Button, EnhancedInput } from "@/components";
 import { useTheme } from "@/context/ThemeContext";
-import { Button, Input } from "@/components";
 import { useStore } from "@/Store/useStore";
 
 interface LoginFormInputs {
@@ -19,9 +19,8 @@ const LoginForm = () => {
   const { mode } = useTheme();
 
   const {
-    register,
     handleSubmit,
-    formState: { errors },
+    control,
   } = useForm<LoginFormInputs>();
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     try {
@@ -42,9 +41,8 @@ const LoginForm = () => {
     >
       {/* Form Section (Right Side) */}
       <div
-        className={`${
-          isMobile ? "w-full" : "w-1/2"
-        } h-full flex items-center justify-center p-6 relative`}
+        className={`${isMobile ? "w-full" : "w-1/2"
+          } h-full flex items-center justify-center p-6 relative`}
       >
         <div
           className="w-full max-w-md p-6 rounded-2xl relative z-10"
@@ -77,32 +75,28 @@ const LoginForm = () => {
           </Box>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <Input
-              helperText={errors.username?.message}
-              error={!!errors.username}
+            <EnhancedInput
+              rules={{
+                required: "نام کاربری الزامی است",
+              }}
               containerClassName="mb-5"
               label="نام کاربری"
+              control={control}
               icon={<Person />}
+              name="username"
               type="text"
-              {...register("username", {
-                required: "نام کاربری الزامی است",
-              })}
             />
 
-            <Input
-              helperText={errors.password?.message}
-              error={!!errors.password}
-              containerClassName="mb-5"
-              label="رمز عبور"
-              type="password"
-              icon={<Lock />}
-              {...register("password", {
+            <EnhancedInput
+              rules={{
                 required: "رمز عبور الزامی است",
-                minLength: {
-                  value: 6,
-                  message: "رمز عبور باید حداقل 6 کاراکتر باشد",
-                },
-              })}
+              }}
+              containerClassName="mb-5"
+              control={control}
+              label="رمز عبور"
+              name="password"
+              icon={<Lock />}
+              type="password"
             />
 
             <Box className="flex justify-start">

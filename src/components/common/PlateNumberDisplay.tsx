@@ -51,7 +51,8 @@ const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({
                     handleInputChange(undefined, "plateSection4");
                     setPage?.({ page: "1" });
                   } else {
-                    handleInputChange(e.target.value, "plateSection4");
+                    const fixedValue = fixNumbers(e.target.value) || e.target.value;
+                    handleInputChange(fixedValue, "plateSection4");
                     setPage?.({ page: "1" });
                   }
                 }}
@@ -76,7 +77,8 @@ const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({
                 handleInputChange(undefined, "plateSection1");
                 setPage?.({ page: "1" });
               } else {
-                handleInputChange(e.target.value, "plateSection1");
+                const fixedValue = fixNumbers(e.target.value) || e.target.value;
+                handleInputChange(fixedValue, "plateSection1");
                 setPage?.({ page: "1" });
               }
             }}
@@ -99,7 +101,8 @@ const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({
                 handleInputChange(undefined, "plateSection2");
                 setPage?.({ page: "1" });
               } else {
-                handleInputChange(e.target.value, "plateSection2");
+                const fixedValue = fixNumbers(e.target.value) || e.target.value;
+                handleInputChange(fixedValue, "plateSection2");
                 setPage?.({ page: "1" });
               }
             }}
@@ -120,7 +123,8 @@ const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({
                 handleInputChange(undefined, "plateSection3");
                 setPage?.({ page: "1" });
               } else {
-                handleInputChange(e.target.value, "plateSection3");
+                const fixedValue = fixNumbers(e.target.value) || e.target.value;
+                handleInputChange(fixedValue, "plateSection3");
                 setPage?.({ page: "1" });
               }
             }}

@@ -150,14 +150,14 @@ const EnhancedSelect = forwardRef<HTMLDivElement, EnhancedSelectProps>(
                 onChange={(newValue, event) => {
                   const finalValue = multiple
                     ? (newValue || []).map((v: any) =>
-                        storeValueOnly && typeof v === "object" ? v.value : v
-                      )
+                      storeValueOnly && typeof v === "object" ? v.value : v
+                    )
                     : storeValueOnly &&
                       newValue &&
                       typeof newValue === "object" &&
                       "value" in newValue
-                    ? newValue.value
-                    : newValue;
+                      ? newValue.value
+                      : newValue;
                   const transformedValue = transformValue
                     ? transformValue(finalValue)
                     : finalValue;
@@ -240,10 +240,10 @@ const EnhancedSelectImplementation = forwardRef<
       value !== undefined && value !== 0
         ? value
         : defaultValue !== undefined && defaultValue !== 0
-        ? defaultValue
-        : multiple
-        ? []
-        : null
+          ? defaultValue
+          : multiple
+            ? []
+            : null
     );
 
     const [, setSearchText] = useState("");
@@ -389,8 +389,8 @@ const EnhancedSelectImplementation = forwardRef<
               !isSpeechSupported
                 ? "تبدیل گفتار به متن در این مرورگر پشتیبانی نمی‌شود"
                 : isRecording
-                ? "پایان ضبط صدا"
-                : "شروع ضبط صدا"
+                  ? "پایان ضبط صدا"
+                  : "شروع ضبط صدا"
             }
           >
             <IconButton
@@ -483,15 +483,19 @@ const EnhancedSelectImplementation = forwardRef<
             value={selectedValue}
             onChange={(_, newValue) => handleChange(newValue)}
             onInputChange={(_, newInputValue) => {
-              setSearchText(newInputValue);
+              // Convert Persian and Arabic digits to English digits
+              const fixedInputValue = fixNumbers(newInputValue) || newInputValue;
+              setSearchText(fixedInputValue);
               if (onInputChange) {
-                onInputChange(newInputValue);
+                onInputChange(fixedInputValue);
               }
             }}
             filterOptions={(options, { inputValue }) => {
               if (!inputValue || inputValue.trim() === "") return options;
+              // Convert Persian and Arabic digits to English digits for searching
+              const fixedInputValue = fixNumbers(inputValue) || inputValue;
               return options.filter((option) =>
-                option.label.toLowerCase().includes(inputValue.toLowerCase())
+                option.label.toLowerCase().includes(fixedInputValue.toLowerCase())
               );
             }}
             isOptionEqualToValue={(option, value) =>
@@ -537,8 +541,8 @@ const EnhancedSelectImplementation = forwardRef<
                   isRecording && interimResult
                     ? `در حال شنیدن: ${fixNumbers(interimResult)}`
                     : speechError
-                    ? ""
-                    : helperText
+                      ? ""
+                      : helperText
                 }
                 variant="outlined"
                 required={required}

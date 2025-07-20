@@ -83,24 +83,24 @@ const ServiceManagementModal: React.FC<ServiceManagementModalProps> = ({
 
       <DialogContent className="service-modal__content">
         <ServiceForm
-          problems={problems}
-          repairServices={repairServices}
-          mechanics={mechanics}
           selectedProblem={selectedProblem}
           currentServices={currentServices}
           onProblemChange={onProblemChange}
           onServiceChange={onServiceChange}
+          repairServices={repairServices}
+          mechanics={mechanics}
+          problems={problems}
         />
       </DialogContent>
 
       <DialogActions>
         <Button onClick={onClose} label="انصراف" variant="outlined" />
         <Button
-          onClick={onSubmit}
           label={getSubmitButtonLabel()}
-          variant="contained"
-          color="primary"
           disabled={isSubmitDisabled()}
+          variant="contained"
+          onClick={onSubmit}
+          color="primary"
         />
       </DialogActions>
     </Dialog>

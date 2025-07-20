@@ -2,11 +2,11 @@ import { Visibility, VisibilityOff, Mic, MicOff } from "@mui/icons-material";
 import { useState, forwardRef, useEffect, useRef } from "react";
 import useSpeechToText from "react-hook-speech-to-text";
 import {
+  RegisterOptions,
+  FieldValues,
   Controller,
   Control,
-  FieldValues,
   Path,
-  RegisterOptions,
 } from "react-hook-form";
 import {
   InputAdornment,
@@ -101,8 +101,8 @@ const EnhancedInput = <T extends FieldValues = FieldValues>(
               isNumberType && formatNumber
                 ? addCommas(field.value?.toString() || "")
                 : isNumberType
-                ? `${field.value || ""}`
-                : field.value || ""
+                  ? `${field.value || ""}`
+                  : field.value || ""
             }
             onChange={(e) => {
               if (isNumberType) {
@@ -143,26 +143,26 @@ const EnhancedInput = <T extends FieldValues = FieldValues>(
   // If no control, use the component directly
   return (
     <EnhancedInputInternal
+      type={isNumberType && formatNumber ? "text" : originalType}
       enableSpeechToText={enableSpeechToText}
       containerClassName={containerClassName}
       iconPosition={iconPosition}
       formatNumber={formatNumber}
+      originalType={originalType}
       isTextArea={isTextArea}
+      helperText={helperText}
       disabled={disabled}
-      error={error}
-      type={isNumberType && formatNumber ? "text" : originalType}
-      isRtl={isRtl}
+      onChange={onChange}
       maxRows={maxRows}
       minRows={minRows}
-      helperText={helperText}
+      error={error}
+      isRtl={isRtl}
       rows={rows}
-      onChange={onChange}
       label={label}
       value={value}
       name={name}
       icon={icon}
       ref={ref}
-      originalType={originalType}
       {...rest}
     />
   );
@@ -186,6 +186,7 @@ const EnhancedInputInternal = forwardRef<
       error = false,
       type = "text",
       isRtl = true,
+      originalType,
       maxRows = 10,
       minRows = 1,
       helperText,
@@ -195,7 +196,6 @@ const EnhancedInputInternal = forwardRef<
       value,
       name,
       icon,
-      originalType,
       ...rest
     },
     ref
@@ -231,8 +231,6 @@ const EnhancedInputInternal = forwardRef<
       typeof window !== "undefined" &&
       (typeof window.SpeechRecognition !== "undefined" ||
         typeof window.webkitSpeechRecognition !== "undefined");
-
-    // Initialize and sync formattedValue with incoming value
     useEffect(() => {
       if (value !== undefined && value !== null) {
         let newValue = String(value);
@@ -257,7 +255,6 @@ const EnhancedInputInternal = forwardRef<
           typeof lastResult === "string"
             ? lastResult
             : `${lastResult?.transcript}_${results.length}`;
-
         if (lastProcessedResult === resultId) {
           return;
         }
@@ -288,14 +285,14 @@ const EnhancedInputInternal = forwardRef<
         }
       }
     }, [
-      results,
       enableSpeechToText,
-      formatNumber,
-      isNumberType,
-      formattedValue,
       lastProcessedResult,
-      name,
+      formattedValue,
+      isNumberType,
+      formatNumber,
       onChange,
+      results,
+      name,
     ]);
 
     useEffect(() => {
@@ -303,11 +300,9 @@ const EnhancedInputInternal = forwardRef<
         setLastProcessedResult(null);
       }
     }, [isRecording]);
-
     const togglePasswordVisibility = () => {
       setShowPassword(!showPassword);
     };
-
     const handleSpeechToText = () => {
       if (!isSpeechSupported) {
         alert(
@@ -324,37 +319,30 @@ const EnhancedInputInternal = forwardRef<
         startSpeechToText();
       }
     };
-
     const handleChange = (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
       let newValue = e.target.value;
+      
+      // Convert Persian and Arabic digits to English digits
+      newValue = fixNumbers(newValue) || newValue;
+      
       let processedValue = newValue;
-
-      // Handle number formatting
       if (formatNumber && isNumberType) {
-        // Remove existing commas first
         const cleanValue = removeComma(newValue);
-
-        // Check if it's a valid number (including empty string)
         if (cleanValue === "" || !isNaN(Number(cleanValue))) {
-          // Format with commas if not empty
           if (cleanValue !== "") {
             processedValue = addCommas(cleanValue);
           } else {
             processedValue = "";
           }
         } else {
-          // If invalid number, keep previous formatted value
           processedValue = formattedValue;
-          return; // Don't update anything if invalid
+          return;
         }
       }
-
       setFormattedValue(processedValue);
-
       if (onChange) {
-        // Create a new event with the clean value for number inputs
         const eventValue =
           formatNumber && isNumberType
             ? removeComma(processedValue)
@@ -366,15 +354,14 @@ const EnhancedInputInternal = forwardRef<
         onChange(syntheticEvent);
       }
     };
-
     const inputType =
       actualType === "password"
         ? showPassword
           ? "text"
           : "password"
         : actualType === "number" && formatNumber
-        ? "text"
-        : actualType;
+          ? "text"
+          : actualType;
 
     const renderPasswordIcon = () => {
       if (actualType !== "password") return null;
@@ -406,8 +393,8 @@ const EnhancedInputInternal = forwardRef<
               !isSpeechSupported
                 ? "تبدیل گفتار به متن در این مرورگر پشتیبانی نمی‌شود"
                 : isRecording
-                ? "پایان ضبط صدا"
-                : "شروع ضبط صدا"
+                  ? "پایان ضبط صدا"
+                  : "شروع ضبط صدا"
             }
           >
             <div className="position-relative">
@@ -421,8 +408,8 @@ const EnhancedInputInternal = forwardRef<
                   !isSpeechSupported
                     ? "default"
                     : isRecording
-                    ? "error"
-                    : "default"
+                      ? "error"
+                      : "default"
                 }
                 className={isRecording ? "pulse-effect" : ""}
                 sx={{
@@ -502,8 +489,8 @@ const EnhancedInputInternal = forwardRef<
             showInterimResult
               ? `در حال شنیدن: ${fixNumbers(interimResult)}`
               : speechError
-              ? ""
-              : helperText
+                ? ""
+                : helperText
           }
           inputRef={(input) => {
             if (typeof ref === "function") {
