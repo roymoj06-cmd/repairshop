@@ -10,7 +10,7 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate("/dashboard/vehicles");
     }
   }, [isAuthenticated, navigate]);
 

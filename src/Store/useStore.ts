@@ -54,7 +54,6 @@ export const useStore = create<StoreState>()(
             set({
               userAccesses: accessData.data,
             });
-            window.location.replace("/dashboard/vehicles");
           } else {
             set({ isLoading: false });
             toast?.error(userData?.message);
