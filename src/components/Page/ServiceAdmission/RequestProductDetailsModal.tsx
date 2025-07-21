@@ -1,6 +1,6 @@
 import { FC, useState, useRef, useEffect, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { QrCode as QrCodeIcon } from "@mui/icons-material";
+import { QrCode as QrCodeIcon, CameraAlt, Keyboard } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import {
   CircularProgress,
@@ -23,11 +23,28 @@ import {
 } from "@mui/material";
 
 import {
-  buyRequest,
   addApprovedProductsToReception,
+  buyRequest,
 } from "../../../service/repairProductRequest/repairProductRequest.service";
 import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 import Loading from "@/components/common/Loading";
+import CameraBarcodeScanner from "./CameraBarcodeScanner";
+
+// Function to get status color based on statusId
+const getStatusColor = (statusId: number): string => {
+  switch (statusId) {
+    case 1:
+      return "#FFA500"; // زرد (Orange)
+    case 2:
+      return "#0066CC"; // آبی (Blue)
+    case 4:
+      return "#FF0000"; // قرمز (Red)
+    case 5:
+      return "#00AA00"; // سبز (Green)
+    default:
+      return "#000000"; // مشکی (Black) - پیش‌فرض
+  }
+};
 
 interface IRequestProductDetailsModalProps {
   selectedProblem: IGetAllRepairProductRequestsByReceptionId | null;
@@ -53,10 +70,12 @@ const MobileProductCard: FC<{
   const isKasriDisabled =
     product.statusId === 1 ||
     product.statusId === 4 ||
+    product.statusId === 5 ||
     product.requestedQty === product.usedQty;
   const isRejectDisabled =
     product.statusId === 1 ||
     product.statusId === 4 ||
+    product.statusId === 5 ||
     product.usedQty > 0 ||
     product.requestedQty === product.usedQty;
 
@@ -87,7 +106,10 @@ const MobileProductCard: FC<{
           {product?.countryName}
         </Box>
         <Box className="request-product-details-modal__mobile-text">
-          <strong>وضعیت :</strong> {product.statusDescription}
+          <strong>وضعیت :</strong>{" "}
+          <span style={{ color: getStatusColor(product.statusId), fontWeight: "bold" }}>
+            {product.statusDescription}
+          </span>
         </Box>
 
         <Box className="request-product-details-modal__mobile-card-actions">
@@ -103,18 +125,20 @@ const MobileProductCard: FC<{
               کسری
             </Button>
           </AccessGuard>
-          <AccessGuard accessId={ACCESS_IDS.REJECT_REQUEST}>
-            <Button
-              variant="contained"
-              color="secondary"
-              size="small"
-              className="request-product-details-modal__mobile-button"
-              onClick={handleRejectClick}
-              disabled={isRejectDisabled}
-            >
-              رد
-            </Button>
-          </AccessGuard>
+          {product.statusId !== 5 && (
+            <AccessGuard accessId={ACCESS_IDS.REJECT_REQUEST}>
+              <Button
+                variant="contained"
+                color="secondary"
+                size="small"
+                className="request-product-details-modal__mobile-button"
+                onClick={handleRejectClick}
+                disabled={isRejectDisabled}
+              >
+                رد
+              </Button>
+            </AccessGuard>
+          )}
         </Box>
       </Box>
     </Paper>
@@ -193,6 +217,7 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
   const [showBarcodeSection, setShowBarcodeSection] = useState<boolean>(false);
   const [currentBarcode, setCurrentBarcode] = useState<string>("");
   const [isScanning, setIsScanning] = useState<boolean>(false);
+  const [scanMode, setScanMode] = useState<"keyboard" | "camera">("keyboard");
 
   const addApprovedProductMutation = useMutation({
     mutationFn: addApprovedProductsToReception,
@@ -248,9 +273,20 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
     },
     [selectedProblem, addApprovedProductMutation]
   );
+
+  const handleCameraScan = useCallback(
+    (barcode: string) => {
+      handleScanBarcode(barcode);
+    },
+    [handleScanBarcode]
+  );
+
+  const handleCloseCameraScanner = useCallback(() => {
+    setScanMode("keyboard");
+  }, []);
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
-      if (!showBarcodeSection || isScanning) return;
+      if (!showBarcodeSection || isScanning || scanMode !== "keyboard") return;
       if (event.key === "Enter") {
         const barcode = currentBarcode.trim();
         if (barcode) {
@@ -261,7 +297,7 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
         setCurrentBarcode((prev) => prev + event.key);
       }
     },
-    [showBarcodeSection, isScanning, currentBarcode, handleScanBarcode]
+    [showBarcodeSection, isScanning, currentBarcode, handleScanBarcode, scanMode]
   );
   useEffect(() => {
     if (showBarcodeSection) {
@@ -310,6 +346,7 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
       setCurrentBarcode("");
       setIsScanning(false);
       setShowBarcodeSection(false);
+      setScanMode("keyboard");
     }
   }, [showDetailsModal]);
   const handleActionClick = (requestId: number, status: number) => {
@@ -323,23 +360,62 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
   };
   const renderBarcodeSection = () => (
     <Box sx={{ mb: 3, p: 2, border: "1px solid #e0e0e0", borderRadius: 1 }}>
-      {isScanning ? (
-        <Box sx={{ textAlign: "center" }}>
-          <CircularProgress size={24} sx={{ mb: 1 }} />
-          <Typography variant="body2" color="text.secondary">
-            در حال پردازش بارکد...
-          </Typography>
-        </Box>
-      ) : (
-        <Box sx={{ textAlign: "center" }}>
-          <QrCodeIcon sx={{ fontSize: 48, color: "text.secondary", mb: 1 }} />
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            آماده برای اسکن بارکد
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            بارکد کالا را اسکن کنید
-          </Typography>
-        </Box>
+      {/* Toggle buttons for scan mode */}
+      <Box sx={{ display: "flex", gap: 1, mb: 2, justifyContent: "center" }}>
+        <Button
+          variant={scanMode === "keyboard" ? "contained" : "outlined"}
+          onClick={() => setScanMode("keyboard")}
+          startIcon={<Keyboard />}
+          size="small"
+        >
+          اسکنر
+        </Button>
+        <Button
+          variant={scanMode === "camera" ? "contained" : "outlined"}
+          onClick={() => setScanMode("camera")}
+          startIcon={<CameraAlt />}
+          size="small"
+        >
+          دوربین
+        </Button>
+      </Box>
+
+      {/* Keyboard Scanner */}
+      {scanMode === "keyboard" && (
+        <>
+          {isScanning ? (
+            <Box sx={{ textAlign: "center" }}>
+              <CircularProgress size={24} sx={{ mb: 1 }} />
+              <Typography variant="body2" color="text.secondary">
+                در حال پردازش بارکد...
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ textAlign: "center" }}>
+              <QrCodeIcon sx={{ fontSize: 48, color: "text.secondary", mb: 1 }} />
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                آماده برای اسکن بارکد با کیبورد
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                بارکد کالا را با دستگاه بارکد خوان اسکن کنید
+              </Typography>
+              {currentBarcode && (
+                <Typography variant="body2" sx={{ mt: 1, fontFamily: "monospace" }}>
+                  {currentBarcode}
+                </Typography>
+              )}
+            </Box>
+          )}
+        </>
+      )}
+
+      {/* Camera Scanner */}
+      {scanMode === "camera" && (
+        <CameraBarcodeScanner
+          isActive={true}
+          onScan={handleCameraScan}
+          onClose={handleCloseCameraScanner}
+        />
       )}
     </Box>
   );
@@ -475,7 +551,9 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
                   className={getTableCellBodyClass()}
                   style={{ textAlign: "center" }}
                 >
-                  {product.statusDescription}
+                  <span style={{ color: getStatusColor(product.statusId), fontWeight: "bold" }}>
+                    {product.statusDescription}
+                  </span>
                 </TableCell>
                 <TableCell className={getTableCellPaddingClass()}>
                   <Box className={containerClass}>
@@ -491,31 +569,35 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
                         disabled={
                           product.statusId === 1 ||
                           product.statusId === 4 ||
+                          product.statusId === 5 ||
                           product.requestedQty === product.usedQty
                         }
                       >
                         کسری
                       </Button>
                     </AccessGuard>
-                    <AccessGuard accessId={ACCESS_IDS.REJECT_REQUEST}>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        size="small"
-                        className={buttonClass}
-                        onClick={() =>
-                          handleActionClick(product.requestedId, 4)
-                        }
-                        disabled={
-                          product.statusId === 1 ||
-                          product.statusId === 4 ||
-                          product.usedQty > 0 ||
-                          product.requestedQty === product.usedQty
-                        }
-                      >
-                        رد
-                      </Button>
-                    </AccessGuard>
+                    {product.statusId !== 5 && (
+                      <AccessGuard accessId={ACCESS_IDS.REJECT_REQUEST}>
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          size="small"
+                          className={buttonClass}
+                          onClick={() =>
+                            handleActionClick(product.requestedId, 4)
+                          }
+                          disabled={
+                            product.statusId === 1 ||
+                            product.statusId === 4 ||
+                            product.statusId === 5 ||
+                            product.usedQty > 0 ||
+                            product.requestedQty === product.usedQty
+                          }
+                        >
+                          رد
+                        </Button>
+                      </AccessGuard>
+                    )}
                   </Box>
                 </TableCell>
               </TableRow>

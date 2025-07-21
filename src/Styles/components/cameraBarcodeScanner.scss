@@ -1,0 +1,181 @@
+.camera-barcode-scanner {
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  margin-bottom: 16px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  &__title {
+    color: #1976d2;
+    font-weight: 600;
+  }
+
+  &__close-button {
+    min-width: auto;
+  }
+
+  &__error {
+    margin-bottom: 16px;
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+  }
+
+  &__container {
+    position: relative;
+  }
+
+  &__viewport {
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // استایل برای video element که quagga ایجاد می‌کند
+    video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover;
+    }
+
+    // استایل برای canvas overlay که quagga برای تشخیص استفاده می‌کند
+    canvas {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    // خط راهنمای وسط برای بهتر قرار دادن بارکد
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 2px;
+      background-color: #ff0000;
+      z-index: 10;
+      box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.3);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 220px;
+      height: 60px;
+      border: 2px solid #ff0000;
+      border-radius: 4px;
+      z-index: 10;
+      background: rgba(255, 0, 0, 0.1);
+    }
+  }
+
+  &__instructions {
+    margin-top: 12px;
+    padding: 8px;
+    background-color: rgba(33, 150, 243, 0.1);
+    border-radius: 4px;
+  }
+
+  &__processing {
+    margin-top: 12px;
+    padding: 8px;
+    background-color: rgba(76, 175, 80, 0.1);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+}
+
+// Media queries for responsive design
+@media (max-width: 768px) {
+  .camera-barcode-scanner {
+    padding: 12px;
+
+    &__header {
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    &__title {
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    &__close-button {
+      width: 100%;
+    }
+
+    &__viewport {
+      height: 250px;
+
+      &::before {
+        width: 150px;
+      }
+
+      &::after {
+        width: 170px;
+        height: 50px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .camera-barcode-scanner {
+    padding: 8px;
+
+    &__viewport {
+      height: 200px;
+
+      &::before {
+        width: 120px;
+      }
+
+      &::after {
+        width: 140px;
+        height: 40px;
+      }
+    }
+  }
+}
+
+// Dark mode support
+.dark .camera-barcode-scanner {
+  background-color: #2d2d2d;
+  border-color: #444;
+
+  &__title {
+    color: #64b5f6;
+  }
+
+  &__instructions {
+    background-color: rgba(100, 181, 246, 0.1);
+  }
+
+  &__processing {
+    background-color: rgba(129, 199, 132, 0.1);
+  }
+}

@@ -41,13 +41,13 @@ interface IUpdateRepairReception {
     customerNameAtReturn?: string;
     receptionDateTime?: string;
     staffNameAtReturn?: string;
+    repairReceptionId?: number;
     returnDateTime?: string;
     carKilometers?: number;
     description?: string;
     customerId: number;
     carColor?: string;
     carId: number;
-    repairReceptionId?: number;
   }
 }
 interface IUpdateCarRepair {

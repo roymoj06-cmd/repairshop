@@ -142,7 +142,7 @@ const PlateNumberDisplay: FC<IPlateNumberDisplayProps> = ({
         <img
           alt="FLAG_OF_IRAN"
           className="flag-image m-auto"
-          src="/images/iran.png"
+          src="/images/iran.svg"
         />
         <span className="flag-text">I.R.</span>
         <span className="flag-text">IRAN</span>
