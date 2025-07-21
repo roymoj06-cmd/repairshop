@@ -99,9 +99,9 @@ const RequestProductListModal: FC<IRequestProductListModalProps> = ({
       <CardContent sx={{ p: 2 }}>
         <Stack spacing={1.5}>
           <Box
-            display="flex"
             justifyContent="space-between"
             alignItems="center"
+            display="flex"
           >
             <Typography variant="body2" color="text.secondary">
               مشکل : {problem.problemDescription}
@@ -219,11 +219,10 @@ const RequestProductListModal: FC<IRequestProductListModalProps> = ({
   return (
     <>
       <Dialog
-        // onClose={() => setShowModal(false)}
+        maxWidth={isMobile ? "xs" : isTablet ? "md" : "lg"}
+        fullScreen={isMobile}
         open={showModal}
         fullWidth
-        fullScreen={isMobile}
-        maxWidth={isMobile ? "xs" : isTablet ? "md" : "lg"}
         sx={{
           "& .MuiDialog-paper": {
             margin: isMobile ? "16px" : "24px",
@@ -278,8 +277,8 @@ const RequestProductListModal: FC<IRequestProductListModalProps> = ({
       </Dialog>
 
       <RequestProductDetailsModal
-        showDetailsModal={showDetailsModal}
         setShowDetailsModal={setShowDetailsModal}
+        showDetailsModal={showDetailsModal}
         selectedProblem={selectedProblem}
         onSuccess={handleSuccess}
       />

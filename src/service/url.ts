@@ -34,6 +34,7 @@ export const proxyServerUrl = {
   getCars: `${panelServiceBaseUrl}/Car/GetCars`,
 
   // repair Controller
+  deleteRepairReceptionDetailById: `${panelServiceBaseUrl}/Repair/DeleteRepairReceptionDetailById`,
   getRepairReceptionForUpdateById: `${panelServiceBaseUrl}/Repair/GetRepairReceptionProductById/`,
   generateRepairReceptionFactors: `${panelServiceBaseUrl}/Repair/GenerateRepairReceptionFactors`,
   updateRepairReceptionByProblem: `${panelServiceBaseUrl}/Repair/UpdateRepairReceptionByProblem`,
@@ -45,7 +46,6 @@ export const proxyServerUrl = {
   updateRepairReception: `${panelServiceBaseUrl}/Repair/UpdateRepairReception`,
   deleteRepairReception: `${panelServiceBaseUrl}/Repair/DeleteRepairReception`,
   getRepairReceptions: `${panelServiceBaseUrl}/Repair/GetRepairReceptions`,
-  changeIsCancelled: `${panelServiceBaseUrl}/Repair/ChangeIsCancelled`,
   getCustomerCars: `${panelServiceBaseUrl}/Repair/GetCustomerCars/`,
   salesViewByCustomerAndByCarId: `${panelServiceBaseUrl}/Repair`,
   scanProduct: `${panelServiceBaseUrl}/Repair/ScanProduct`,

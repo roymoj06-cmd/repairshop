@@ -27,11 +27,12 @@ import {
   addApprovedProductsToReception,
 } from "../../../service/repairProductRequest/repairProductRequest.service";
 import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
+import Loading from "@/components/common/Loading";
 
 interface IRequestProductDetailsModalProps {
+  selectedProblem: IGetAllRepairProductRequestsByReceptionId | null;
   setShowDetailsModal: (show: boolean) => void;
   showDetailsModal: boolean;
-  selectedProblem: IGetAllRepairProductRequestsByReceptionId | null;
   onSuccess?: () => void;
 }
 
@@ -555,11 +556,14 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
       </DialogTitle>
 
       <DialogContent className={getContentClass()}>
-        {/* Barcode Scanner Section */}
-        {showBarcodeSection && renderBarcodeSection()}
-
-        {/* Existing Content */}
-        {isMobile ? renderMobileLayout() : renderDesktopLayout()}
+        <>
+          {addApprovedProductMutation.isPending || buyRequestMutation.isPending ? <Loading /> : (
+            <>
+              {showBarcodeSection && renderBarcodeSection()}
+              {isMobile ? renderMobileLayout() : renderDesktopLayout()}
+            </>
+          )}
+        </>
       </DialogContent>
 
       <DialogActions className={getActionsClass()}>

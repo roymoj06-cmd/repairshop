@@ -144,12 +144,12 @@ export const getRepairReceptions = async ({
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
-export const changeIsCancelled = async (data: {
+export const deleteRepairReceptionDetailById = async (data: {
   repairReceptionDetailId: number;
 }) => {
   const reqConfig: AxiosRequestConfig = {
     method: "POST",
-    url: `${proxyServerUrl.changeIsCancelled}`,
+    url: `${proxyServerUrl.deleteRepairReceptionDetailById}`,
     data,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);

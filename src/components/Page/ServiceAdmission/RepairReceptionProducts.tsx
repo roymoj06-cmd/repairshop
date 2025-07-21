@@ -1,15 +1,17 @@
-import { Delete as DeleteIcon, CheckCircle, Cancel } from "@mui/icons-material";
+import { Delete as DeleteIcon, CheckCircle, Cancel, Search } from "@mui/icons-material";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { FC, useState } from "react";
 import {
   FormControlLabel,
   TableContainer,
+  InputAdornment,
   useMediaQuery,
   CardContent,
   Typography,
   IconButton,
   TableBody,
+  TextField,
   TableCell,
   TableHead,
   TableRow,
@@ -27,7 +29,7 @@ import {
 import { updateDetailHasOldPart } from "@/service/repairReceptionService/repairReceptionService.service";
 import {
   getRepairReceptionForUpdateById,
-  changeIsCancelled,
+  deleteRepairReceptionDetailById,
 } from "@/service/repair/repair.service";
 import {
   useAccessControl,
@@ -71,6 +73,7 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
   ] = useState<boolean>();
   const [selectedProductForDelete, setSelectedProductForDelete] =
     useState<any>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const [
     showProductRequestFromCustomerModal,
@@ -87,7 +90,7 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
     });
   const deleteProductMutation = useMutation({
     mutationFn: async (detailId: number) => {
-      const response = await changeIsCancelled({
+      const response = await deleteRepairReceptionDetailById({
         repairReceptionDetailId: detailId,
       });
       return response;
@@ -164,6 +167,17 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
       hasOldPart,
     });
   };
+
+  // Filter products based on search term
+  const filteredProducts = repairReception?.details?.filter((product: any) => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase().trim();
+    return (
+      product.productName?.toLowerCase().includes(term) ||
+      product.productCode?.toLowerCase().includes(term)
+    );
+  }) || [];
+
   const ProductCard: FC<{ product: any; index: number }> = ({ product }) => (
     <Card key={product.repairReceptionDetailId} sx={{ mb: 2, boxShadow: 2 }}>
       <CardContent sx={{ p: 2 }}>
@@ -310,7 +324,7 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {repairReception?.details?.map((product: any, index: number) => (
+          {filteredProducts?.map((product: any, index: number) => (
             <TableRow key={product.repairReceptionDetailId} hover>
               <TableCell sx={{ textAlign: "center" }}>{index + 1}</TableCell>
               <TableCell sx={{ textAlign: "center" }}>
@@ -473,19 +487,21 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
             رسید کالا از مشتری
           </Button>
         </AccessGuard>
-        <Button
-          onClick={() => setShowFactorModal(true)}
-          variant="contained"
-          color="secondary"
-          size="large"
-          sx={{
-            flex: "1 1 auto",
-            minWidth: "fit-content",
-            maxWidth: "calc(50% - 8px)",
-          }}
-        >
-          نمایش فاکتور
-        </Button>
+        <AccessGuard accessId={ACCESS_IDS.VIEW_FACTORS}>
+          <Button
+            onClick={() => setShowFactorModal(true)}
+            variant="contained"
+            color="secondary"
+            size="large"
+            sx={{
+              flex: "1 1 auto",
+              minWidth: "fit-content",
+              maxWidth: "calc(50% - 8px)",
+            }}
+          >
+            نمایش فاکتور
+          </Button>
+        </AccessGuard>
       </Box>
       {repairReception?.details && repairReception.details.length > 0 ? (
         <Box>
@@ -496,18 +512,55 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
             لیست کالاهای مصرف شده
           </Typography>
 
-          {isMobile || isTablet ? (
-            <Box>
-              {repairReception.details.map((product: any, index: number) => (
-                <ProductCard
-                  key={product.repairReceptionDetailId}
-                  product={product}
-                  index={index}
-                />
-              ))}
-            </Box>
+          <Box sx={{ mb: 3 }}>
+            <TextField
+              fullWidth
+              placeholder="جستجو در کالاها (نام کالا یا کد کالا)..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              variant="outlined"
+              size="medium"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search color="action" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                maxWidth: 500,
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "background.paper",
+                },
+              }}
+            />
+          </Box>
+
+          {filteredProducts.length > 0 ? (
+            <>
+              {isMobile || isTablet ? (
+                <Box>
+                  {filteredProducts.map((product: any, index: number) => (
+                    <ProductCard
+                      key={product.repairReceptionDetailId}
+                      product={product}
+                      index={index}
+                    />
+                  ))}
+                </Box>
+              ) : (
+                <ProductTable />
+              )}
+            </>
           ) : (
-            <ProductTable />
+            <Box sx={{ textAlign: "center", py: 4 }}>
+              <Typography variant="h6" color="text.secondary">
+                {searchTerm.trim()
+                  ? "هیچ کالایی با این جستجو یافت نشد"
+                  : "هیچ کالایی در این پذیرش ثبت نشده است"
+                }
+              </Typography>
+            </Box>
           )}
         </Box>
       ) : (

@@ -402,6 +402,7 @@ export const ACCESS_IDS = {
   OLD_PART_DELIVERED: "b0d92fc3-39ce-4c52-abf0-1557ad5256d1",
   VIEW_REQUESTS: "05bee620-fdfc-437d-a066-99b2413a342c",
   CREATE_FACTOR: "19a0f770-0ebc-445e-aab1-e612eeff481f",
+  VIEW_FACTORS: "ecb593d0-a8c8-4ba9-84ee-629e2e1e6dee",
 
   // عملیات درخواست‌ها
   DECLARE_SHORTAGE: "54049da6-2c41-48d4-8b5b-a82502bfe24f",
