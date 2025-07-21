@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Add } from "@mui/icons-material";
+import { Paper, Pagination } from "@mui/material";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FC, useState } from "react";
+import React, { FC, useState } from "react";
 
 import { ConfirmDialog, ServiceModal, Loading, Button } from "@/components";
 import ServiceCard from "@/components/Page/serviceManagement/ServiceCard";
@@ -13,6 +15,8 @@ import {
 } from "@/service/repairServices/repairServices.service";
 
 const ServiceManagement: FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = parseInt(searchParams.get('page') || '1');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] =
     useState<IGetAllRepairServices | null>(null);
@@ -27,8 +31,8 @@ const ServiceManagement: FC = () => {
   });
   const queryClient = useQueryClient();
   const { data: servicesData, isLoading } = useQuery({
-    queryKey: ["repairServices"],
-    queryFn: () => getAllRepairServices({ page: 1, size: 10 }),
+    queryKey: ["repairServices", currentPage],
+    queryFn: () => getAllRepairServices({ page: currentPage, size: 12 }),
   });
   const createMutation = useMutation({
     mutationFn: createRepairService,
@@ -87,6 +91,10 @@ const ServiceManagement: FC = () => {
     setEditingService(null);
   };
 
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    setSearchParams({ page: value.toString() });
+  };
+
   return (
     <div className="service-management">
       <div className="service-management__create-btn">
@@ -120,6 +128,19 @@ const ServiceManagement: FC = () => {
               )
             )}
           </div>
+          {servicesData?.data?.totalPage && servicesData?.data?.totalPage > 1 && (
+            <Paper className="pagination-container flex justify-center mt-12 p-3 rounded">
+              <Pagination
+                count={servicesData?.data?.totalPage}
+                onChange={handlePageChange}
+                page={currentPage}
+                boundaryCount={1}
+                siblingCount={1}
+                color="primary"
+                size="large"
+              />
+            </Paper>
+          )}
         </div>
       )}
       <ServiceModal
