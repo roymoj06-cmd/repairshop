@@ -59,6 +59,12 @@ const ServiceManagementModal: React.FC<ServiceManagementModalProps> = ({
       currentServices.every(
         (service) => !service.serviceId || !service.mechanicId
       ) ||
+      currentServices.some(
+        (service) => 
+          service.serviceId && 
+          (!service.estimatedMinute || service.estimatedMinute <= 0 || 
+           !service.serviceCount || service.serviceCount <= 0)
+      ) ||
       isLoading
     );
   };

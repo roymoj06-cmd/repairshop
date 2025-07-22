@@ -111,6 +111,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                       label="تخمین زمان (دقیقه)"
                       type="number"
                       formatNumber={true}
+                      required={true}
                       onChange={(e) =>
                         onServiceChange(
                           index,
@@ -124,6 +125,16 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                           : "ابتدا سرویس را انتخاب کنید"
                       }
                       disabled={!service.serviceId}
+                      inputProps={{ 
+                        min: 1,
+                        step: 1
+                      }}
+                      error={service.serviceId && (!service.estimatedMinute || service.estimatedMinute <= 0)}
+                      // helperText={
+                      //   service.serviceId && (!service.estimatedMinute || service.estimatedMinute <= 0)
+                      //     ? "تخمین زمان باید بیشتر از صفر باشد"
+                      //     : ""
+                      // }
                     />
 
                     <EnhancedInput
@@ -131,6 +142,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                       name={`serviceCount_${index}`}
                       label="تعداد"
                       type="number"
+                      required={true}
+                      error={service.serviceId && (!service.serviceCount || service.serviceCount <= 0)}
                       onChange={(e) =>
                         onServiceChange(
                           index,

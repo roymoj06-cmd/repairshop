@@ -1,8 +1,8 @@
 import { Grid2 as Grid, Paper, Pagination, useMediaQuery, useTheme } from '@mui/material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import { ShoppingCart } from '@mui/icons-material';
 import { toast } from 'react-toastify';
-import moment from 'moment-jalaali';
 import React from 'react';
 import {
     TableContainer,
@@ -12,20 +12,12 @@ import {
     TableRow,
     Button,
     Table,
-    Chip,
     Box
 } from '@mui/material';
-import {
-    ShoppingCart,
-    CheckCircle,
-    Warning,
-    Cancel,
-    Info,
-    Error
-} from '@mui/icons-material';
 
 import { getPendingRepairProductRequests, updateStatusToBuyCompleted } from '@/service/repairProductRequest/repairProductRequest.service';
-import { ProductRequestCard, Loading } from '@/components';
+import { convertGeorginaToJalaliOnlyDayByNumber, getIndexRowInPagination, parsePlateNumber } from '@/utils';
+import { ProductRequestCard, Loading, PlateNumberDisplay } from '@/components';
 
 const ProductRequests: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -61,25 +53,6 @@ const ProductRequests: React.FC = () => {
         setSearchParams({ page: value.toString() });
     };
 
-    const getStatusConfig = (statusId: number) => {
-        switch (statusId) {
-            case 0:
-                return { label: 'درخواست شده', color: 'warning' as const, icon: <Warning /> };
-            case 1:
-                return { label: 'درخواست خرید شده', color: 'info' as const, icon: <Info /> };
-            case 2:
-                return { label: 'خرید انجام شد', color: 'success' as const, icon: <CheckCircle /> };
-            case 3:
-                return { label: 'عدم موفقیت در خرید', color: 'error' as const, icon: <Error /> };
-            case 4:
-                return { label: 'انصراف', color: 'error' as const, icon: <Cancel /> };
-            case 5:
-                return { label: 'تحویل شده', color: 'success' as const, icon: <CheckCircle /> };
-            default:
-                return { label: 'نامشخص', color: 'default' as const, icon: <Info /> };
-        }
-    };
-
     const handleBuyRequest = async (id: number) => {
         try {
             await buyRequestMutation.mutateAsync(id);
@@ -89,33 +62,44 @@ const ProductRequests: React.FC = () => {
     };
 
     const renderTableRow = (request: IGetAllRepairProductRequests, index: number) => {
-        const statusConfig = getStatusConfig(request.statusId);
         const canBuy = request.statusId === 1;
-
         return (
             <TableRow key={index}>
+                <TableCell>{getIndexRowInPagination({
+                    pageQuery: currentPage,
+                    pageSize: 12,
+                    index
+                })}</TableCell>
                 <TableCell>{request.productCode}</TableCell>
-                <TableCell>{request.productName}</TableCell>
+                <TableCell sx={{ width: "20%" }}>{request.productName}</TableCell>
                 <TableCell>{request.requestedQty}</TableCell>
-                <TableCell>{request.plateNumber}</TableCell>
-                <TableCell>{request.requestedByUserFullname}</TableCell>
                 <TableCell>
-                    {request.createDate}
+                    {(() => {
+                        const plateData = parsePlateNumber(request.plateNumber);
+                        return plateData ? (
+                            <div style={{ transform: 'scale(0.8)', transformOrigin: 'center' }}>
+                                <PlateNumberDisplay
+                                    plateSection1={plateData.plateSection1}
+                                    plateSection2={plateData.plateSection2}
+                                    plateSection3={plateData.plateSection3}
+                                    plateSection4={plateData.plateSection4}
+                                />
+                            </div>
+                        ) : (
+                            request.plateNumber
+                        );
+                    })()}
                 </TableCell>
-                <TableCell>{request.buyRequestedByUserFullname || '-'}</TableCell>
-                <TableCell>{request.buyRequestedByUserFullname || '-'}</TableCell>
-                <TableCell>
-                    {request.buyDateTime ? moment(request.buyDateTime).format('jYYYY/jM/jD') : '-'}
-                </TableCell>
-                <TableCell>
-                    <Chip
-                        label={statusConfig.label}
-                        color={statusConfig.color}
-                        icon={statusConfig.icon}
-                        size="small"
-                        variant="filled"
-                    />
-                </TableCell>
+                <TableCell>{request.customerName}</TableCell>
+                {/* <TableCell sx={{width :"10%"}}>
+                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {request.problemDescription || '-'}
+                    </div>
+                </TableCell> */}
+                <TableCell>{request.requestedByUserFullname || '-'}</TableCell>
+                <TableCell>{request.createDate}</TableCell>
+                <TableCell>{`${request.buyRequestedByUserFullname || '-'}`}</TableCell>
+                <TableCell>{`${request.buyDateTime ? convertGeorginaToJalaliOnlyDayByNumber(request.buyDateTime) : '-'}`}</TableCell>
                 <TableCell>
                     <Button
                         onClick={() => handleBuyRequest(request.requestedId)}
@@ -171,16 +155,17 @@ const ProductRequests: React.FC = () => {
                         <Table>
                             <TableHead>
                                 <TableRow>
+                                    <TableCell>ردیف</TableCell>
                                     <TableCell>کد محصول</TableCell>
                                     <TableCell>نام محصول</TableCell>
                                     <TableCell>تعداد</TableCell>
                                     <TableCell>پلاک</TableCell>
                                     <TableCell>مشتری</TableCell>
-                                    <TableCell>تاریخ درخواست</TableCell>
+                                    {/* <TableCell>شرح مشکل</TableCell> */}
                                     <TableCell>درخواست کننده</TableCell>
+                                    <TableCell>تاریخ درخواست</TableCell>
                                     <TableCell>خریدار</TableCell>
                                     <TableCell>تاریخ خرید</TableCell>
-                                    <TableCell>وضعیت</TableCell>
                                     <TableCell>عملیات</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -193,12 +178,12 @@ const ProductRequests: React.FC = () => {
                         <Paper className="pagination-container flex justify-center mt-12 p-3 rounded">
                             <Pagination
                                 count={requestsData?.data?.totalPage}
-                                page={currentPage}
                                 onChange={handlePageChange}
+                                page={currentPage}
+                                boundaryCount={1}
+                                siblingCount={1}
                                 color="primary"
                                 size="large"
-                                siblingCount={1}
-                                boundaryCount={1}
                             />
                         </Paper>
                     )}

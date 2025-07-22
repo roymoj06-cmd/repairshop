@@ -353,7 +353,6 @@ const RequestProductDetailsModal: FC<IRequestProductDetailsModalProps> = ({
     const requestData = {
       requestId: requestId,
       status: status,
-      rejectReason: status === 4 ? "درخواست رد شد" : "",
     };
 
     buyRequestMutation.mutate(requestData);

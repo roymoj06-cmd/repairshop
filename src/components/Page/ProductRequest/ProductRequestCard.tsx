@@ -79,26 +79,7 @@ export const ProductRequestCard: React.FC<ProductRequestCardProps> = ({
         }
     };
     const isPurchased = request.buyDateTime && request.buyDateTime !== "";
-    const canConfirm = request.statusId === 0; // فقط در حالت "درخواست شده" قابل تایید است
-
-    const getButtonText = (statusId: number) => {
-        switch (statusId) {
-            case 0: // درخواست شده
-                return "تایید خرید";
-            case 1: // درخواست خرید شده
-                return "در حال خرید";
-            case 2: // خرید انجام شد
-                return "خرید انجام شده";
-            case 3: // عدم موفقیت در خرید
-                return "خرید ناموفق";
-            case 4: // انصراف
-                return "انصراف شده";
-            case 5: // تحویل شده
-                return "تحویل شده";
-            default:
-                return "نامشخص";
-        }
-    };
+    const canBuy = request.statusId === 1;
     return (
         <Card
             sx={{
@@ -225,10 +206,10 @@ export const ProductRequestCard: React.FC<ProductRequestCardProps> = ({
             <CardActions sx={{ p: 2, pt: 0 }}>
                 <Button
                     variant="contained"
-                    color="primary"
+                    color={canBuy ? "success" : "primary"}
                     startIcon={<ShoppingCart />}
                     onClick={onBuyRequest}
-                    disabled={!canConfirm || isLoading}
+                    disabled={!canBuy || isLoading}
                     fullWidth
                     sx={{
                         borderRadius: 2,
@@ -236,7 +217,7 @@ export const ProductRequestCard: React.FC<ProductRequestCardProps> = ({
                         fontWeight: "medium",
                     }}
                 >
-                    {getButtonText(request.statusId)}
+                    {canBuy ? 'تایید خرید' : 'خریداری شده'}
                 </Button>
             </CardActions>
         </Card>

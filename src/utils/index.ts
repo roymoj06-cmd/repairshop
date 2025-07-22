@@ -582,3 +582,32 @@ export interface ExtendedSelectOption extends SelectOption {
   estimatedMinute?: number;
   price?: number;
 }
+
+// Parse plate number from string format "75 ع 654 33" to individual sections
+export interface PlateNumberSections {
+  plateSection1: string;
+  plateSection2: string;
+  plateSection3: string;
+  plateSection4: string;
+}
+
+export const parsePlateNumber = (plateNumber: string): PlateNumberSections | null => {
+  if (!plateNumber || typeof plateNumber !== 'string') {
+    return null;
+  }
+
+  // Remove extra spaces and split by spaces
+  const parts = plateNumber.trim().split(/\s+/);
+
+  if (parts.length !== 4) {
+    console.warn('Invalid plate number format. Expected format: "75 ع 654 33"');
+    return null;
+  }
+
+  return {
+    plateSection1: parts[0], // 75
+    plateSection2: parts[1], // ع
+    plateSection3: parts[2], // 654
+    plateSection4: parts[3], // 33
+  };
+};

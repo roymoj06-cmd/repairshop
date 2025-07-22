@@ -392,9 +392,7 @@ interface IUpdateRepairReceptionServicesForProblems {
   };
 }
 interface IBuyRequest {
-  rejectReason: string;
   requestId: number;
-  status: number;
 }
 interface IGetAllRepairProductRequestsByReceptionId {
   repairCustomerProblemId: number;
@@ -672,7 +670,9 @@ interface IGetAllRepairProductRequests {
   problemDescription: string;
   statusDescription: string;
   requestedByUserId: number;
+  buyUserFullname: string;
   buyRejectReason: string;
+  customerName: string;
   requestedQty: number;
   rejectReason: string;
   plateNumber: string;
