@@ -68,7 +68,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       onUpdateStatus(service.id, statusButtonInfo.nextStatus);
     }
   };
-  console.log(service);
+  
   return (
     <div className="bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 overflow-hidden">
       <div className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 p-4 border-b border-gray-200 dark:border-gray-600">

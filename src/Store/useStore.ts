@@ -59,7 +59,6 @@ export const useStore = create<StoreState>()(
             toast?.error(userData?.message);
           }
         } catch (error) {
-          console.log(error);
           set({ isLoading: false });
           toast?.error("خطا در ورود به سیستم");
         }

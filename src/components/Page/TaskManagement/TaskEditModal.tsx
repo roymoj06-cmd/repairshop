@@ -185,19 +185,12 @@ export default function TaskEditModal({
 
   useEffect(() => {
     if (task && isOpen) {
-      console.log("Task data:", task); // برای دیباگ
       setFormData(task);
       setStartHour(task.startHour);
       setDuration(task.duration);
 
       // Set plate filter to trigger search
       if (task.plateSection1 && task.plateSection3 && task.plateSection4) {
-        console.log(
-          "Setting plate filter:",
-          task.plateSection1,
-          task.plateSection3,
-          task.plateSection4
-        ); // برای دیباگ
         setPlateFilter({
           plateSection1: task.plateSection1,
           plateSection2: task.plateSection2 || "",
@@ -259,7 +252,6 @@ export default function TaskEditModal({
         (plate: any) => plate.value === taskPlateKey
       );
       if (foundPlate && !selectedPlate) {
-        console.log("Found plate from search results:", foundPlate); // برای دیباگ
         setSelectedPlate(foundPlate);
       }
     }
@@ -278,7 +270,6 @@ export default function TaskEditModal({
         (service: any) => service.value === task.serviceId
       );
       if (foundService && !selectedService) {
-        console.log("Found service from loaded data:", foundService); // برای دیباگ
         setSelectedService(foundService);
       }
     }
@@ -300,7 +291,6 @@ export default function TaskEditModal({
       }
 
       if (foundMechanic && !selectedMechanic) {
-        console.log("Found mechanic from loaded data:", foundMechanic); // برای دیباگ
         setSelectedMechanic(foundMechanic);
       }
     }

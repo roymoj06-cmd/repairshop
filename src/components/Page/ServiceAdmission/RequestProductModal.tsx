@@ -122,7 +122,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
           queryKey: ["mechanicProductRequests", selectedProblem?.value],
         });
         // پاک کردن کالاهای انتخاب شده پس از ثبت موفق
-        setMechanicRequests(prev => 
+        setMechanicRequests(prev =>
           prev.map(request => ({
             ...request,
             selectedProducts: []
@@ -155,11 +155,9 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
     } else if (selectedOptions && typeof selectedOptions === "object") {
       selectedOption = selectedOptions;
     } else {
-      console.log("No valid option selected");
       return;
     }
     if (!selectedOption || !selectedOption.value) {
-      console.log("Invalid selectedOption:", selectedOption);
       return;
     }
     const selectedProduct = {
@@ -741,10 +739,6 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
               loading={isPendingGetProductsThatContainsText}
               onInputChange={handleSearchProduct}
               onChange={(selectedOptions) => {
-                console.log(
-                  "EnhancedSelect onChange received:",
-                  selectedOptions
-                );
                 handleProductSelectionForRequest(
                   currentEditingRequestId!,
                   selectedOptions

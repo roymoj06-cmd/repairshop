@@ -393,7 +393,6 @@ export const downloadFile = (response: any, defaultFilename: string) => {
     // Determine the content type
     const contentType =
       response.headers?.["content-type"] || "application/octet-stream";
-    console.log({ response });
     // Create blob
     const blob = new Blob([response], { type: contentType });
 
