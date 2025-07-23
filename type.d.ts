@@ -271,6 +271,7 @@ interface ICreateOrUpdateRepairReceptionService {
     performedByMechanicId: number;
     estimatedMinute: number;
     serviceCount: number;
+    description?: string;
     serviceId: number;
     startDate: string;
     endDate: string;
@@ -305,6 +306,7 @@ interface Service {
   serviceTitle: string;
   servicePrice: number;
   serviceCount: number;
+  description?: string;
   statusTitle: string;
   totalPrice: number;
   isTested?: boolean;
@@ -591,6 +593,7 @@ interface IGetRepairReceptionService {
   startDate: string;
   endDate: string;
   status: string;
+  description?: string;
   id: number;
 }
 interface IGetRepairReceptionServices {
@@ -690,4 +693,39 @@ interface IGetAllRepairProductRequests {
   realQty: number;
   usedQty: number;
   status: number;
+}
+interface IGetRepairReceptionServiceForEdit {
+  repairCustomerProblemDescription: string;
+  performedByMechanicName: string;
+  repairCustomerProblemId: number;
+  performedByMechanicId: number;
+  createdByUserName: string;
+  repairReceptionId: number;
+  createdByUserId: number;
+  estimatedMinute: number;
+  serviceTitle: string;
+  servicePrice: number;
+  serviceCount: number;
+  statusTitle: string;
+  hasFactor: boolean;
+  totalPrice: number;
+  serviceId: number;
+  startDate: string;
+  statusId: number;
+  status: string;
+  id?: number;
+}
+interface ServiceFormData {
+  mechanicId: SelectOption | undefined;
+  serviceId: SelectOption | undefined;
+  estimatedMinute: number | undefined;
+  servicePrice: number | undefined;
+  totalPrice: number | undefined;
+  originalServiceId?: number;
+  description?: string;
+  serviceCount: number;
+  serviceTitle: string;
+  isDeleted?: boolean;
+  startDate?: string;
+  endDate?: string;
 }

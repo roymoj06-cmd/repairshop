@@ -4,15 +4,15 @@ import { useState } from "react";
 
 import { getAllRepairServices } from "@/service/repairServices/repairServices.service";
 import { getCustomerProblems } from "@/service/repairServices/repairServices.service";
-import { ServiceFormData, ExtendedSelectOption, addCommas } from "@/utils";
 import {
+  updateRepairReceptionServicesForProblems,
   getAllRepairReceptionServices,
   deleteRepairReceptionService,
   createRepairReceptionService,
-  updateRepairReceptionServicesForProblems,
   updateServiceStatus,
 } from "@/service/repairReceptionService/repairReceptionService.service";
 import { getActiveMechanics } from "@/service/mechanic/mechanic.service";
+import { ExtendedSelectOption, addCommas } from "@/utils";
 
 export const useRepairReceptionService = (repairReceptionId?: string) => {
   const queryClient = useQueryClient();
@@ -31,25 +31,29 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
     open: false,
   });
   const [currentServices, setCurrentServices] = useState<ServiceFormData[]>([]);
+  const [serviceSearchText, setServiceSearchText] = useState<string>("");
+
   const { data: services = [], isLoading } = useQuery({
     queryKey: ["repairReceptionServices", repairReceptionId],
     queryFn: () => getAllRepairReceptionServices(Number(repairReceptionId)),
     enabled: !!repairReceptionId,
     select: (data) => data?.data || [],
   });
-
   const { data: repairServices = [] } = useQuery({
-    queryKey: ["repairServices"],
-    queryFn: () => getAllRepairServices({ page: 1, size: 100 }),
+    queryKey: ["repairServices", serviceSearchText],
+    queryFn: () => getAllRepairServices({
+      page: 1,
+      size: 100,
+      searchText: serviceSearchText || undefined
+    }),
     select: (data) =>
       data?.data?.values?.map((service: IGetAllRepairServices) => ({
-        value: service.id,
         label: `${service.serviceTitle} - ${addCommas(service.price)}`,
-        price: service.price,
         estimatedMinute: service.estimatedMinute,
+        price: service.price,
+        value: service.id,
       })) || [],
   });
-
   const { data: mechanics = [] } = useQuery({
     queryKey: ["activeMechanics"],
     queryFn: getActiveMechanics,
@@ -59,7 +63,6 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
         label: mechanic.fullName,
       })) || [],
   });
-
   const { data: problems = [] } = useQuery({
     queryKey: ["customerProblems", repairReceptionId],
     queryFn: () =>
@@ -95,7 +98,6 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
       toast.error("خطا در ایجاد سرویس");
     },
   });
-
   const updateMutation = useMutation({
     mutationFn: updateRepairReceptionServicesForProblems,
     onSuccess: (data: any) => {
@@ -114,7 +116,6 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
       toast.error("خطا در بروزرسانی سرویس");
     },
   });
-
   const deleteMutation = useMutation({
     mutationFn: deleteRepairReceptionService,
     onSuccess: () => {
@@ -127,7 +128,6 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
       toast.error("خطا در حذف سرویس");
     },
   });
-
   const updateStatusMutation = useMutation({
     mutationFn: updateServiceStatus,
     onSuccess: (data: any) => {
@@ -149,16 +149,17 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
   const handleDelete = (id: number, serviceName: string) => {
     setDeleteConfirm({ open: true, serviceId: id, serviceName });
   };
-
   const confirmDelete = () => {
     if (deleteConfirm.serviceId) {
       deleteMutation.mutate(deleteConfirm.serviceId);
       setDeleteConfirm({ open: false, serviceId: null, serviceName: null });
     }
   };
-
   const handleUpdateStatus = (serviceId: number, newStatus: number) => {
     updateStatusMutation.mutate({ serviceId, status: newStatus });
+  };
+  const handleServiceSearch = (searchText: string) => {
+    setServiceSearchText(searchText);
   };
 
   const handleServiceChange = (index: number, field: string, value: any) => {
@@ -190,13 +191,11 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
 
     setCurrentServices(updatedServices);
   };
-
   const resetForm = () => {
     setSelectedProblem(null);
     setCurrentServices([]);
     setSelectedService(null);
   };
-
   const openModal = (
     service?: Service | IGetAllRepairReceptionServices,
     problem?: ProblemsService
@@ -214,7 +213,7 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
           setSelectedProblem(problemOption);
         }
         const serviceOption = repairServices.find((s: any) =>
-          s.label.includes(service.serviceTitle)
+          s.value === service.serviceId
         );
         const mechanicOption = mechanics.find(
           (m: any) => m.value === service.performedByMechanicId
@@ -231,6 +230,8 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
             endDate: service.endDate,
             originalServiceId: service.id,
             isDeleted: false,
+            description: (service as any).description || "",
+            serviceTitle: service.serviceTitle,
           },
         ]);
       } else {
@@ -253,6 +254,8 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
             endDate: legacyService.endDate,
             originalServiceId: legacyService.id,
             isDeleted: false,
+            description: legacyService.description || "",
+            serviceTitle: legacyService.serviceTitle || "",
           },
         ]);
       }
@@ -275,6 +278,8 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
           endDate: undefined,
           originalServiceId: undefined,
           isDeleted: false,
+          description: "",
+          serviceTitle: "",
         },
       ]);
     } else {
@@ -291,12 +296,13 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
           endDate: undefined,
           originalServiceId: undefined,
           isDeleted: false,
+          description: "",
+          serviceTitle: "",
         },
       ]);
     }
     setShowModal(true);
   };
-
   const handleSubmit = async () => {
     try {
       for (const service of currentServices) {
@@ -324,6 +330,7 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
             endDate: currentServices[0].endDate || "",
             status: "status" in selectedService ? selectedService.status : 0,
             price: Number(currentServices[0].servicePrice) || 0,
+            description: currentServices[0].description || "",
           },
         };
 
@@ -342,6 +349,7 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
             endDate: currentServices[0].endDate || "",
             status: 0,
             price: Number(currentServices[0].servicePrice) || 0,
+            description: currentServices[0].description || "",
           },
         };
         updateMutation.mutate(updateData);
@@ -360,6 +368,7 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
             endDate: currentServices[0].endDate || "",
             status: 0,
             price: Number(currentServices[0].servicePrice) || 0,
+            description: currentServices[0].description || "",
           },
         };
 
@@ -371,8 +380,11 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
   };
 
   return {
+    updateStatusMutation,
     handleServiceChange,
+    handleServiceSearch,
     setSelectedProblem,
+    handleUpdateStatus,
     setDeleteConfirm,
     selectedProblem,
     selectedService,
@@ -381,13 +393,11 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
     createMutation,
     updateMutation,
     deleteMutation,
-    updateStatusMutation,
     confirmDelete,
     deleteConfirm,
     setShowModal,
     handleDelete,
     handleSubmit,
-    handleUpdateStatus,
     showModal,
     isLoading,
     mechanics,

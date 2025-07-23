@@ -5,11 +5,12 @@ import persian from "react-date-object/calendars/persian";
 import { Paper } from "@mui/material";
 
 import { EnhancedSelect, EnhancedInput } from "@/components";
-import { formatTimeDisplay, ServiceFormData } from "@/utils";
+import { formatTimeDisplay } from "@/utils";
 
 interface ServiceFormProps {
   onServiceChange: (index: number, field: string, value: any) => void;
   onProblemChange: (value: SelectOption | null) => void;
+  onServiceSearch: (searchText: string) => void;
   selectedProblem: SelectOption | null;
   currentServices: ServiceFormData[];
   repairServices: SelectOption[];
@@ -22,10 +23,12 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
   currentServices,
   onProblemChange,
   onServiceChange,
+  onServiceSearch,
   repairServices,
   mechanics,
   problems,
 }) => {
+
   return (
     <>
       <div style={{ margin: "1rem 0" }}>
@@ -59,14 +62,15 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                 <div className="service-item__content">
                   <div className="service-item__grid service-item__grid--two-cols">
                     <EnhancedSelect
-                      name={`serviceId_${index}`}
-                      label="انتخاب سرویس"
-                      options={repairServices}
-                      value={service.serviceId}
                       onChange={(value) => {
                         onServiceChange(index, "serviceId", value);
                       }}
+                      onInputChange={onServiceSearch}
                       placeholder="سرویس را انتخاب کنید"
+                      name={`serviceId_${index}`}
+                      value={service.serviceId || null}
+                      options={repairServices}
+                      label="انتخاب سرویس"
                       searchable
                     />
 
@@ -125,16 +129,16 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                           : "ابتدا سرویس را انتخاب کنید"
                       }
                       disabled={!service.serviceId}
-                      inputProps={{ 
+                      inputProps={{
                         min: 1,
                         step: 1
                       }}
                       error={service.serviceId && (!service.estimatedMinute || service.estimatedMinute <= 0)}
-                      // helperText={
-                      //   service.serviceId && (!service.estimatedMinute || service.estimatedMinute <= 0)
-                      //     ? "تخمین زمان باید بیشتر از صفر باشد"
-                      //     : ""
-                      // }
+                    // helperText={
+                    //   service.serviceId && (!service.estimatedMinute || service.estimatedMinute <= 0)
+                    //     ? "تخمین زمان باید بیشتر از صفر باشد"
+                    //     : ""
+                    // }
                     />
 
                     <EnhancedInput
@@ -161,6 +165,21 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                       label="قیمت کل"
                       disabled={true}
                       type="number"
+                    />
+                  </div>
+
+                  {/* Description Section */}
+                  <div className="mt-4">
+                    <EnhancedInput
+                      value={service.description || ""}
+                      name={`description_${index}`}
+                      label="توضیحات"
+                      placeholder="توضیحات مربوط به سرویس..."
+                      multiline
+                      rows={3}
+                      onChange={(e) =>
+                        onServiceChange(index, "description", e.target.value)
+                      }
                     />
                   </div>
 

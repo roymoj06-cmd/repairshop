@@ -1,6 +1,6 @@
-import { Dispatch, FC, SetStateAction, useState, useEffect } from "react";
+import { Add, Remove, Delete, Image, Close, Download } from "@mui/icons-material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Add, Remove, Delete } from "@mui/icons-material";
+import { Dispatch, FC, SetStateAction, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import {
   TableContainer,
@@ -32,6 +32,7 @@ import { getCustomerProblems } from "@/service/repairServices/repairServices.ser
 import { getProductsThatContainsText } from "@/service/Product/Product.service";
 import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 import { EnhancedSelect, Loading } from "@/components";
+import { getFileSource } from "@/utils";
 
 interface IRequestProductModalProps {
   setShowModal: Dispatch<SetStateAction<boolean | undefined>>;
@@ -54,6 +55,228 @@ interface MechanicRequest {
   fileId: number;
   id: number;
 }
+
+// Component to display uploaded image with preview modal
+const ImageDisplay: FC<{
+  fileId: number;
+  productTitle: string;
+  variant?: 'mobile' | 'desktop';
+  showLabel?: boolean;
+}> = ({
+  fileId,
+  productTitle,
+  variant = 'mobile',
+  showLabel = true
+}) => {
+    const [imageError, setImageError] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
+
+    if (!fileId || fileId === 0) {
+      if (variant === 'desktop') {
+        return (
+          <Typography variant="body2" color="text.secondary">
+            بدون تصویر
+          </Typography>
+        );
+      }
+      return null;
+    }
+
+    const imageUrl = getFileSource(fileId);
+
+    const handleDownload = () => {
+      try {
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = `${productTitle}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('دانلود شروع شد');
+      } catch (error) {
+        toast.error('خطا در دانلود فایل');
+      }
+    };
+
+    const renderImage = () => {
+      if (variant === 'mobile') {
+        return (
+          <Box
+            sx={{
+              width: 50,
+              height: 50,
+              border: '2px solid #e0e0e0',
+              borderRadius: 1,
+              cursor: 'pointer',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              '&:hover': {
+                border: '2px solid #1976d2',
+              }
+            }}
+            onClick={() => !imageError && setShowPreview(true)}
+          >
+            {imageError ? (
+              <Image sx={{ color: '#ccc' }} />
+            ) : (
+              <img
+                src={imageUrl}
+                alt={productTitle}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+                onError={() => setImageError(true)}
+              />
+            )}
+          </Box>
+        );
+      } else {
+        // Desktop variant
+        return (
+          <Box
+            sx={{
+              width: 60,
+              height: 60,
+              border: '1px solid #e0e0e0',
+              borderRadius: 1,
+              cursor: 'pointer',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mx: 'auto',
+              '&:hover': {
+                border: '1px solid #1976d2',
+              }
+            }}
+            onClick={() => !imageError && setShowPreview(true)}
+          >
+            {imageError ? (
+              <Image sx={{ color: '#ccc' }} />
+            ) : (
+              <img
+                src={imageUrl}
+                alt={productTitle}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+                onError={() => setImageError(true)}
+              />
+            )}
+          </Box>
+        );
+      }
+    };
+
+    return (
+      <>
+        <Box sx={{
+          display: variant === 'mobile' ? 'inline-flex' : 'flex',
+          alignItems: 'center',
+          gap: 1,
+          mt: variant === 'mobile' ? 1 : 0,
+          flexDirection: variant === 'mobile' ? 'row' : 'column'
+        }}>
+          {renderImage()}
+          {showLabel && variant === 'mobile' && (
+            <Typography variant="caption" color="text.secondary">
+              {imageError ? 'خطا در بارگیری تصویر' : 'تصویر کالا'}
+            </Typography>
+          )}
+        </Box>
+
+        {/* Image Preview Modal */}
+        <Dialog
+          open={showPreview}
+          onClose={() => setShowPreview(false)}
+          maxWidth="md"
+          fullWidth
+          sx={{
+            '& .MuiDialog-paper': {
+              backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            }
+          }}
+        >
+          <DialogContent
+            sx={{
+              p: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '400px',
+              position: 'relative',
+            }}
+          >
+            <IconButton
+              onClick={() => setShowPreview(false)}
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                color: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                }
+              }}
+            >
+              <Close />
+            </IconButton>
+            <IconButton
+              onClick={handleDownload}
+              sx={{
+                position: 'absolute',
+                top: 8,
+                left: 8,
+                color: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                }
+              }}
+            >
+              <Download />
+            </IconButton>
+            <img
+              src={imageUrl}
+              alt={productTitle}
+              style={{
+                maxWidth: '100%',
+                maxHeight: '80vh',
+                objectFit: 'contain',
+              }}
+              onError={() => setImageError(true)}
+            />
+          </DialogContent>
+          <DialogActions
+            sx={{
+              backgroundColor: 'rgba(0, 0, 0, 0.9)',
+              color: 'white',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant="body2" sx={{ color: 'white' }}>
+              {productTitle}
+            </Typography>
+            <Button
+              startIcon={<Download />}
+              onClick={handleDownload}
+              sx={{ color: 'white' }}
+            >
+              دانلود
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </>
+    );
+  };
 
 const RequestProductModal: FC<IRequestProductModalProps> = ({
   repairReceptionId,
@@ -291,12 +514,15 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
             >
               <CardContent sx={{ p: 2 }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ fontWeight: "bold" }}
-                  >
-                    {request.productTitle}
-                  </Typography>
+                  <Box>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      {request.productTitle}
+                    </Typography>
+                    <ImageDisplay fileId={request.fileId} productTitle={request.productTitle} />
+                  </Box>
                   <Box sx={{
                     px: 1,
                     py: 0.5,
@@ -455,6 +681,7 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
           <TableHead sx={{ backgroundColor: "#f0f0f0" }}>
             <TableRow>
               <TableCell>عنوان درخواست</TableCell>
+              <TableCell sx={{ textAlign: "center", width: 100 }}>مستندات</TableCell>
               <TableCell sx={{ textAlign: "center" }}>وضعیت</TableCell>
               <TableCell sx={{ textAlign: "center" }}>
                 کالاهای انتخاب شده
@@ -481,6 +708,14 @@ const RequestProductModal: FC<IRequestProductModalProps> = ({
               >
                 <TableCell sx={{ textAlign: "left" }}>
                   {request.productTitle}
+                </TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
+                  <ImageDisplay
+                    fileId={request.fileId}
+                    productTitle={request.productTitle}
+                    variant="desktop"
+                    showLabel={false}
+                  />
                 </TableCell>
                 <TableCell sx={{ textAlign: "center" }}>
                   <Box sx={{

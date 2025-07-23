@@ -56,13 +56,6 @@ export const proxyServerUrl = {
   // user Controller
   getCurrentUserAccesses: `${panelServiceBaseUrl}/UserSecurity/GetCurrentUserAccesses`,
 
-  // RepairServices Controller
-  getAllRepairServices: `${panelServiceBaseUrl}/RepairServices/GetAllRepairServices`,
-  getRepairServiceById: `${panelServiceBaseUrl}/RepairServices/GetRepairServiceById`,
-  createRepairService: `${panelServiceBaseUrl}/RepairServices/CreateRepairService`,
-  updateRepairService: `${panelServiceBaseUrl}/RepairServices/UpdateRepairService`,
-  deleteRepairService: `${panelServiceBaseUrl}/RepairServices/DeleteRepairService`,
-
   // mechanic Controller
   getActiveMechanics: `${panelServiceBaseUrl}/Mechanic/GetActiveMechanics`,
   getAllMechanics: `${panelServiceBaseUrl}/Mechanic/GetAllMechanics`,
@@ -86,6 +79,11 @@ export const proxyServerUrl = {
   createCustomerProblem: `${panelServiceBaseUrl}/RepairServices/CreateCustomerProblem`,
   deleteCustomerProblem: `${panelServiceBaseUrl}/RepairServices/DeleteCustomerProblem`,
   updateCustomerProblem: `${panelServiceBaseUrl}/RepairServices/UpdateCustomerProblem`,
+  getAllRepairServices: `${panelServiceBaseUrl}/RepairServices/GetAllRepairServices`,
+  getRepairServiceById: `${panelServiceBaseUrl}/RepairServices/GetRepairServiceById`,
+  createRepairService: `${panelServiceBaseUrl}/RepairServices/CreateRepairService`,
+  updateRepairService: `${panelServiceBaseUrl}/RepairServices/UpdateRepairService`,
+  deleteRepairService: `${panelServiceBaseUrl}/RepairServices/DeleteRepairService`,
   getCustomerProblems: `${panelServiceBaseUrl}/RepairServices/GetCustomerProblems`,
 
   // repairSchedule Controller

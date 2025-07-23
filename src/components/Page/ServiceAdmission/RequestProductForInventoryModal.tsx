@@ -20,8 +20,9 @@ import {
   createMechanicProductRequest,
   deleteMechanicProductRequest,
 } from "@/service/RepairMechanicProductRequest/RepairMechanicProductRequest.service";
-import { EnhancedInput, EnhancedSelect, Loading } from "@/components";
+import { EnhancedInput, EnhancedSelect, Loading, FileUploader } from "@/components";
 import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
+import { useFileUpload } from "@/hooks/useFileUpload";
 
 interface IRequestProductForInventoryModalProps {
   setShowModal: Dispatch<SetStateAction<boolean | undefined>>;
@@ -31,6 +32,7 @@ interface IRequestProductForInventoryModalProps {
 
 interface LocalRequest extends ICreateMechanicProductRequest {
   isNew?: boolean;
+  uploadedFiles?: File[];
 }
 
 const RequestProductForInventoryModal: FC<
@@ -42,6 +44,22 @@ const RequestProductForInventoryModal: FC<
 
   const [selectedProblem, setSelectedProblem] = useState<any>(null);
   const [localRequests, setLocalRequests] = useState<LocalRequest[]>([]);
+
+  // File upload hook
+  const { upload, isUploading } = useFileUpload({
+    fileSource: 1, // Assuming 1 is for mechanic product requests
+    onSuccess: (response) => {
+      if (response?.isSuccess) {
+        toast.success("فایل با موفقیت آپلود شد");
+      } else {
+        toast.error(response?.message || "خطا در آپلود فایل");
+      }
+    },
+    onError: () => {
+      toast.error("خطا در آپلود فایل");
+    },
+  });
+
   const { data: problems = [] } = useQuery({
     queryKey: ["customerProblems", repairReceptionId],
     queryFn: () =>
@@ -101,6 +119,7 @@ const RequestProductForInventoryModal: FC<
       problemId: selectedProblem.value,
       fileId: 0,
       isNew: true,
+      uploadedFiles: [],
     };
     setLocalRequests([...localRequests, newRequest]);
   };
@@ -112,9 +131,24 @@ const RequestProductForInventoryModal: FC<
     };
     setLocalRequests(newLocalRequests);
   };
+
+  const updateRequestFiles = (index: number, files: File[]) => {
+    const newLocalRequests = [...localRequests];
+    newLocalRequests[index] = {
+      ...newLocalRequests[index],
+      uploadedFiles: files,
+    };
+    setLocalRequests(newLocalRequests);
+  };
+
   const getRequestTitle = (index: number) => {
     return localRequests[index]?.productTitle || "";
   };
+
+  const getRequestFiles = (index: number) => {
+    return localRequests[index]?.uploadedFiles || [];
+  };
+
   const hasChanges = (index: number) => {
     return localRequests[index]?.productTitle?.trim() || false;
   };
@@ -124,10 +158,26 @@ const RequestProductForInventoryModal: FC<
       toast.error("لطفاً عنوان کالا را وارد کنید");
       return;
     }
+
+    let fileId = 0;
+
+    // Upload file if exists
+    if (request.uploadedFiles && request.uploadedFiles.length > 0) {
+      try {
+        const uploadResponse = await upload(request.uploadedFiles[0]);
+        if (uploadResponse?.isSuccess) {
+          fileId = uploadResponse.data.id;
+        }
+      } catch (error) {
+        toast.error("خطا در آپلود فایل");
+        return;
+      }
+    }
+
     createMutation.mutate({
       productTitle: request.productTitle,
       problemId: request.problemId,
-      fileId: request.fileId,
+      fileId: fileId,
     });
   };
   const removeRequest = async (index: number) => {
@@ -147,7 +197,7 @@ const RequestProductForInventoryModal: FC<
       maxWidth={isMobile ? "xs" : "md"}
       fullScreen={isMobile}
     >
-      {(createMutation.isPending || deleteMutation.isPending) && <Loading />}
+      {(createMutation.isPending || deleteMutation.isPending || isUploading) && <Loading />}
 
       <DialogTitle
         sx={{
@@ -203,7 +253,7 @@ const RequestProductForInventoryModal: FC<
               return (
                 <Box
                   key={request.id || `new-${index}`}
-                  className="flex items-start mb-3"
+                  className="flex flex-col mb-4 p-3 border rounded-md"
                 >
                   <EnhancedInput
                     onChange={(e) => updateRequestTitle(index, e.target.value)}
@@ -215,33 +265,53 @@ const RequestProductForInventoryModal: FC<
                     disabled={
                       createMutation.isPending ||
                       deleteMutation.isPending ||
-                      !request.isNew
+                      !request.isNew ||
+                      isUploading
                     }
+                    sx={{ mb: 2 }}
                   />
-                  {needsSaving && (
+                  
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      آپلود تصویر (اختیاری)
+                    </Typography>
+                    <FileUploader
+                      files={getRequestFiles(index)}
+                      onFilesChange={(files) => updateRequestFiles(index, files)}
+                      accept="image/*"
+                      multiple={false}
+                      maxFiles={1}
+                      label="تصویر کالای درخواستی را انتخاب کنید"
+                    />
+                  </Box>
+
+                  <Box className="flex justify-end gap-2">
+                    {needsSaving && (
+                      <IconButton
+                        color="success"
+                        onClick={() => saveRequest(index)}
+                        disabled={
+                          createMutation.isPending ||
+                          deleteMutation.isPending ||
+                          isUploading ||
+                          !getRequestTitle(index).trim()
+                        }
+                      >
+                        <Check />
+                      </IconButton>
+                    )}
                     <IconButton
-                      color="success"
-                      onClick={() => saveRequest(index)}
-                      sx={{ ml: 1, mt: 1 }}
+                      color="error"
+                      onClick={() => removeRequest(index)}
                       disabled={
-                        createMutation.isPending ||
+                        createMutation.isPending || 
                         deleteMutation.isPending ||
-                        !getRequestTitle(index).trim()
+                        isUploading
                       }
                     >
-                      <Check />
+                      <Delete />
                     </IconButton>
-                  )}
-                  <IconButton
-                    color="error"
-                    onClick={() => removeRequest(index)}
-                    sx={{ ml: 1, mt: 1 }}
-                    disabled={
-                      createMutation.isPending || deleteMutation.isPending
-                    }
-                  >
-                    <Delete />
-                  </IconButton>
+                  </Box>
                 </Box>
               );
             })}

@@ -38,6 +38,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
   const {
     updateStatusMutation,
     handleServiceChange,
+    handleServiceSearch,
     handleUpdateStatus,
     setSelectedProblem,
     setDeleteConfirm,
@@ -84,19 +85,19 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
               </Button>
             </AccessGuard>
             {/* <AccessGuard accessId={ACCESS_IDS.VIEW_FACTORS_REPAIR}> */}
-              <Button
-                onClick={() => setShowViewFactorsModal(true)}
-                variant="contained"
-                color="secondary"
-                size="large"
-                sx={{
-                  maxWidth: "calc(50% - 8px)",
-                  minWidth: "fit-content",
-                  flex: "1 1 auto",
-                }}
-              >
-                مشاهده فاکتور خدمات
-              </Button>
+            <Button
+              onClick={() => setShowViewFactorsModal(true)}
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{
+                maxWidth: "calc(50% - 8px)",
+                minWidth: "fit-content",
+                flex: "1 1 auto",
+              }}
+            >
+              مشاهده فاکتور خدمات
+            </Button>
             {/* </AccessGuard> */}
           </div>
 
@@ -173,6 +174,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
       <ServiceManagementModal
         isLoading={createMutation.isPending || updateMutation.isPending}
         onServiceChange={handleServiceChange}
+        onServiceSearch={handleServiceSearch}
         onProblemChange={setSelectedProblem}
         onClose={() => setShowModal(false)}
         selectedService={selectedService}

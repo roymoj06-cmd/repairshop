@@ -562,20 +562,6 @@ export const formatDateTime = (dateString: string): string => {
   }
 };
 
-// Service form data interface
-export interface ServiceFormData {
-  mechanicId: SelectOption | undefined;
-  serviceId: SelectOption | undefined;
-  estimatedMinute: number | undefined;
-  servicePrice: number | undefined;
-  totalPrice: number | undefined;
-  serviceCount: number;
-  startDate?: string;
-  endDate?: string;
-  originalServiceId?: number;
-  isDeleted?: boolean;
-}
-
 // Extended select option interface
 export interface ExtendedSelectOption extends SelectOption {
   estimatedMinute?: number;

@@ -8,12 +8,12 @@ import {
 } from "@mui/material";
 
 import { Button, ServiceForm } from "@/components";
-import { ServiceFormData } from "@/utils";
 
 interface ServiceManagementModalProps {
   onServiceChange: (index: number, field: string, value: any) => void;
   selectedService: Service | IGetAllRepairReceptionServices | null;
   onProblemChange: (value: SelectOption | null) => void;
+  onServiceSearch: (searchText: string) => void;
   selectedProblem: SelectOption | null;
   currentServices: ServiceFormData[];
   repairServices: SelectOption[];
@@ -31,6 +31,7 @@ const ServiceManagementModal: React.FC<ServiceManagementModalProps> = ({
   currentServices,
   onProblemChange,
   onServiceChange,
+  onServiceSearch,
   repairServices,
   mechanics,
   isLoading,
@@ -48,11 +49,9 @@ const ServiceManagementModal: React.FC<ServiceManagementModalProps> = ({
       return "افزودن تعمیر جدید";
     }
   };
-
   const getSubmitButtonLabel = () => {
     return selectedService ? "بروزرسانی" : "ذخیره";
   };
-
   const isSubmitDisabled = () => {
     return (
       currentServices.length === 0 ||
@@ -93,6 +92,7 @@ const ServiceManagementModal: React.FC<ServiceManagementModalProps> = ({
           currentServices={currentServices}
           onProblemChange={onProblemChange}
           onServiceChange={onServiceChange}
+          onServiceSearch={onServiceSearch}
           repairServices={repairServices}
           mechanics={mechanics}
           problems={problems}

@@ -2,13 +2,15 @@ import { convertObjectToQueryString } from "@/utils";
 import axiosInstance from "@/service/axiosInstance";
 import { proxyServerUrl } from "@/service/url";
 
-export const getAllRepairServices = async (data: IPaginationForService) => {
+interface IGetAllRepairServices extends IPaginationForService {
+  searchText?: string;
+}
+export const getAllRepairServices = async (data: IGetAllRepairServices) => {
   const queryString = convertObjectToQueryString(data);
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getAllRepairServices}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getAllRepairServices}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -62,9 +64,8 @@ export const getCustomerProblems = async (
   const queryString = convertObjectToQueryString(data);
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getCustomerProblems}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getCustomerProblems}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -72,9 +73,8 @@ export const getCustomerProblemById = async (id: string) => {
   const queryString = convertObjectToQueryString({ id });
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getCustomerProblemById}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.getCustomerProblemById}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -92,9 +92,8 @@ export const deleteCustomerProblem = async (id: number) => {
   const queryString = convertObjectToQueryString({ id });
   const reqConfig = {
     method: "DELETE",
-    url: `${proxyServerUrl.deleteCustomerProblem}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.deleteCustomerProblem}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -102,9 +101,8 @@ export const updateProblemIsTested = async (data: IUpdateProblemIsTested) => {
   const queryString = convertObjectToQueryString(data);
   const reqConfig = {
     method: "PUT",
-    url: `${proxyServerUrl.updateProblemIsTested}${
-      queryString ? `?${queryString}` : ""
-    }`,
+    url: `${proxyServerUrl.updateProblemIsTested}${queryString ? `?${queryString}` : ""
+      }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
