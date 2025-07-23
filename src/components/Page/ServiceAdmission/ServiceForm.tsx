@@ -102,12 +102,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                           Number(e.target.value)
                         )
                       }
-                      placeholder={
-                        service.serviceId
-                          ? "ویرایش قیمت"
-                          : "ابتدا سرویس را انتخاب کنید"
-                      }
-                      disabled={!service.serviceId}
+                      placeholder="قیمت سرویس"
                     />
                     <EnhancedInput
                       value={service.estimatedMinute?.toString() || ""}
@@ -123,22 +118,12 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                           Number(e.target.value)
                         )
                       }
-                      placeholder={
-                        service.serviceId
-                          ? "زمان به دقیقه"
-                          : "ابتدا سرویس را انتخاب کنید"
-                      }
-                      disabled={!service.serviceId}
+                      placeholder="زمان به دقیقه"
                       inputProps={{
                         min: 1,
                         step: 1
                       }}
-                      error={service.serviceId && (!service.estimatedMinute || service.estimatedMinute <= 0)}
-                    // helperText={
-                    //   service.serviceId && (!service.estimatedMinute || service.estimatedMinute <= 0)
-                    //     ? "تخمین زمان باید بیشتر از صفر باشد"
-                    //     : ""
-                    // }
+                      error={!service.estimatedMinute || service.estimatedMinute <= 0}
                     />
 
                     <EnhancedInput
@@ -147,7 +132,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                       label="تعداد"
                       type="number"
                       required={true}
-                      error={service.serviceId && (!service.serviceCount || service.serviceCount <= 0)}
+                      error={!service.serviceCount || service.serviceCount <= 0}
                       onChange={(e) =>
                         onServiceChange(
                           index,
