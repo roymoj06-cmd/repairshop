@@ -110,6 +110,7 @@ export const proxyServerUrl = {
   // RepairProductRequest Controller
   getAllRepairProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetAllRepairProductRequestsByReceptionId`,
   getRepairProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetRepairProductRequestsByReceptionId`,
+  addApprovedProductsToReceptionDirect: `${panelServiceBaseUrl}/RepairProductRequest/AddApprovedProductsToReceptionDirect`,
   getRepairProductRequestsByProblemId: `${panelServiceBaseUrl}/RepairProductRequest/GetRepairProductRequestsByProblemId`,
   getAllProductRequestsByReceptionId: `${panelServiceBaseUrl}/RepairProductRequest/GetAllProductRequestsByReceptionId`,
   getPendingRepairProductRequests: `${panelServiceBaseUrl}/RepairProductRequest/GetPendingRepairProductRequests`,
@@ -123,6 +124,7 @@ export const proxyServerUrl = {
   deleteRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/DeleteRepairProductRequest`,
   reviewRepairProductRequest: `${panelServiceBaseUrl}/RepairProductRequest/ReviewRepairProductRequest`,
   updateStatusToBuyCompleted: `${panelServiceBaseUrl}/RepairProductRequest/UpdateStatusToBuyCompleted`,
+  getProductDetailsByProblem: `${panelServiceBaseUrl}/RepairProductRequest/GetProductDetailsByProblem`,
   getOutOfStockRequests: `${panelServiceBaseUrl}/RepairProductRequest/GetOutOfStockRequests`,
   buyRequest: `${panelServiceBaseUrl}/RepairProductRequest/BuyRequest`,
 

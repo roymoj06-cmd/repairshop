@@ -3,10 +3,10 @@
 @use "tailwindcss/base" as *;
 @use "sass-rem" as *;
 
-@use "@/Styles/components/requestProductDetailsModal" as
-  requestProductDetailsModal;
-@use "@/Styles/components/cameraBarcodeScanner" as cameraBarcodeScanner;
+@use "@/Styles/components/requestProductDetailsModal" as requestProductDetailsModal;
 @use "@/Styles/components/repairReceptionService" as repairReceptionService;
+@use "@/Styles/components/cameraBarcodeScanner" as cameraBarcodeScanner;
+@use "@/Styles/components/requestListModal" as requestListModal;
 @use "@/Styles/page/mechanicPerformance" as mechanicPerformance;
 @use "@/Styles/components/dashboardLayout" as dashboardLayout;
 @use "@/Styles/page/mechanicManagement" as mechanicManagement;

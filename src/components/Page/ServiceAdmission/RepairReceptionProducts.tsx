@@ -40,10 +40,11 @@ import {
   RequestProductFromCustomerModal,
   RequestProductForInventoryModal,
   CreateFactorForReception,
-  RequestProductListModal,
+  // RequestProductListModal,
   RequestProductModal,
   ConfirmDeleteDialog,
   ProductFactorModal,
+  RequestListModal,
   Loading,
 } from "@/components";
 
@@ -424,10 +425,10 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
               maxWidth: "calc(50% - 8px)",
             }}
           >
-            درخواست قطعه مکانیک
+            درخواست قطعه
           </Button>
         </AccessGuard>
-        <AccessGuard accessId={ACCESS_IDS.WAREHOUSE_PART_REQUEST}>
+        {/* <AccessGuard accessId={ACCESS_IDS.WAREHOUSE_PART_REQUEST}>
           <Button
             onClick={() => setShowProductRequestModal(true)}
             variant="contained"
@@ -441,7 +442,7 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
           >
             درخواست قطعه انبار
           </Button>
-        </AccessGuard>
+        </AccessGuard> */}
         <AccessGuard accessId={ACCESS_IDS.VIEW_REQUESTS}>
           <Button
             onClick={() => setShowProductRequestListModal(true)}
@@ -585,7 +586,7 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
         />
       )}
       {showProductRequestListModal && (
-        <RequestProductListModal
+        <RequestListModal
           setShowModal={setShowProductRequestListModal}
           showModal={showProductRequestListModal}
           repairReceptionId={repairReceptionId}

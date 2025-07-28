@@ -729,3 +729,19 @@ interface ServiceFormData {
   startDate?: string;
   endDate?: string;
 }
+interface IGetProductDetailsByProblem {
+  repairReceptionDetailId: number;
+  isCustomerOwner: boolean;
+  productCode: string;
+  barcodeCode: string;
+  countryName: string;
+  productName: string;
+  hasOldPart: boolean;
+  partNumber: string;
+  productId: number;
+  barcodeId: number;
+  mechanic: string;
+  partName: string;
+  title: string;
+  brand: string;
+}
