@@ -17,7 +17,7 @@ import {
 
 import {
   getAverageEstimatedTime,
-  getMonthlyReceptions,
+  getReceptionsCount,
   getAverageStayTime,
   getCurrentVehicles,
   getDelayedRepairs,
@@ -108,9 +108,8 @@ const Dashboard: FC = () => {
     isLoading: isLoadingDelayed,
     error: delayedError,
   } = useQuery({
-    queryKey: ["delayedRepairs", dateRange],
+    queryKey: ["delayedRepairs"],
     queryFn: () => getDelayedRepairs(),
-    enabled: !!(dateRange.fromDate && dateRange.toDate),
   });
   const {
     data: averageEstimatedTime,
@@ -119,15 +118,14 @@ const Dashboard: FC = () => {
   } = useQuery({
     queryKey: ["averageEstimatedTime"],
     queryFn: () => getAverageEstimatedTime(),
-    enabled: !!(dateRange.fromDate && dateRange.toDate),
   });
   const {
-    data: monthlyReceptions,
+    data: receptionsCount,
     isLoading: isLoadingReceptions,
     error: receptionsError,
   } = useQuery({
-    queryKey: ["monthlyReceptions", dateRange],
-    queryFn: () => getMonthlyReceptions(dateRange),
+    queryKey: ["receptionsCount", dateRange],
+    queryFn: () => getReceptionsCount(dateRange),
     enabled: !!(dateRange.fromDate && dateRange.toDate),
   });
   const {
@@ -135,18 +133,16 @@ const Dashboard: FC = () => {
     isLoading: isLoadingStayTime,
     error: stayTimeError,
   } = useQuery({
-    queryKey: ["averageStayTime", dateRange],
+    queryKey: ["averageStayTime"],
     queryFn: () => getAverageStayTime(),
-    enabled: !!(dateRange.fromDate && dateRange.toDate),
   });
   const {
     data: currentVehicles,
     isLoading: isLoadingVehicles,
     error: vehiclesError,
   } = useQuery({
-    queryKey: ["currentVehicles", dateRange],
+    queryKey: ["currentVehicles"],
     queryFn: () => getCurrentVehicles(),
-    enabled: !!(dateRange.fromDate && dateRange.toDate),
   });
   const formatNumber = (num: number | undefined): string => {
     if (num === undefined || num === null) return "0";
@@ -192,27 +188,29 @@ const Dashboard: FC = () => {
               <div className="dashboard__filters-date-range-item">
                 <label>از تاریخ</label>
                 <DatePicker
-                  className="custom-datepicker"
                   containerClassName="w-full custom-datepicker-container"
                   onChange={(e: DateObject) => setFromDatePicker(e)}
-                  calendar={persian}
-                  locale={persian_fa}
-                  calendarPosition="bottom-right"
                   placeholder="انتخاب تاریخ شروع"
+                  calendarPosition="bottom-right"
+                  className="custom-datepicker"
                   value={fromDatePicker}
+                  locale={persian_fa}
+                  calendar={persian}
+                  zIndex={2001}
                 />
               </div>
               <div className="dashboard__filters-date-range-item">
                 <label>تا تاریخ</label>
                 <DatePicker
-                  className="custom-datepicker"
                   containerClassName="w-full custom-datepicker-container"
                   onChange={(e: DateObject) => setToDatePicker(e)}
-                  calendar={persian}
-                  locale={persian_fa}
-                  calendarPosition="bottom-right"
                   placeholder="انتخاب تاریخ پایان"
+                  calendarPosition="bottom-right"
+                  className="custom-datepicker"
                   value={toDatePicker}
+                  locale={persian_fa}
+                  calendar={persian}
+                  zIndex={2001}
                 />
               </div>
             </div>
@@ -296,7 +294,7 @@ const Dashboard: FC = () => {
               <span className="value value--small">خطا</span>
             ) : (
               <span className="value">
-                {formatNumber(monthlyReceptions?.count)}
+                {formatNumber(receptionsCount?.data)}
               </span>
             )}
           </div>

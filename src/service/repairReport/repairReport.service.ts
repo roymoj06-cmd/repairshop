@@ -16,11 +16,11 @@ export const getAverageEstimatedTime = async () => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
-export const getMonthlyReceptions = async (params: IReportDashboardParams) => {
+export const getReceptionsCount = async (params: IReportDashboardParams) => {
   const queryString = convertObjectToQueryString(params);
   const reqConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getMonthlyReceptions}${
+    url: `${proxyServerUrl.getReceptionsCount}${
       queryString ? `?${queryString}` : ""
     }`,
   };

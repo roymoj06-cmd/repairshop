@@ -156,7 +156,7 @@ export const proxyServerUrl = {
 
   // RepairReport Controller
   getAverageEstimatedTime: `${panelServiceBaseUrl}/RepairReport/GetAverageEstimatedTime`,
-  getMonthlyReceptions: `${panelServiceBaseUrl}/RepairReport/GetMonthlyReceptions`,
+  getReceptionsCount: `${panelServiceBaseUrl}/RepairReport/GetReceptionsCount`,
   getAverageStayTime: `${panelServiceBaseUrl}/RepairReport/GetAverageStayTime`,
   getCurrentVehicles: `${panelServiceBaseUrl}/RepairReport/GetCurrentVehicles`,
   getDelayedRepairs: `${panelServiceBaseUrl}/RepairReport/GetDelayedRepairs`,
