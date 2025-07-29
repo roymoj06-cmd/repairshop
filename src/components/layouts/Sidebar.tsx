@@ -42,7 +42,7 @@ const navConfig: NavItemProps[] = [
     title: "داشبورد",
     path: dir.dashboard,
     icon: <Dashboard />,
-    guid: "",
+    guid: "73f370c9-dd32-4045-83b1-6ca2b0d39b58",
   },
   {
     title: "گاراژ من",
