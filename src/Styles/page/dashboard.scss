@@ -1,0 +1,840 @@
+.dashboard {
+  padding: 32px;
+  min-height: 100vh;
+//   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    // background: 
+    //   radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+    //   radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.2) 0%, transparent 50%),
+    //   radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: 48px;
+    
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+      text-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+      letter-spacing: -0.02em;
+    }
+    
+    p {
+      font-size: 1.2rem;
+      color: #64748b;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+  }
+
+  &__filters {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.8));
+    backdrop-filter: blur(30px);
+    border-radius: 20px;
+    padding: 24px 28px;
+    margin-bottom: 40px;
+    box-shadow: 
+      0 25px 50px -12px rgba(0, 0, 0, 0.12),
+      0 8px 16px -4px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+      background-size: 300% 100%;
+      animation: gradient-flow 8s ease infinite;
+    }
+
+    &-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      
+      @media (max-width: 1024px) {
+        flex-direction: column;
+        gap: 24px;
+      }
+    }
+
+    &-date-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+      }
+    }
+
+    &-date-range {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.6);
+      padding: 12px 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(102, 126, 234, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.2);
+      }
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        padding: 16px;
+      }
+      
+      &-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 140px;
+        
+        @media (max-width: 768px) {
+          width: 100%;
+          min-width: auto;
+        }
+        
+        label {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: #475569;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          
+          &::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+          }
+        }
+      }
+      
+      &-divider {
+        width: 20px;
+        height: 2px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 1px;
+        position: relative;
+        
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          width: 6px;
+          height: 6px;
+          background: #667eea;
+          border-radius: 50%;
+          top: -2px;
+        }
+        
+        &::before {
+          left: -3px;
+        }
+        
+        &::after {
+          right: -3px;
+        }
+        
+        @media (max-width: 768px) {
+          display: none;
+        }
+      }
+    }
+
+    &-shortcuts {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+      align-items: center;
+      width: 100%;
+      overflow-x: auto;
+      padding: 4px 0;
+      justify-content: end;
+      /* Hide scrollbar but keep functionality */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      @media (max-width: 1024px) {
+        justify-content: flex-start;
+      }
+      
+      @media (max-width: 640px) {
+        gap: 6px;
+      }
+      
+      &-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-left: 8px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        
+        @media (max-width: 768px) {
+          display: none;
+        }
+      }
+    }
+
+    &-shortcut {
+      flex: 1;
+      min-width: 0;
+      
+      .MuiButton-root {
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 8px 12px;
+        min-width: 0;
+        width: 100%;
+        text-transform: none;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        white-space: nowrap;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+          transition: left 0.6s ease;
+        }
+
+        &:hover {
+          transform: translateY(-3px) scale(1.05);
+          
+          &::before {
+            left: 100%;
+          }
+        }
+
+        &.MuiButton-contained {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+          color: white;
+          border: none;
+          box-shadow: 
+            0 8px 16px rgba(102, 126, 234, 0.3),
+            0 4px 8px rgba(118, 75, 162, 0.2);
+          
+          &:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 50%, #e879f9 100%);
+            box-shadow: 
+              0 12px 24px rgba(102, 126, 234, 0.4),
+              0 6px 12px rgba(118, 75, 162, 0.3);
+          }
+          
+          &::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            border-radius: 48px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+            pointer-events: none;
+          }
+        }
+
+        &.MuiButton-outlined {
+          border: 2px solid transparent;
+          background: 
+            linear-gradient(white, white) padding-box,
+            linear-gradient(135deg, #667eea, #764ba2, #f093fb) border-box;
+          color: #475569;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+          
+          &:hover {
+            color: white;
+            background: 
+              linear-gradient(135deg, #667eea, #764ba2, #f093fb) padding-box,
+              linear-gradient(135deg, #667eea, #764ba2, #f093fb) border-box;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+          }
+        }
+      }
+    }
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 32px;
+    margin-bottom: 48px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 480px) {
+      gap: 16px;
+    }
+  }
+
+  &__card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 16px;
+    box-shadow: 
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--card-gradient);
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, var(--card-glow-color) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    &:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 
+        0 32px 64px -12px rgba(0, 0, 0, 0.15),
+        0 20px 32px -8px rgba(0, 0, 0, 0.1);
+        
+      &::after {
+        opacity: 0.1;
+      }
+    }
+
+    // Card color variations
+    &:nth-child(1) {
+      --card-gradient: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      --card-glow-color: #ff6b6b;
+    }
+    
+    &:nth-child(2) {
+      --card-gradient: linear-gradient(135deg, #4ecdc4, #44a08d);
+      --card-glow-color: #4ecdc4;
+    }
+    
+    &:nth-child(3) {
+      --card-gradient: linear-gradient(135deg, #45b7d1, #96c93d);
+      --card-glow-color: #45b7d1;
+    }
+    
+    &:nth-child(4) {
+      --card-gradient: linear-gradient(135deg, #f093fb, #f5576c);
+      --card-glow-color: #f093fb;
+    }
+    
+    &:nth-child(5) {
+      --card-gradient: linear-gradient(135deg, #667eea, #764ba2);
+      --card-glow-color: #667eea;
+    }
+
+    &--loading {
+      opacity: 0.7;
+      pointer-events: none;
+      
+      &::before {
+        background: linear-gradient(90deg, #e2e8f0, #cbd5e1, #e2e8f0);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+    }
+
+    &-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 24px;
+
+      h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        line-height: 1.4;
+      }
+
+      .icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        background: var(--card-gradient);
+        color: white;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        position: relative;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          inset: -2px;
+          border-radius: 22px;
+          padding: 2px;
+          background: var(--card-gradient);
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: xor;
+          opacity: 0.6;
+        }
+      }
+    }
+
+    &-content {
+      text-align: center;
+
+      .value {
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #1e293b, #475569);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        // margin-bottom: 12px;
+        line-height: 1;
+        // display: block;
+        
+        &--large {
+          font-size: 3.5rem;
+        }
+        
+        &--small {
+          font-size: 1.8rem;
+          font-weight: 700;
+        }
+      }
+
+      .subtitle {
+        color: #64748b;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 16px;
+        line-height: 1.5;
+      }
+
+      .trend {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        
+        &--up {
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white;
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        &--down {
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          color: white;
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        
+        &--neutral {
+          background: linear-gradient(135deg, #6b7280, #4b5563);
+          color: white;
+          box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+        }
+      }
+    }
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 120px 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    svg {
+      font-size: 5rem;
+      margin-bottom: 24px;
+      color: #cbd5e1;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #1e293b;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin: 0;
+      color: #64748b;
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+// Dark mode support
+[data-theme="dark"] {
+  .dashboard {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    
+    &::before {
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(239, 68, 68, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+    }
+    
+    &__header {
+      h1 {
+        background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      
+      p {
+        color: #94a3b8;
+      }
+    }
+    
+    &__filters,
+    &__card,
+    &__empty {
+      background: rgba(30, 41, 59, 0.8);
+      border-color: rgba(71, 85, 105, 0.3);
+    }
+    
+    &__filters-title,
+    &__card-header h3,
+    &__empty h3 {
+      color: #f1f5f9;
+    }
+    
+    &__card-content .value {
+      background: linear-gradient(135deg, #f1f5f9, #cbd5e1);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    &__card-content .subtitle,
+    &__empty p {
+      color: #94a3b8;
+    }
+  }
+}
+
+// Custom date picker styles for dashboard
+.dashboard .custom-datepicker-container {
+  .rmdp-container {
+    width: 100%;
+    
+    .rmdp-input {
+      width: 100%;
+      padding: 10px 16px;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      background: 
+        linear-gradient(white, white) padding-box,
+        linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3)) border-box;
+      color: #1e293b;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 40px;
+      backdrop-filter: blur(10px);
+      box-shadow: 
+        0 4px 12px rgba(102, 126, 234, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+      &:focus {
+        outline: none;
+        background: 
+          linear-gradient(white, white) padding-box,
+          linear-gradient(135deg, #667eea, #764ba2) border-box;
+        box-shadow: 
+          0 8px 20px rgba(102, 126, 234, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        transform: translateY(-1px);
+      }
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 
+          0 6px 16px rgba(102, 126, 234, 0.12),
+          inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      }
+      
+      &::placeholder {
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Responsive breakpoints
+@media (max-width: 1200px) {
+  .dashboard {
+    padding: 24px;
+    
+    &__stats {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 16px;
+    
+    &__filters {
+      padding: 20px 16px;
+      margin-bottom: 28px;
+      
+      &-date-range-item {
+        label {
+          font-size: 0.7rem;
+        }
+      }
+      
+      &-shortcuts {
+        gap: 6px;
+        
+        &-label {
+          font-size: 0.75rem;
+        }
+      }
+      
+      &-shortcut {
+        .MuiButton-root {
+          font-size: 0.75rem;
+          padding: 6px 8px;
+        }
+      }
+    }
+    
+    .custom-datepicker-container {
+      .rmdp-container {
+        .rmdp-input {
+          height: 36px;
+          font-size: 0.8rem;
+          padding: 8px 12px;
+        }
+      }
+    }
+    
+    &__stats {
+      margin-bottom: 24px;
+      gap: 20px;
+    }
+    
+    &__card {
+      padding: 24px;
+      
+      &-header {
+        margin-bottom: 20px;
+        
+        .icon {
+          width: 56px;
+          height: 56px;
+          font-size: 1.75rem;
+        }
+      }
+      
+      &-content {
+        .value {
+          font-size: 2.5rem;
+          
+          &--large {
+            font-size: 3rem;
+          }
+          
+          &--small {
+            font-size: 1.6rem;
+          }
+        }
+      }
+    }
+    
+    &__empty {
+      padding: 80px 20px;
+      
+      svg {
+        font-size: 4rem;
+      }
+      
+      h3 {
+        font-size: 1.3rem;
+      }
+      
+      p {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 12px;
+    
+    &__filters {
+      padding: 16px 12px;
+      margin-bottom: 20px;
+      border-radius: 16px;
+      
+      &-date-range-item {
+        label {
+          font-size: 0.65rem;
+          
+          &::before {
+            width: 4px;
+            height: 4px;
+          }
+        }
+      }
+      
+      &-shortcuts {
+        gap: 6px;
+        
+        &-label {
+          display: none;
+        }
+        
+        .MuiButton-root {
+          padding: 5px 10px;
+          font-size: 0.7rem;
+          border-radius: 25px;
+        }
+      }
+    }
+    
+    .custom-datepicker-container {
+      .rmdp-container {
+        .rmdp-input {
+          padding: 6px 10px;
+          font-size: 0.75rem;
+          height: 32px;
+          border-radius: 10px;
+          
+          &::placeholder {
+            font-size: 0.7rem;
+          }
+        }
+      }
+    }
+    
+    &__card {
+      padding: 20px;
+      
+      &-content {
+        .value {
+          font-size: 2rem;
+          
+          &--large {
+            font-size: 2.5rem;
+          }
+          
+          &--small {
+            font-size: 1.4rem;
+          }
+        }
+      }
+    }
+  }
+}

@@ -153,4 +153,11 @@ export const proxyServerUrl = {
   getAllRepairServiceFactor: `${panelServiceBaseUrl}/RepairServiceFactor/GetAllRepairServiceFactor`,
   deleteRepairServiceFactor: `${panelServiceBaseUrl}/RepairServiceFactor/DeleteRepairServiceFactor`,
   saveRepairServiceFactor: `${panelServiceBaseUrl}/RepairServiceFactor/SaveRepairServiceFactor`,
+
+  // RepairReport Controller
+  getAverageEstimatedTime: `${panelServiceBaseUrl}/RepairReport/GetAverageEstimatedTime`,
+  getMonthlyReceptions: `${panelServiceBaseUrl}/RepairReport/GetMonthlyReceptions`,
+  getAverageStayTime: `${panelServiceBaseUrl}/RepairReport/GetAverageStayTime`,
+  getCurrentVehicles: `${panelServiceBaseUrl}/RepairReport/GetCurrentVehicles`,
+  getDelayedRepairs: `${panelServiceBaseUrl}/RepairReport/GetDelayedRepairs`,
 };

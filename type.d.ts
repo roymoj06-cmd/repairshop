@@ -48,7 +48,7 @@ interface IUpdateRepairReception {
     customerId: number;
     carColor?: string;
     carId: number;
-  }
+  };
 }
 interface IUpdateCarRepair {
   plateSection1?: string;
@@ -633,36 +633,35 @@ interface IGetRepairReceptionStatuses {
   id: number;
 }
 interface IGetAllRepairServiceFactor {
-  shamsiFactorDate: string
-  repairReceptionId: number
-  customerName: string
-  customerCode: string
-  plateNumber: string
-  description: string
-  factorDate: string
-  totalPrice: number
-  carInfo: string
-  code: number
-  vin: string
-  id: number
-  details:
-  {
-    overridedServiceTitle: string
-    problemDescription: string
-    overridedUnitPrice: number
-    estimatedMinute: number
-    serviceTitle: string
-    servicePrice: number
-    serviceCount: number
-    mechanicName: string
-    totalPrice: number
-    statusText: string
-    serviceId: number
-    startDate: string
-    unitPrice: number
-    quantity: number
-    endDate: string
-    status: number
+  shamsiFactorDate: string;
+  repairReceptionId: number;
+  customerName: string;
+  customerCode: string;
+  plateNumber: string;
+  description: string;
+  factorDate: string;
+  totalPrice: number;
+  carInfo: string;
+  code: number;
+  vin: string;
+  id: number;
+  details: {
+    overridedServiceTitle: string;
+    problemDescription: string;
+    overridedUnitPrice: number;
+    estimatedMinute: number;
+    serviceTitle: string;
+    servicePrice: number;
+    serviceCount: number;
+    mechanicName: string;
+    totalPrice: number;
+    statusText: string;
+    serviceId: number;
+    startDate: string;
+    unitPrice: number;
+    quantity: number;
+    endDate: string;
+    status: number;
   }[];
 }
 interface IGetAllRepairProductRequests {
@@ -744,4 +743,8 @@ interface IGetProductDetailsByProblem {
   partName: string;
   title: string;
   brand: string;
+}
+interface IReportDashboardParams {
+  fromDate: string;
+  toDate: string;
 }
