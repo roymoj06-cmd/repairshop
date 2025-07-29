@@ -161,4 +161,8 @@ export const proxyServerUrl = {
   getAverageStayTime: `${panelServiceBaseUrl}/RepairReport/GetAverageStayTime`,
   getCurrentVehicles: `${panelServiceBaseUrl}/RepairReport/GetCurrentVehicles`,
   getDelayedRepairs: `${panelServiceBaseUrl}/RepairReport/GetDelayedRepairs`,
+  
+  //RepairProductFractional Controller
+  getRepairProductFractionalsByPlate: `${panelServiceBaseUrl}/RepairProductFractional/GetRepairProductFractionalsByPlate`,
+  createRepairProductFractional: `${panelServiceBaseUrl}/RepairProductFractional/CreateRepairProductFractional`,
 };

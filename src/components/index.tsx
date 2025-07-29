@@ -1,6 +1,7 @@
 export { default as RequestProductFromCustomerModal } from "./Page/ServiceAdmission/RequestProductFromCustomerModal";
 export { default as RequestProductForInventoryModal } from "./Page/ServiceAdmission/RequestProductForInventoryModal";
 export { default as RequestProductDetailsModal } from "./Page/ServiceAdmission/RequestProductDetailsModal";
+export { default as CreateProductRequestModal } from "./Page/ProductRequests/CreateProductRequestModal";
 export { default as CreateFactorForReception } from "./Page/ServiceAdmission/CreateFactorForReception";
 export { default as ViewServiceFactorsModal } from "./Page/ServiceAdmission/ViewServiceFactorsModal";
 export { default as RepairReceptionProducts } from "./Page/ServiceAdmission/RepairReceptionProducts";

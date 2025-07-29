@@ -753,4 +753,25 @@ interface IUpdateCustomerOldPartConfirmation {
   detailId: number;
   fileIds: number[];
 }
-
+interface ICreateRepairProductFractional {
+  customerUserId: number;
+  productId: number;
+  quantity: number;
+  carId: number;
+}
+interface IGetRepairProductFractionalsByPlate {
+  productCount: number;
+  carId: number;
+  products: {
+    plateNumber: string;
+    productName: string;
+    productCode: string;
+    description: string;
+    productId: number;
+    userName: string;
+    createDm: string;
+    quantity: number;
+    userId: number;
+    id: number;
+  }[];
+}
