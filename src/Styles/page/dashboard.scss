@@ -62,17 +62,17 @@
     position: relative;
     // overflow: hidden;
     
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
-      background-size: 300% 100%;
-      animation: gradient-flow 8s ease infinite;
-    }
+    // &::before {
+    //   content: '';
+    //   position: absolute;
+    //   top: 0;
+    //   left: 0;
+    //   right: 0;
+    //   height: 3px;
+    //   background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+    //   background-size: 300% 100%;
+    //   animation: gradient-flow 8s ease infinite;
+    // }
 
     &-wrapper {
       display: flex;
