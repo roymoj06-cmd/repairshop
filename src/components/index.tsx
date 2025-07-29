@@ -8,6 +8,7 @@ export { default as RequestProductListModal } from "./Page/ServiceAdmission/Requ
 export { default as CreateFactorForService } from "./Page/ServiceAdmission/CreateFactorForService";
 export { default as RepairReceptionService } from "./Page/ServiceAdmission/RepairReceptionService";
 export { default as ServiceManagementModal } from "./Page/ServiceAdmission/ServiceManagementModal";
+export { default as RepairReceptionOldPart } from "./Page/ServiceAdmission/RepairReceptionOldPart";
 export { default as ServiceAdmissionForm } from "./Page/ServiceAdmission/ServiceAdmissionForm";
 export { default as RequestProductModal } from "./Page/ServiceAdmission/RequestProductModal";
 export { default as ProductFactorModal } from "./Page/ServiceAdmission/ProductFactorModal";

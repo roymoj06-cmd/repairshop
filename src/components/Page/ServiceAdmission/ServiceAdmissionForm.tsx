@@ -1,4 +1,11 @@
-import { Box, Grid2 as Grid, Tab, Tabs, Typography, Divider } from "@mui/material";
+import {
+  Box,
+  Grid2 as Grid,
+  Tab,
+  Tabs,
+  Typography,
+  Divider,
+} from "@mui/material";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import gregorian_en from "react-date-object/locales/gregorian_en";
 import DatePicker, { DateObject } from "react-multi-date-picker";
@@ -11,7 +18,6 @@ import { useForm } from "react-hook-form";
 import { Add } from "@mui/icons-material";
 import { toast } from "react-toastify";
 
-import { useAccessControl, ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 import { getCustomers } from "@/service/customer/customer.service";
 import {
   getRepairReceptionForUpdateById,
@@ -21,8 +27,14 @@ import {
   getCustomerCars,
 } from "@/service/repair/repair.service";
 import {
+  useAccessControl,
+  AccessGuard,
+  ACCESS_IDS,
+} from "@/utils/accessControl";
+import {
   RepairReceptionProducts,
   RepairReceptionService,
+  RepairReceptionOldPart,
   PlateManagementDialog,
   CustomerProblems,
   EnhancedSelect,
@@ -43,16 +55,15 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   const { hasCategoryAccess } = useAccessControl();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [showNewPlateDialog, setShowNewPlateDialog] = useState<boolean>(false);
-  const [showDischargeConfirmDialog, setShowDischargeConfirmDialog] = useState<boolean>(false);
+  const [showDischargeConfirmDialog, setShowDischargeConfirmDialog] =
+    useState<boolean>(false);
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
   const [initialDataLoaded, setInitialDataLoaded] = useState<boolean>(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<number>(0);
-  // Date picker states
   const [deliveryDate, setDeliveryDate] = useState<any>(null);
   const [receptionDate, setReceptionDate] = useState<any>(() => {
-    // Set default to today with current time
     const now = new Date();
     return new DateObject({
       calendar: persian,
@@ -77,19 +88,18 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
       customerId: undefined,
       carId: undefined,
       files: [],
-      // Updated fields default values
       customerEstimatedTime: undefined,
+      receptionDateTime: undefined,
+      receiverNameAtReception: "",
+      driverPhoneAtDelivery: "",
+      returnDateTime: undefined,
+      customerPhoneAtReturn: "",
+      driverNameAtDelivery: "",
+      customerNameAtReturn: "",
       carKilometers: undefined,
+      staffNameAtReturn: "",
       description: "",
       carColor: "",
-      receiverNameAtReception: "",
-      receptionDateTime: undefined,
-      driverNameAtDelivery: "",
-      driverPhoneAtDelivery: "",
-      staffNameAtReturn: "",
-      returnDateTime: undefined,
-      customerNameAtReturn: "",
-      customerPhoneAtReturn: "",
     },
   });
 
@@ -101,21 +111,18 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
     onSuccess: (data: any) => {
       if (data?.isSuccess && data?.data) {
         const repairData = data.data;
-        setValue("customerId", repairData.customerId);
-        setValue("carId", repairData.carId);
-        // Set new field values
+        setValue("receiverNameAtReception", repairData.receiverNameAtReception);
         setValue("customerEstimatedTime", repairData.customerEstimatedTime);
         setValue("driverPhoneAtDelivery", repairData.driverPhoneAtDelivery);
-        setValue("carKilometers", repairData.carKilometers);
-        setValue("driverNameAtDelivery", repairData.driverNameAtDelivery);
-        setValue("receiverNameAtReception", repairData.receiverNameAtReception);
-        setValue("description", repairData.description);
-        setValue("carColor", repairData.carColor);
-        setValue("staffNameAtReturn", repairData.staffNameAtReturn);
-        setValue("customerNameAtReturn", repairData.customerNameAtReturn);
         setValue("customerPhoneAtReturn", repairData.customerPhoneAtReturn);
-
-        // Set date picker values
+        setValue("driverNameAtDelivery", repairData.driverNameAtDelivery);
+        setValue("customerNameAtReturn", repairData.customerNameAtReturn);
+        setValue("staffNameAtReturn", repairData.staffNameAtReturn);
+        setValue("carKilometers", repairData.carKilometers);
+        setValue("description", repairData.description);
+        setValue("customerId", repairData.customerId);
+        setValue("carColor", repairData.carColor);
+        setValue("carId", repairData.carId);
         if (repairData.returnDateTime) {
           let deliveryDateValue;
           if (repairData.returnDateTime.includes("T")) {
@@ -208,10 +215,12 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         reset();
         // Reset reception date to today
         const now = new Date();
-        setReceptionDate(new DateObject({
-          calendar: persian,
-          date: now,
-        }));
+        setReceptionDate(
+          new DateObject({
+            calendar: persian,
+            date: now,
+          })
+        );
       } else {
         toast?.error(data?.message);
       }
@@ -265,7 +274,9 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
 
   const handleDischargeConfirm = () => {
     if (repairReceptionId) {
-      mutateAsyncDischargeRepairReception({ repairReceptionId: +repairReceptionId });
+      mutateAsyncDischargeRepairReception({
+        repairReceptionId: +repairReceptionId,
+      });
     }
     setShowDischargeConfirmDialog(false);
   };
@@ -292,7 +303,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
-
   const onSubmit = () => {
     if (isEditMode && repairReceptionId) {
       mutateAsyncUpdateRepairReception({
@@ -369,24 +379,26 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         files: [],
         // Reset updated fields
         customerEstimatedTime: undefined,
+        receptionDateTime: undefined,
+        receiverNameAtReception: "",
+        driverPhoneAtDelivery: "",
+        returnDateTime: undefined,
+        customerPhoneAtReturn: "",
         carKilometers: undefined,
+        customerNameAtReturn: "",
+        driverNameAtDelivery: "",
+        staffNameAtReturn: "",
         description: "",
         carColor: "",
-        receiverNameAtReception: "",
-        receptionDateTime: undefined,
-        driverNameAtDelivery: "",
-        driverPhoneAtDelivery: "",
-        staffNameAtReturn: "",
-        returnDateTime: undefined,
-        customerNameAtReturn: "",
-        customerPhoneAtReturn: "",
       });
       // Reset reception date to today
       const now = new Date();
-      setReceptionDate(new DateObject({
-        calendar: persian,
-        date: now,
-      }));
+      setReceptionDate(
+        new DateObject({
+          calendar: persian,
+          date: now,
+        })
+      );
       setInitialDataLoaded(false);
     }
   }, [repairReceptionId, isEditMode, fetchRepairReception, reset]);
@@ -476,7 +488,9 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <Box>
             <DatePicker
-              className={`custom-datepicker ${errors.receptionDateTime ? "error" : ""}`}
+              className={`custom-datepicker ${
+                errors.receptionDateTime ? "error" : ""
+              }`}
               containerClassName="w-full custom-datepicker-container"
               onChange={(e: DateObject) => setReceptionDate(e)}
               placeholder="تاریخ و زمان پذیرش"
@@ -488,9 +502,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
               value={receptionDate}
               portal={true}
               zIndex={2001}
-              plugins={[
-                <TimePicker position="bottom" />
-              ]}
+              plugins={[<TimePicker position="bottom" />]}
               style={{
                 width: "100%",
                 height: "45px",
@@ -579,7 +591,9 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         <Grid size={{ xs: 6, md: 6, lg: 3 }}>
           <Box>
             <DatePicker
-              className={`custom-datepicker ${errors.returnDateTime ? "error" : ""}`}
+              className={`custom-datepicker ${
+                errors.returnDateTime ? "error" : ""
+              }`}
               containerClassName="w-full custom-datepicker-container"
               onChange={(e: DateObject) => setDeliveryDate(e)}
               placeholder="تاریخ و زمان ترخیص"
@@ -591,9 +605,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
               value={deliveryDate}
               portal={true}
               zIndex={2001}
-              plugins={[
-                <TimePicker position="bottom" />
-              ]}
+              plugins={[<TimePicker position="bottom" />]}
               style={{
                 width: "100%",
                 height: "45px",
@@ -722,11 +734,36 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
         </Grid>
         {isEditMode || createRepairReceptionData?.isSuccess ? (
           <Grid size={{ xs: 12 }}>
-            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+            <Box
+              sx={{
+                borderColor: "divider",
+                borderBottom: 1,
+                mb: 3,
+              }}
+            >
               <Tabs
-                value={activeTab}
                 onChange={handleTabChange}
                 aria-label="service tabs"
+                value={activeTab}
+                variant="scrollable"
+                scrollButtons="auto"
+                allowScrollButtonsMobile
+                sx={{
+                  '& .MuiTabs-flexContainer': {
+                    gap: { xs: 0.5, sm: 1 }
+                  },
+                  '& .MuiTab-root': {
+                    minWidth: { xs: 80, sm: 90 },
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                    padding: { xs: '8px 12px', sm: '12px 16px' },
+                    whiteSpace: 'nowrap'
+                  },
+                  '& .MuiTabs-scrollButtons': {
+                    '&.Mui-disabled': {
+                      opacity: 0.3
+                    }
+                  }
+                }}
               >
                 {hasCategoryAccess(ACCESS_IDS.PROBLEMS) && (
                   <Tab label="مشکلات" />
@@ -738,6 +775,9 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
                 {hasCategoryAccess(ACCESS_IDS.DOCUMENTS) && (
                   <Tab label="مستندات" />
                 )}
+                {hasCategoryAccess(ACCESS_IDS.DOCUMENTS) && (
+                  <Tab label="داغی" />
+                )}
               </Tabs>
             </Box>
 
@@ -745,7 +785,6 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
             {activeTab === 0 && hasCategoryAccess(ACCESS_IDS.PROBLEMS) && (
               <CustomerProblems repairReceptionId={repairReceptionId} />
             )}
-
             {/* تب تعمیرات */}
             {activeTab === 1 && hasCategoryAccess(ACCESS_IDS.REPAIRS) && (
               <RepairReceptionService
@@ -763,12 +802,10 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
                 }}
               />
             )}
-
             {/* تب قطعات */}
             {activeTab === 2 && hasCategoryAccess(ACCESS_IDS.PARTS) && (
               <RepairReceptionProducts repairReceptionId={repairReceptionId} />
             )}
-
             {/* تب مستندات */}
             {activeTab === 3 && hasCategoryAccess(ACCESS_IDS.DOCUMENTS) && (
               <Box>
@@ -781,6 +818,10 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
                   </Box>
                 </Grid>
               </Box>
+            )}
+            {/* داغی */}
+            {activeTab === 4 && hasCategoryAccess(ACCESS_IDS.DOCUMENTS) && (
+              <RepairReceptionOldPart repairReceptionId={repairReceptionId} />
             )}
           </Grid>
         ) : (

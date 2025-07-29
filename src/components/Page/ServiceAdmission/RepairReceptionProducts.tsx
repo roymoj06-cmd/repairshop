@@ -75,12 +75,10 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
   const [selectedProductForDelete, setSelectedProductForDelete] =
     useState<any>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-
   const [
     showProductRequestFromCustomerModal,
     setShowProductRequestFromCustomerModal,
   ] = useState<boolean>();
-
   const { data: repairReception, isLoading: isLoadingRepairReception } =
     useQuery({
       queryKey: ["getRepairReceptionForUpdateById", repairReceptionId],
@@ -168,8 +166,6 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
       hasOldPart,
     });
   };
-
-  // Filter products based on search term
   const filteredProducts = repairReception?.details?.filter((product: any) => {
     if (!searchTerm.trim()) return true;
     const term = searchTerm.toLowerCase().trim();
@@ -178,7 +174,6 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
       product.productCode?.toLowerCase().includes(term)
     );
   }) || [];
-
   const ProductCard: FC<{ product: any; index: number }> = ({ product }) => (
     <Card key={product.repairReceptionDetailId} sx={{ mb: 2, boxShadow: 2 }}>
       <CardContent sx={{ p: 2 }}>

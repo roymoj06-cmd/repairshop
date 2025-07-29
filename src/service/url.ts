@@ -98,6 +98,7 @@ export const proxyServerUrl = {
 
   // RepairReceptionService Controller
   getAllRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServicesGroupedByProblems`,
+  updateCustomerOldPartConfirmation: `${panelServiceBaseUrl}/RepairReceptionService/UpdateCustomerOldPartConfirmation`,
   getRepairReceptionServiceById: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServiceById`,
   updateRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/UpdateRepairReceptionService`,
   deleteRepairReceptionService: `${panelServiceBaseUrl}/RepairReceptionService/DeleteRepairReceptionService`,

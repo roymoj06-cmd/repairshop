@@ -748,3 +748,9 @@ interface IReportDashboardParams {
   fromDate: string;
   toDate: string;
 }
+interface IUpdateCustomerOldPartConfirmation {
+  customerConfirmedOldPart: boolean;
+  detailId: number;
+  fileIds: number[];
+}
+

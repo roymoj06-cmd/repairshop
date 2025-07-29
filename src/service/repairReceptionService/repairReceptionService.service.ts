@@ -101,3 +101,13 @@ export const getRepairReceptionStatuses = async () => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const updateCustomerOldPartConfirmation = async (
+  data: IUpdateCustomerOldPartConfirmation
+) => {
+  const reqConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.updateCustomerOldPartConfirmation}`,
+    data,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

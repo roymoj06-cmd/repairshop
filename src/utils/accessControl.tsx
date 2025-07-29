@@ -374,6 +374,7 @@ export const ACCESS_IDS = {
   DOCUMENTS: "0ede3bbe-c307-49e5-afbc-7cda0a1d0310",
   DISCHARGE: "531219f4-4d2e-447c-8d55-83293f70ed54",
   PROBLEMS: "d8a36b11-b70e-45c8-b3ef-afdaa8261d12",
+  OLDPART : "f097c2a4-4f33-4a02-b349-8881ff7014f2",
   REPAIRS: "f36fe06e-8b0c-460f-b84d-badab5243bd0",
   PARTS: "4d87f085-3eb3-4379-84e4-0b1458ee48bc",
 

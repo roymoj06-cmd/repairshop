@@ -7,11 +7,11 @@ import {
   AccordionSummary,
   AccordionDetails,
   Grid2 as Grid,
+  useMediaQuery,
   Pagination,
   Accordion,
   Paper,
   Box,
-  useMediaQuery,
 } from "@mui/material";
 
 import { getRepairReceptions } from "@/service/repair/repair.service";
@@ -39,7 +39,6 @@ const Vehicle: FC = () => {
     }
     return { xs: 12, sm: 6, md: 3, lg: 2 };
   };
-
   const statusOptions = [
     { value: null, label: "همه" },
     { value: "false", label: "ترخیص نشده" },
