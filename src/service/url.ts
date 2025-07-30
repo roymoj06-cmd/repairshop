@@ -35,6 +35,7 @@ export const proxyServerUrl = {
 
   // repair Controller
   deleteRepairReceptionDetailById: `${panelServiceBaseUrl}/Repair/DeleteRepairReceptionDetailById`,
+  getRepairReceptionsByCustomerId: `${panelServiceBaseUrl}/Repair/GetRepairReceptionsByCustomerId`,
   getRepairReceptionForUpdateById: `${panelServiceBaseUrl}/Repair/GetRepairReceptionProductById/`,
   generateRepairReceptionFactors: `${panelServiceBaseUrl}/Repair/GenerateRepairReceptionFactors`,
   updateRepairReceptionByProblem: `${panelServiceBaseUrl}/Repair/UpdateRepairReceptionByProblem`,
@@ -163,6 +164,7 @@ export const proxyServerUrl = {
   getDelayedRepairs: `${panelServiceBaseUrl}/RepairReport/GetDelayedRepairs`,
   
   //RepairProductFractional Controller
+  updateRepairProductFractionalPurchased: `${panelServiceBaseUrl}/RepairProductFractional/UpdateRepairProductFractionalPurchased`,
   getRepairProductFractionalsByPlate: `${panelServiceBaseUrl}/RepairProductFractional/GetRepairProductFractionalsByPlate`,
   createRepairProductFractional: `${panelServiceBaseUrl}/RepairProductFractional/CreateRepairProductFractional`,
 };

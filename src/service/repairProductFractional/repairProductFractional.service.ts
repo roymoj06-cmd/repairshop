@@ -16,3 +16,13 @@ export const createRepairProductFractional = async (data: any) => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const updateRepairProductFractionalPurchased = async (
+  data: IUpdateRepairProductFractionalPurchased
+) => {
+  const reqConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.updateRepairProductFractionalPurchased}`,
+    data,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

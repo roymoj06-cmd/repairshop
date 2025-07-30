@@ -1,62 +1,62 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState, useRef, useEffect } from "react";
+import { Add, Remove, Close } from "@mui/icons-material";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import {
-  Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
   Grid2 as Grid,
+  DialogTitle,
+  CardContent,
   Typography,
   IconButton,
-  Box,
+  Dialog,
   Card,
-  CardContent,
   Chip,
+  Box,
 } from "@mui/material";
-import { Add, Remove, Close } from "@mui/icons-material";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
 
-import { EnhancedSelect, Button, Loading } from "@/components";
+import { createRepairProductFractional } from "@/service/repairProductFractional/repairProductFractional.service";
+import { getProductsThatContainsText } from "@/service/Product/Product.service";
 import { getCustomers } from "@/service/customer/customer.service";
 import { getCustomerCars } from "@/service/repair/repair.service";
-import { getProductsThatContainsText } from "@/service/Product/Product.service";
-import { createRepairProductFractional } from "@/service/repairProductFractional/repairProductFractional.service";
+import { EnhancedSelect, Button, Loading } from "@/components";
 
 interface CreateProductRequestModalProps {
-  open: boolean;
-  onClose: () => void;
   onSuccess?: () => void;
+  onClose: () => void;
+  open: boolean;
 }
 
 interface FormData {
   customerUserId: number | undefined;
-  carId: number | undefined;
   productId: number | undefined;
+  carId: number | undefined;
 }
 
 interface SelectedProduct {
-  productId: number;
+  countryName?: string;
   productName: string;
   productCode: string;
-  brand?: string;
-  countryName?: string;
+  productId: number;
   quantity: number;
+  brand?: string;
 }
 
 const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
-  open,
-  onClose,
   onSuccess,
+  onClose,
+  open,
 }) => {
   const queryClient = useQueryClient();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
   const [customerVehicles, setCustomerVehicles] = useState<SelectOption[]>([]);
   const [productOptions, setProductOptions] = useState<SelectOption[]>([]);
-  const [selectedProduct, setSelectedProduct] =
-    useState<SelectedProduct | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>(
+    []
+  );
 
   const {
     handleSubmit,
@@ -79,8 +79,8 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
       onSuccess: (data) => {
         const customerOptions = data?.data?.map((i: any) => ({
           label: i?.fullName,
-          value: i.customerId, // استفاده از customerId برای سازگاری با getCustomerCars
-          userId: i.userId, // ذخیره userId جداگانه
+          value: i.customerId,
+          userId: i.userId,
         }));
         setCustomerOptions(customerOptions || []);
       },
@@ -151,7 +151,6 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
     setValue("carId", undefined);
     setCustomerVehicles([]);
     if (value?.value) {
-      // استفاده از customerId برای getCustomerCars و ذخیره userId برای فرم
       setValue("customerUserId", value.userId || value.value);
       getCustomerPlates(value.value);
     }
@@ -170,26 +169,40 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
 
   const handleProductSelection = (option: any) => {
     if (option) {
-      setSelectedProduct({
+      const newProduct: SelectedProduct = {
         productId: option.value,
         productName: option.productName || option.label.split(" - ")[0],
         productCode: option.productCode || option.label.split(" - ")[1] || "",
         brand: option.brand || "",
         countryName: option.countryName || "",
         quantity: 1,
-      });
+      };
+      setSelectedProducts([newProduct]); // For now, replace with single product
+      setValue("productId", option.value);
     }
   };
 
-  const handleQuantityChange = (change: number) => {
-    if (selectedProduct) {
-      const newQuantity = selectedProduct.quantity + change;
+  const handleQuantityChange = (change: number, productIndex: number = 0) => {
+    if (selectedProducts[productIndex]) {
+      const updatedProducts = [...selectedProducts];
+      const newQuantity = updatedProducts[productIndex].quantity + change;
       if (newQuantity > 0) {
-        setSelectedProduct({
-          ...selectedProduct,
+        updatedProducts[productIndex] = {
+          ...updatedProducts[productIndex],
           quantity: newQuantity,
-        });
+        };
+        setSelectedProducts(updatedProducts);
       }
+    }
+  };
+
+  const removeProduct = (productIndex: number) => {
+    const updatedProducts = selectedProducts.filter(
+      (_, index) => index !== productIndex
+    );
+    setSelectedProducts(updatedProducts);
+    if (updatedProducts.length === 0) {
+      setValue("productId", undefined);
     }
   };
 
@@ -198,12 +211,12 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
     setCustomerOptions([]);
     setCustomerVehicles([]);
     setProductOptions([]);
-    setSelectedProduct(null);
+    setSelectedProducts([]);
     onClose();
   };
 
   const onSubmit = async () => {
-    if (!selectedProduct) {
+    if (selectedProducts.length === 0) {
       toast.error("لطفا یک کالا انتخاب کنید");
       return;
     }
@@ -215,6 +228,8 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
     }
 
     try {
+      // For now, submit the first selected product
+      const selectedProduct = selectedProducts[0];
       const requestData: ICreateRepairProductFractional = {
         customerUserId: formData.customerUserId,
         carId: formData.carId,
@@ -237,10 +252,10 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
     };
   }, []);
 
-  const isLoading = 
-    isSearchingCustomers || 
-    isLoadingPlates || 
-    isSearchingProducts || 
+  const isLoading =
+    isSearchingCustomers ||
+    isLoadingPlates ||
+    isSearchingProducts ||
     isCreatingRequest;
 
   return (
@@ -267,8 +282,8 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
                 helperText={errors.customerUserId?.message as string}
                 onInputChange={handleCustomerSearch}
                 onChange={handleCustomerChange}
-                loading={isSearchingCustomers}
                 error={!!errors.customerUserId}
+                loading={isSearchingCustomers}
                 options={customerOptions}
                 enableSpeechToText={true}
                 storeValueOnly={true}
@@ -276,6 +291,7 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
                 searchable={true}
                 name="customerUserId"
                 control={control}
+                disabled={false}
                 label="مشتری"
                 isRtl={true}
                 size="small"
@@ -316,8 +332,8 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
               />
             </Grid>
 
-            {selectedProduct && (
-              <Grid size={{ xs: 12 }}>
+            {selectedProducts.map((selectedProduct, index) => (
+              <Grid key={index} size={{ xs: 12 }}>
                 <Card variant="outlined">
                   <CardContent>
                     <Box
@@ -332,7 +348,7 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
                         کالای انتخاب شده
                       </Typography>
                       <IconButton
-                        onClick={() => setSelectedProduct(null)}
+                        onClick={() => removeProduct(index)}
                         size="small"
                         color="error"
                       >
@@ -382,7 +398,7 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
                             }}
                           >
                             <IconButton
-                              onClick={() => handleQuantityChange(-1)}
+                              onClick={() => handleQuantityChange(-1, index)}
                               disabled={selectedProduct.quantity <= 1}
                               size="small"
                               color="primary"
@@ -396,7 +412,7 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
                               {selectedProduct.quantity}
                             </Typography>
                             <IconButton
-                              onClick={() => handleQuantityChange(1)}
+                              onClick={() => handleQuantityChange(1, index)}
                               size="small"
                               color="primary"
                             >
@@ -409,7 +425,7 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
                   </CardContent>
                 </Card>
               </Grid>
-            )}
+            ))}
           </Grid>
         </form>
       </DialogContent>
@@ -423,7 +439,7 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
           variant="contained"
           color="primary"
           disabled={
-            !selectedProduct ||
+            selectedProducts.length === 0 ||
             !watch("customerUserId") ||
             !watch("carId") ||
             isLoading

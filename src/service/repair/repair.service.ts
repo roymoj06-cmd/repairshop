@@ -139,8 +139,9 @@ export const getRepairReceptions = async ({
   });
   const reqConfig: AxiosRequestConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getRepairReceptions}${queryString ? `?${queryString}` : ""
-      }`,
+    url: `${proxyServerUrl.getRepairReceptions}${
+      queryString ? `?${queryString}` : ""
+    }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
@@ -168,6 +169,13 @@ export const getRepairReceptionById = async (id: number) => {
   const reqConfig: AxiosRequestConfig = {
     method: "GET",
     url: `${proxyServerUrl.getRepairReceptionById}${id}`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+export const getRepairReceptionsByCustomerId = async () => {
+  const reqConfig: AxiosRequestConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getRepairReceptionsByCustomerId}`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };

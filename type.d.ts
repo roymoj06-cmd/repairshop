@@ -775,3 +775,8 @@ interface IGetRepairProductFractionalsByPlate {
     id: number;
   }[];
 }
+interface IUpdateRepairProductFractionalPurchased {
+  requestedIds: number[];
+  deliveryTime: number | undefined;
+  deliveryDay: string | undefined;
+}
