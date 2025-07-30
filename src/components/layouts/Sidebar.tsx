@@ -151,8 +151,16 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
         </Box>
       </Box>
       <List className="sidebar__nav-list">
-        {navConfig.map((item) => {
-          if (!item.guid || userAccesses?.includes(item.guid)) {
+        {navConfig
+          .filter((item) => {
+            // اگر کاربر مشتری است، فقط "گاراژ من" را نمایش بده
+            if (!user?.isDinawinEmployee) {
+              return item.path === dir.vehicles; // فقط گاراژ من
+            }
+            // اگر کارمند دیناوین است، همه آیتم‌هایی که دسترسی دارد را نمایش بده
+            return !item.guid || userAccesses?.includes(item.guid);
+          })
+          .map((item) => {
             const isActive = pathname === item.path;
             return (
               <ListItem
@@ -192,9 +200,7 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
                 </ListItemButton>
               </ListItem>
             );
-          }
-          return null;
-        })}
+          })}
       </List>
       <Divider className="sidebar__divider" />
       <List className="sidebar__bottom-list">

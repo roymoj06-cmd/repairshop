@@ -3,6 +3,7 @@ export { default as RequestProductForInventoryModal } from "./Page/ServiceAdmiss
 export { default as RequestProductDetailsModal } from "./Page/ServiceAdmission/RequestProductDetailsModal";
 export { default as CreateProductRequestModal } from "./Page/ProductRequests/CreateProductRequestModal";
 export { default as CreateFactorForReception } from "./Page/ServiceAdmission/CreateFactorForReception";
+export { default as ServiceAdmissionReadOnly } from "./Page/ServiceAdmission/ServiceAdmissionReadOnly";
 export { default as ViewServiceFactorsModal } from "./Page/ServiceAdmission/ViewServiceFactorsModal";
 export { default as RepairReceptionProducts } from "./Page/ServiceAdmission/RepairReceptionProducts";
 export { default as RequestProductListModal } from "./Page/ServiceAdmission/RequestProductListModal";

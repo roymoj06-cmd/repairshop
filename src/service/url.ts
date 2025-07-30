@@ -56,6 +56,9 @@ export const proxyServerUrl = {
 
   // user Controller
   getCurrentUserAccesses: `${panelServiceBaseUrl}/UserSecurity/GetCurrentUserAccesses`,
+  resetPasswordTwoFactor: `${panelServiceBaseUrl}/Users/ResetPasswordTwoFactor`,
+  getTokenOnValidation: `${panelServiceBaseUrl}/Users/GetTokenOnValidation`,
+  getResetPasswordCode: `${panelServiceBaseUrl}/Users/GetResetPasswordCode`,
 
   // mechanic Controller
   getActiveMechanics: `${panelServiceBaseUrl}/Mechanic/GetActiveMechanics`,
@@ -88,14 +91,14 @@ export const proxyServerUrl = {
   getCustomerProblems: `${panelServiceBaseUrl}/RepairServices/GetCustomerProblems`,
 
   // repairSchedule Controller
-  receptions: `${panelServiceBaseUrl}/RepairSchedule/receptions`,
-  createSchedule: `${panelServiceBaseUrl}/RepairSchedule/schedules`,
+  getSchedulesByMechanicId: `${panelServiceBaseUrl}/RepairSchedule/schedules/by-mechanic/`,
+  getAvailability: `${panelServiceBaseUrl}/RepairSchedule/availability`,
+  getScheduleById: `${panelServiceBaseUrl}/RepairSchedule/schedules/`,
   updateSchedule: `${panelServiceBaseUrl}/RepairSchedule/schedules/`,
   getAllSchedules: `${panelServiceBaseUrl}/RepairSchedule/schedules`,
   deleteSchedule: `${panelServiceBaseUrl}/RepairSchedule/schedules/`,
-  getScheduleById: `${panelServiceBaseUrl}/RepairSchedule/schedules/`,
-  getAvailability: `${panelServiceBaseUrl}/RepairSchedule/availability`,
-  getSchedulesByMechanicId: `${panelServiceBaseUrl}/RepairSchedule/schedules/by-mechanic/`,
+  createSchedule: `${panelServiceBaseUrl}/RepairSchedule/schedules`,
+  receptions: `${panelServiceBaseUrl}/RepairSchedule/receptions`,
 
   // RepairReceptionService Controller
   getAllRepairReceptionServices: `${panelServiceBaseUrl}/RepairReceptionService/GetRepairReceptionServicesGroupedByProblems`,
@@ -140,6 +143,7 @@ export const proxyServerUrl = {
   getFilesByReceptionId: `${panelServiceBaseUrl}/RepairReceptionFile/GetFilesByReceptionId`,
   uploadFileRepairReceptionFile: `${panelServiceBaseUrl}/RepairReceptionFile/UploadFile`,
   deleteFileRepairReceptionFile: `${panelServiceBaseUrl}/RepairReceptionFile/DeleteFile`,
+  updateShowCustomer: `${panelServiceBaseUrl}/RepairReceptionFile/UpdateShowCustomer`,
 
   // RepairMechanicProductRequest Controller
   getMechanicProductRequestByProblemId: `${panelServiceBaseUrl}/RepairMechanicProductRequest/GetMechanicProductRequestByProblemId`,
@@ -162,7 +166,7 @@ export const proxyServerUrl = {
   getAverageStayTime: `${panelServiceBaseUrl}/RepairReport/GetAverageStayTime`,
   getCurrentVehicles: `${panelServiceBaseUrl}/RepairReport/GetCurrentVehicles`,
   getDelayedRepairs: `${panelServiceBaseUrl}/RepairReport/GetDelayedRepairs`,
-  
+
   //RepairProductFractional Controller
   updateRepairProductFractionalPurchased: `${panelServiceBaseUrl}/RepairProductFractional/UpdateRepairProductFractionalPurchased`,
   getRepairProductFractionalsByPlate: `${panelServiceBaseUrl}/RepairProductFractional/GetRepairProductFractionalsByPlate`,

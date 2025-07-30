@@ -125,7 +125,6 @@ export const getRepairReceptions = async ({
   plateSection4?: string;
   customerId?: number;
   isDischarged?: boolean | null;
-  carColor?: string;
 }) => {
   const queryString = convertObjectToQueryString({
     page,
@@ -172,10 +171,37 @@ export const getRepairReceptionById = async (id: number) => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
-export const getRepairReceptionsByCustomerId = async () => {
+export const getRepairReceptionsByCustomerId = async ({
+  page = 1,
+  size = 18,
+  plateSection1,
+  plateSection2,
+  plateSection3,
+  plateSection4,
+  isDischarged,
+}: {
+  page: number | string;
+  size: number | string;
+  plateSection1?: string;
+  plateSection2?: string;
+  plateSection3?: string;
+  plateSection4?: string;
+  isDischarged?: boolean | null;
+}) => {
+  const queryString = convertObjectToQueryString({
+    page,
+    size,
+    plateSection1,
+    plateSection2,
+    plateSection3,
+    plateSection4,
+    isDischarged,
+  });
   const reqConfig: AxiosRequestConfig = {
     method: "GET",
-    url: `${proxyServerUrl.getRepairReceptionsByCustomerId}`,
+    url: `${proxyServerUrl.getRepairReceptionsByCustomerId}${
+      queryString ? `?${queryString}` : ""
+    }`,
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };

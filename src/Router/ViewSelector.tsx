@@ -18,6 +18,7 @@ const TaskManagement = lazy(() => import("@/Pages/TaskManagement"));
 const Dashboard = lazy(() => import("@/Pages/Dashboard"));
 const Vehicle = lazy(() => import("@/Pages/Vehicle"));
 const Login = lazy(() => import("@/Pages/Login"));
+const ResetPassword = lazy(() => import("@/Pages/ResetPassword"));
 
 const ViewSelector: FC = () => {
   return (
@@ -36,6 +37,7 @@ const ViewSelector: FC = () => {
     >
       <Routes>
         <Route path={dir.login} element={<Login />} />
+        <Route path={dir.resetPassword} element={<ResetPassword />} />
         <Route
           element={
             <AuthGuard>

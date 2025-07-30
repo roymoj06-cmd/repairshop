@@ -28,10 +28,12 @@ import { Loading } from "@/components";
 
 interface RepairReceptionOldPartProps {
   repairReceptionId?: string;
+  readOnly?: boolean;
 }
 
-const RepairReceptionOldPart: FC<RepairReceptionOldPartProps> = ({
+const   RepairReceptionOldPart: FC<RepairReceptionOldPartProps> = ({
   repairReceptionId,
+  readOnly = false,
 }) => {
   const theme = useTheme();
   const queryClient = useQueryClient();
@@ -140,43 +142,66 @@ const RepairReceptionOldPart: FC<RepairReceptionOldPartProps> = ({
           </Box>
         </Stack>
         <Box sx={{ mt: 2, pt: 2, borderTop: "1px solid #e0e0e0" }}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={product.CustomerConfirmedOldPart || false}
-                onChange={(e) =>
-                  handleOldPartStatusChange(
-                    product.repairReceptionDetailId,
-                    e.target.checked
-                  )
-                }
-                disabled={updateHasOldPartMutation.isPending}
-                color="primary"
-              />
-            }
-            label={
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  قطعه قدیمی تحویل شده
-                </Typography>
-                {product.CustomerConfirmedOldPart ? (
-                  <Chip
-                    icon={<CheckCircle />}
-                    label="تحویل شده"
-                    color="success"
-                    size="small"
-                  />
-                ) : (
-                  <Chip
-                    icon={<Cancel />}
-                    label="تحویل نشده"
-                    color="error"
-                    size="small"
-                  />
-                )}
-              </Box>
-            }
-          />
+          {readOnly ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography variant="body2" color="text.secondary">
+                وضعیت قطعه قدیمی:
+              </Typography>
+              {product.CustomerConfirmedOldPart ? (
+                <Chip
+                  icon={<CheckCircle />}
+                  label="تحویل شده"
+                  color="success"
+                  size="small"
+                />
+              ) : (
+                <Chip
+                  icon={<Cancel />}
+                  label="تحویل نشده"
+                  color="error"
+                  size="small"
+                />
+              )}
+            </Box>
+          ) : (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={product.CustomerConfirmedOldPart || false}
+                  onChange={(e) =>
+                    handleOldPartStatusChange(
+                      product.repairReceptionDetailId,
+                      e.target.checked
+                    )
+                  }
+                  disabled={updateHasOldPartMutation.isPending}
+                  color="primary"
+                />
+              }
+              label={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    قطعه قدیمی تحویل شده
+                  </Typography>
+                  {product.CustomerConfirmedOldPart ? (
+                    <Chip
+                      icon={<CheckCircle />}
+                      label="تحویل شده"
+                      color="success"
+                      size="small"
+                    />
+                  ) : (
+                    <Chip
+                      icon={<Cancel />}
+                      label="تحویل نشده"
+                      color="error"
+                      size="small"
+                    />
+                  )}
+                </Box>
+              }
+            />
+          )}
         </Box>
       </CardContent>
     </Card>
@@ -225,18 +250,20 @@ const RepairReceptionOldPart: FC<RepairReceptionOldPartProps> = ({
                     gap: 1,
                   }}
                 >
-                  <Switch
-                    checked={product.CustomerConfirmedOldPart || false}
-                    onChange={(e) =>
-                      handleOldPartStatusChange(
-                        product.repairReceptionDetailId,
-                        e.target.checked
-                      )
-                    }
-                    disabled={updateHasOldPartMutation.isPending}
-                    color="primary"
-                    size="small"
-                  />
+                  {!readOnly && (
+                    <Switch
+                      checked={product.CustomerConfirmedOldPart || false}
+                      onChange={(e) =>
+                        handleOldPartStatusChange(
+                          product.repairReceptionDetailId,
+                          e.target.checked
+                        )
+                      }
+                      disabled={updateHasOldPartMutation.isPending}
+                      color="primary"
+                      size="small"
+                    />
+                  )}
                   {product.CustomerConfirmedOldPart ? (
                     <Chip
                       icon={<CheckCircle />}

@@ -56,3 +56,11 @@ export const deleteFileRepairReceptionFile = async (fileId: number) => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const updateShowCustomer = async (data: IUpdateShowCustomer) => {
+  const reqConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.updateShowCustomer}`,
+    data,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

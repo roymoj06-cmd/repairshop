@@ -21,6 +21,7 @@ import {
   deleteFileRepairReceptionFile,
   uploadFileRepairReceptionFile,
   getFilesByReceptionId,
+  updateShowCustomer,
 } from "@/service/repairReceptionFile/repairReceptionFile.service";
 import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 import { useTheme } from "@/context/ThemeContext";
@@ -29,17 +30,23 @@ import { Loading } from "@/components";
 
 type UploadModalProps = {
   repairReceptionId?: number | string;
+  readOnly?: boolean;
+  showCustomerOnly?: boolean;
 };
 
-const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
+const UploaderDocs: FC<UploadModalProps> = ({ 
+  repairReceptionId, 
+  readOnly = false, 
+  showCustomerOnly = false 
+}) => {
   const { mode } = useTheme();
-  const [files, setFiles] = useState<Array<File & { id: number }>>([]);
+  const [files, setFiles] = useState<IRepairReceptionFile[]>([]);
   const [progressMap, setProgressMap] = useState<Record<number, number>>({});
 
   const handleFileUpload = useCallback(async (acceptedFiles: File[]) => {
     for (const file of acceptedFiles) {
       try {
-        const response = await mutateAsyncUploadFileToServerFile({
+        await mutateAsyncUploadFileToServerFile({
           file: file,
           repairReceptionId: repairReceptionId,
           onProgress: (progress) => {
@@ -48,8 +55,7 @@ const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
             setProgressMap((prev) => ({ ...prev, [tempId]: progress }));
           },
         });
-        const newFile = Object.assign(file, { id: response });
-        setFiles((prev) => [...prev, newFile]);
+        // After successful upload, refresh the files list
         mutateAsyncGetFilesByReceptionId();
       } catch (error) {
         console.error("Error uploading file", error);
@@ -62,7 +68,11 @@ const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
   } = useMutation({
     mutationFn: () => getFilesByReceptionId(repairReceptionId ?? ""),
     onSuccess: (data) => {
-      setFiles(data?.data);
+      let filteredFiles = data?.data || [];
+      if (showCustomerOnly) {
+        filteredFiles = filteredFiles.filter((file: IRepairReceptionFile) => file.showCustomer === true);
+      }
+      setFiles(filteredFiles);
     },
   });
   const { isPending: isLoadingDeleteFile, mutateAsync: mutateAsyncDeleteFile } =
@@ -172,6 +182,13 @@ const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
       setProgressMap({});
     },
   });
+
+  const { mutateAsync: mutateAsyncUpdateShowCustomer } = useMutation({
+    mutationFn: updateShowCustomer,
+    onSuccess: () => {
+      mutateAsyncGetFilesByReceptionId();
+    },
+  });
   const removeFile = useCallback(
     (fileId: number) => {
       mutateAsyncDeleteFile(fileId);
@@ -179,20 +196,31 @@ const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
     [mutateAsyncDeleteFile]
   );
 
+  const toggleShowCustomer = useCallback(
+    (fileId: number, currentShowCustomer: boolean) => {
+      mutateAsyncUpdateShowCustomer({
+        fileId,
+        showCustomer: !currentShowCustomer,
+      });
+    },
+    [mutateAsyncUpdateShowCustomer]
+  );
+
   return (
     <div className="w-full">
       {isLoadingFiles || (isLoadingDeleteFile && <Loading />)}
-      <List
-        sx={{
-          width: "100%",
-          maxWidth: 360,
-          bgcolor: mode === "dark" ? "#222e3c" : "background.paper",
-          borderRadius: 1,
-          overflow: "hidden",
-        }}
-        component="nav"
-        aria-labelledby="nested-list-subheader"
-      >
+      {!readOnly && (
+        <List
+          sx={{
+            width: "100%",
+            maxWidth: 360,
+            bgcolor: mode === "dark" ? "#222e3c" : "background.paper",
+            borderRadius: 1,
+            overflow: "hidden",
+          }}
+          component="nav"
+          aria-labelledby="nested-list-subheader"
+        >
         <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
           <ListItemButton
             onClick={openImagePicker}
@@ -410,45 +438,52 @@ const UploaderDocs: FC<UploadModalProps> = ({ repairReceptionId }) => {
             />
           </ListItemButton>
         </AccessGuard>
-      </List>
-      <div {...getImageRootProps({ className: "hidden" })}>
-        <input {...getImageInputProps()} accept="image/*" />
-      </div>
-      <div {...getVideoRootProps({ className: "hidden" })}>
-        <input {...getVideoInputProps()} accept="video/*" />
-      </div>
-      <div {...getDocRootProps({ className: "hidden" })}>
-        <input {...getDocInputProps()} />
-      </div>
-      <div {...getCameraRootProps({ className: "hidden" })}>
-        <input
-          {...getCameraInputProps()}
-          capture="environment"
-          accept="image/*"
-        />
-      </div>
-      <div {...getVideoCameraRootProps({ className: "hidden" })}>
-        <input
-          {...getVideoCameraInputProps()}
-          accept="video/*"
-          capture="environment"
-        />
-      </div>
-      <div {...getAudioRootProps({ className: "hidden" })}>
-        <input {...getAudioInputProps()} accept="audio/*" />
-      </div>
-      <div {...getAudioRecordingRootProps({ className: "hidden" })}>
-        <input
-          {...getAudioRecordingInputProps()}
-          accept="audio/*"
-          capture="user"
-        />
-      </div>
+        </List>
+      )}
+      {!readOnly && (
+        <>
+          <div {...getImageRootProps({ className: "hidden" })}>
+            <input {...getImageInputProps()} accept="image/*" />
+          </div>
+          <div {...getVideoRootProps({ className: "hidden" })}>
+            <input {...getVideoInputProps()} accept="video/*" />
+          </div>
+          <div {...getDocRootProps({ className: "hidden" })}>
+            <input {...getDocInputProps()} />
+          </div>
+          <div {...getCameraRootProps({ className: "hidden" })}>
+            <input
+              {...getCameraInputProps()}
+              capture="environment"
+              accept="image/*"
+            />
+          </div>
+          <div {...getVideoCameraRootProps({ className: "hidden" })}>
+            <input
+              {...getVideoCameraInputProps()}
+              accept="video/*"
+              capture="environment"
+            />
+          </div>
+          <div {...getAudioRootProps({ className: "hidden" })}>
+            <input {...getAudioInputProps()} accept="audio/*" />
+          </div>
+          <div {...getAudioRecordingRootProps({ className: "hidden" })}>
+            <input
+              {...getAudioRecordingInputProps()}
+              accept="audio/*"
+              capture="user"
+            />
+          </div>
+        </>
+      )}
       <FilePreviewGrid
         files={files ?? []}
         progressMap={progressMap}
         removeFile={removeFile}
         isLoading={isLoadingUploadFileToServerFile}
+        toggleShowCustomer={toggleShowCustomer}
+        readOnly={readOnly}
       />
     </div>
   );

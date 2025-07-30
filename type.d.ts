@@ -780,3 +780,40 @@ interface IUpdateRepairProductFractionalPurchased {
   deliveryTime: number | undefined;
   deliveryDay: string | undefined;
 }
+interface IGetRepairReceptions {
+  page: number | string;
+  size: number | string;
+  plateSection1?: string;
+  plateSection2?: string;
+  plateSection3?: string;
+  plateSection4?: string;
+  customerId?: number;
+  isDischarged?: boolean | null;
+  carColor?: string;
+}
+interface IResetPasswordTwoFactor {
+  newPassword: string;
+  username: string;
+  code: string;
+}
+interface IGetTokenOnValidation {
+  phoneNumber: string;
+  otp: string;
+}
+interface IGetResetPasswordCodeRequest {
+  username: string;
+}
+interface IUpdateShowCustomer {
+  showCustomer: boolean;
+  fileId: number;
+}
+
+interface IRepairReceptionFile {
+  fileName: string;
+  downloadUrl: string;
+  filePath: string;
+  mimeType: string;
+  showCustomer: boolean;
+  fileSize: number;
+  id: number;
+}

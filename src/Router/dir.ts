@@ -11,5 +11,6 @@ export default {
   vehicles: "/dashboard/vehicles",
   dashboard: "/dashboard",
   profile: "/profile",
+  resetPassword: "/reset-password",
   login: "/login",
 };

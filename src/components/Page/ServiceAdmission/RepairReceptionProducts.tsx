@@ -50,10 +50,12 @@ import {
 
 interface RepairReceptionProductsProps {
   repairReceptionId?: string;
+  readOnly?: boolean;
 }
 
 const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
   repairReceptionId,
+  readOnly = false,
 }) => {
   const { hasAccess } = useAccessControl();
   const queryClient = useQueryClient();
@@ -192,7 +194,7 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
           >
             {product.productName}
           </Typography>
-          {hasAccess(ACCESS_IDS.DELETE_SCANNED_PART) && (
+          {!readOnly && hasAccess(ACCESS_IDS.DELETE_SCANNED_PART) && (
             <IconButton
               color="error"
               size="small"
@@ -242,47 +244,49 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
           </Box>
         </Stack>
 
-        <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
-          <Box sx={{ mt: 2, pt: 2, borderTop: "1px solid #e0e0e0" }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={product.hasOldPart || false}
-                  onChange={(e) =>
-                    handleOldPartStatusChange(
-                      product.repairReceptionDetailId,
-                      e.target.checked
-                    )
-                  }
-                  disabled={updateHasOldPartMutation.isPending}
-                  color="primary"
-                />
-              }
-              label={
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    قطعه قدیمی تحویل شده
-                  </Typography>
-                  {product.hasOldPart ? (
-                    <Chip
-                      icon={<CheckCircle />}
-                      label="تحویل شده"
-                      color="success"
-                      size="small"
-                    />
-                  ) : (
-                    <Chip
-                      icon={<Cancel />}
-                      label="تحویل نشده"
-                      color="error"
-                      size="small"
-                    />
-                  )}
-                </Box>
-              }
-            />
-          </Box>
-        </AccessGuard>
+        {!readOnly && (
+          <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
+            <Box sx={{ mt: 2, pt: 2, borderTop: "1px solid #e0e0e0" }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={product.hasOldPart || false}
+                    onChange={readOnly ? undefined : (e) =>
+                      handleOldPartStatusChange(
+                        product.repairReceptionDetailId,
+                        e.target.checked
+                      )
+                    }
+                    disabled={readOnly || updateHasOldPartMutation.isPending}
+                    color="primary"
+                  />
+                }
+                label={
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      قطعه قدیمی تحویل شده
+                    </Typography>
+                    {product.hasOldPart ? (
+                      <Chip
+                        icon={<CheckCircle />}
+                        label="تحویل شده"
+                        color="success"
+                        size="small"
+                      />
+                    ) : (
+                      <Chip
+                        icon={<Cancel />}
+                        label="تحویل نشده"
+                        color="error"
+                        size="small"
+                      />
+                    )}
+                  </Box>
+                }
+              />
+            </Box>
+          </AccessGuard>
+        )}
       </CardContent>
     </Card>
   );
@@ -309,14 +313,18 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
             <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
               برند / کشور
             </TableCell>
-            <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
+            {!readOnly && (
+              <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
+                <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
+                  قطعه قدیمی
+                </TableCell>
+              </AccessGuard>
+            )}
+            {!readOnly && (
               <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
-                قطعه قدیمی
+                عملیات
               </TableCell>
-            </AccessGuard>
-            <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
-              عملیات
-            </TableCell>
+            )}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -338,57 +346,61 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
               <TableCell sx={{ textAlign: "center" }}>
                 {product.brand} / {product.countryName}
               </TableCell>
-              <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
+              {!readOnly && (
+                <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    <Box
+                      sx={{
+                        flexDirection: "column",
+                        alignItems: "center",
+                        display: "flex",
+                        gap: 1,
+                      }}
+                    >
+                      <Switch
+                        checked={product.hasOldPart || false}
+                        onChange={readOnly ? undefined : (e) =>
+                          handleOldPartStatusChange(
+                            product.repairReceptionDetailId,
+                            e.target.checked
+                          )
+                        }
+                        disabled={readOnly || updateHasOldPartMutation.isPending}
+                        color="primary"
+                        size="small"
+                      />
+                      {product.hasOldPart ? (
+                        <Chip
+                          icon={<CheckCircle />}
+                          label="تحویل شده"
+                          color="success"
+                          size="small"
+                        />
+                      ) : (
+                        <Chip
+                          icon={<Cancel />}
+                          label="تحویل نشده"
+                          color="error"
+                          size="small"
+                        />
+                      )}
+                    </Box>
+                  </TableCell>
+                </AccessGuard>
+              )}
+              {!readOnly && (
                 <TableCell sx={{ textAlign: "center" }}>
-                  <Box
-                    sx={{
-                      flexDirection: "column",
-                      alignItems: "center",
-                      display: "flex",
-                      gap: 1,
-                    }}
-                  >
-                    <Switch
-                      checked={product.hasOldPart || false}
-                      onChange={(e) =>
-                        handleOldPartStatusChange(
-                          product.repairReceptionDetailId,
-                          e.target.checked
-                        )
-                      }
-                      disabled={updateHasOldPartMutation.isPending}
-                      color="primary"
+                  {hasAccess(ACCESS_IDS.DELETE_SCANNED_PART) && (
+                    <IconButton
+                      color="error"
                       size="small"
-                    />
-                    {product.hasOldPart ? (
-                      <Chip
-                        icon={<CheckCircle />}
-                        label="تحویل شده"
-                        color="success"
-                        size="small"
-                      />
-                    ) : (
-                      <Chip
-                        icon={<Cancel />}
-                        label="تحویل نشده"
-                        color="error"
-                        size="small"
-                      />
-                    )}
-                  </Box>
+                      onClick={() => handleDeleteClick(product)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  )}
                 </TableCell>
-              </AccessGuard>
-              <TableCell sx={{ textAlign: "center" }}>
-                {hasAccess(ACCESS_IDS.DELETE_SCANNED_PART) && (
-                  <IconButton
-                    color="error"
-                    size="small"
-                    onClick={() => handleDeleteClick(product)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                )}
-              </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
@@ -399,106 +411,108 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
   return (
     <div className="">
       {isLoadingRepairReception && <Loading />}
-      <Box
-        sx={{
-          mb: 3,
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 2,
-          alignItems: "flex-start",
-        }}
-      >
-        <AccessGuard accessId={ACCESS_IDS.MECHANIC_PART_REQUEST}>
-          <Button
-            onClick={() => setShowProductRequestForInventoryModal(true)}
-            variant="contained"
-            color="secondary"
-            size="large"
-            sx={{
-              flex: "1 1 auto",
-              minWidth: "fit-content",
-              maxWidth: "calc(50% - 8px)",
-            }}
-          >
-            درخواست قطعه
-          </Button>
-        </AccessGuard>
-        {/* <AccessGuard accessId={ACCESS_IDS.WAREHOUSE_PART_REQUEST}>
-          <Button
-            onClick={() => setShowProductRequestModal(true)}
-            variant="contained"
-            color="secondary"
-            size="large"
-            sx={{
-              flex: "1 1 auto",
-              minWidth: "fit-content",
-              maxWidth: "calc(50% - 8px)",
-            }}
-          >
-            درخواست قطعه انبار
-          </Button>
-        </AccessGuard> */}
-        <AccessGuard accessId={ACCESS_IDS.VIEW_REQUESTS}>
-          <Button
-            onClick={() => setShowProductRequestListModal(true)}
-            variant="contained"
-            color="secondary"
-            size="large"
-            sx={{
-              flex: "1 1 auto",
-              minWidth: "fit-content",
-              maxWidth: "calc(50% - 8px)",
-            }}
-          >
-            نمایش درخواست ها
-          </Button>
-        </AccessGuard>
-        <AccessGuard accessId={ACCESS_IDS.CREATE_FACTOR}>
-          <Button
-            onClick={() => setShowCreateFactorModal(true)}
-            variant="contained"
-            color="secondary"
-            size="large"
-            sx={{
-              flex: "1 1 auto",
-              minWidth: "fit-content",
-              maxWidth: "calc(50% - 8px)",
-            }}
-          >
-            ایجاد فاکتور
-          </Button>
-        </AccessGuard>
-        <AccessGuard accessId={ACCESS_IDS.CUSTOMER_PART_RECEIPT}>
-          <Button
-            onClick={() => setShowProductRequestFromCustomerModal(true)}
-            variant="contained"
-            color="secondary"
-            size="large"
-            sx={{
-              flex: "1 1 auto",
-              minWidth: "fit-content",
-              maxWidth: "calc(50% - 8px)",
-            }}
-          >
-            رسید کالا از مشتری
-          </Button>
-        </AccessGuard>
-        <AccessGuard accessId={ACCESS_IDS.VIEW_FACTORS}>
-          <Button
-            onClick={() => setShowFactorModal(true)}
-            variant="contained"
-            color="secondary"
-            size="large"
-            sx={{
-              flex: "1 1 auto",
-              minWidth: "fit-content",
-              maxWidth: "calc(50% - 8px)",
-            }}
-          >
-            نمایش فاکتور
-          </Button>
-        </AccessGuard>
-      </Box>
+      {!readOnly && (
+        <Box
+          sx={{
+            mb: 3,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 2,
+            alignItems: "flex-start",
+          }}
+        >
+          <AccessGuard accessId={ACCESS_IDS.MECHANIC_PART_REQUEST}>
+            <Button
+              onClick={() => setShowProductRequestForInventoryModal(true)}
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{
+                flex: "1 1 auto",
+                minWidth: "fit-content",
+                maxWidth: "calc(50% - 8px)",
+              }}
+            >
+              درخواست قطعه
+            </Button>
+          </AccessGuard>
+          {/* <AccessGuard accessId={ACCESS_IDS.WAREHOUSE_PART_REQUEST}>
+            <Button
+              onClick={() => setShowProductRequestModal(true)}
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{
+                flex: "1 1 auto",
+                minWidth: "fit-content",
+                maxWidth: "calc(50% - 8px)",
+              }}
+            >
+              درخواست قطعه انبار
+            </Button>
+          </AccessGuard> */}
+          <AccessGuard accessId={ACCESS_IDS.VIEW_REQUESTS}>
+            <Button
+              onClick={() => setShowProductRequestListModal(true)}
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{
+                flex: "1 1 auto",
+                minWidth: "fit-content",
+                maxWidth: "calc(50% - 8px)",
+              }}
+            >
+              نمایش درخواست ها
+            </Button>
+          </AccessGuard>
+          <AccessGuard accessId={ACCESS_IDS.CREATE_FACTOR}>
+            <Button
+              onClick={() => setShowCreateFactorModal(true)}
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{
+                flex: "1 1 auto",
+                minWidth: "fit-content",
+                maxWidth: "calc(50% - 8px)",
+              }}
+            >
+              ایجاد فاکتور
+            </Button>
+          </AccessGuard>
+          <AccessGuard accessId={ACCESS_IDS.CUSTOMER_PART_RECEIPT}>
+            <Button
+              onClick={() => setShowProductRequestFromCustomerModal(true)}
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{
+                flex: "1 1 auto",
+                minWidth: "fit-content",
+                maxWidth: "calc(50% - 8px)",
+              }}
+            >
+              رسید کالا از مشتری
+            </Button>
+          </AccessGuard>
+          <AccessGuard accessId={ACCESS_IDS.VIEW_FACTORS}>
+            <Button
+              onClick={() => setShowFactorModal(true)}
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{
+                flex: "1 1 auto",
+                minWidth: "fit-content",
+                maxWidth: "calc(50% - 8px)",
+              }}
+            >
+              نمایش فاکتور
+            </Button>
+          </AccessGuard>
+        </Box>
+      )}
       {repairReception?.details && repairReception.details.length > 0 ? (
         <Box>
           <Typography

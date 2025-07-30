@@ -14,8 +14,12 @@ import {
   Box,
 } from "@mui/material";
 
-import { getRepairReceptions } from "@/service/repair/repair.service";
+import {
+  getRepairReceptions,
+  getRepairReceptionsByCustomerId,
+} from "@/service/repair/repair.service";
 import { getCustomers } from "@/service/customer/customer.service";
+import { useStore } from "@/Store/useStore";
 import dir from "@/Router/dir";
 import {
   PlateNumberDisplay,
@@ -30,6 +34,7 @@ const Vehicle: FC = () => {
   const navigate = useNavigate();
   const page = searchParams.get("page") ?? 1;
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
+  const { user } = useStore();
   const isCustomRange = useMediaQuery(
     "(min-width: 1200px) and (max-width: 1300px)"
   );
@@ -46,18 +51,32 @@ const Vehicle: FC = () => {
   ];
   const { isPending: isPendingRepairReceptions, data: vehicles } = useQuery({
     queryKey: ["repairReceptions", page, filter],
-    queryFn: () =>
-      getRepairReceptions({
-        page: page ? +page : 1,
-        size: 18,
-        isDischarged:
-          filter?.isDischarged !== null ? filter?.isDischarged : undefined,
-        customerId: filter?.customerId,
-        plateSection1: filter?.plateSection1,
-        plateSection2: filter?.plateSection2,
-        plateSection3: filter?.plateSection3,
-        plateSection4: filter?.plateSection4,
-      }),
+    queryFn: () => {
+      if (!user?.isDinawinEmployee) {
+        return getRepairReceptionsByCustomerId({
+          page: page ? +page : 1,
+          size: 18,
+          isDischarged:
+            filter?.isDischarged !== null ? filter?.isDischarged : undefined,
+          plateSection1: filter?.plateSection1,
+          plateSection2: filter?.plateSection2,
+          plateSection3: filter?.plateSection3,
+          plateSection4: filter?.plateSection4,
+        });
+      } else {
+        return getRepairReceptions({
+          page: page ? +page : 1,
+          size: 18,
+          isDischarged:
+            filter?.isDischarged !== null ? filter?.isDischarged : undefined,
+          customerId: filter?.customerId,
+          plateSection1: filter?.plateSection1,
+          plateSection2: filter?.plateSection2,
+          plateSection3: filter?.plateSection3,
+          plateSection4: filter?.plateSection4,
+        });
+      }
+    },
   });
   const { mutateAsync: searchCustomers, isPending } = useMutation({
     mutationFn: getCustomers,
@@ -99,7 +118,6 @@ const Vehicle: FC = () => {
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setSearchParams({ page: value.toString() });
   };
-
   const handleCardClick = (
     receptionId: string | number,
     event?: React.MouseEvent
@@ -149,23 +167,25 @@ const Vehicle: FC = () => {
                   setPage={setSearchParams}
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }}>
-                <EnhancedSelect
-                  onChange={handleCustomerSearch}
-                  loading={isPending}
-                  onInputChange={(value) => {
-                    handleInputChange(value);
-                  }}
-                  options={customerOptions}
-                  enableSpeechToText={true}
-                  label="جستجوی مشتری"
-                  iconPosition="end"
-                  searchable={true}
-                  disabled={false}
-                  name="customer"
-                  isRtl={true}
-                />
-              </Grid>
+              {user?.isDinawinEmployee !== false && (
+                <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }}>
+                  <EnhancedSelect
+                    onChange={handleCustomerSearch}
+                    loading={isPending}
+                    onInputChange={(value) => {
+                      handleInputChange(value);
+                    }}
+                    options={customerOptions}
+                    enableSpeechToText={true}
+                    label="جستجوی مشتری"
+                    iconPosition="end"
+                    searchable={true}
+                    disabled={false}
+                    name="customer"
+                    isRtl={true}
+                  />
+                </Grid>
+              )}
               <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }}>
                 <EnhancedSelect
                   value={

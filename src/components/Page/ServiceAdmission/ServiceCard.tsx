@@ -18,6 +18,7 @@ interface ServiceCardProps {
   serviceIndex: number;
   isTested?: boolean;
   service: Service;
+  readOnly?: boolean;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
@@ -28,6 +29,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   onDelete,
   service,
   onEdit,
+  readOnly = false,
 }) => {
   const { hasAccess } = useAccessControl();
 
@@ -93,34 +95,36 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1">
-            {hasAccess(ACCESS_IDS.EDIT_REPAIR) && (
-              <IconButton
-                onClick={() => onEdit(service)}
-                className="!p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600"
-                title="ویرایش"
-                size="small"
-              >
-                <Edit
-                  className="text-blue-500 dark:text-blue-400"
-                  style={{ fontSize: 16 }}
-                />
-              </IconButton>
-            )}
-            {hasAccess(ACCESS_IDS.DELETE_REPAIR) && (
-              <IconButton
-                onClick={() => onDelete(service.id, service.serviceTitle)}
-                className="!p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600"
-                title="حذف"
-                size="small"
-              >
-                <Delete
-                  className="text-red-500 dark:text-red-400"
-                  style={{ fontSize: 16 }}
-                />
-              </IconButton>
-            )}
-          </div>
+          {!readOnly && (
+            <div className="flex items-center gap-1">
+              {hasAccess(ACCESS_IDS.EDIT_REPAIR) && (
+                <IconButton
+                  onClick={() => onEdit(service)}
+                  className="!p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600"
+                  title="ویرایش"
+                  size="small"
+                >
+                  <Edit
+                    className="text-blue-500 dark:text-blue-400"
+                    style={{ fontSize: 16 }}
+                  />
+                </IconButton>
+              )}
+              {hasAccess(ACCESS_IDS.DELETE_REPAIR) && (
+                <IconButton
+                  onClick={() => onDelete(service.id, service.serviceTitle)}
+                  className="!p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600"
+                  title="حذف"
+                  size="small"
+                >
+                  <Delete
+                    className="text-red-500 dark:text-red-400"
+                    style={{ fontSize: 16 }}
+                  />
+                </IconButton>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <div className="p-4 space-y-3">
@@ -144,14 +148,16 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex items-center justify-between py-2 px-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-            <span className="text-xs text-gray-600 dark:text-gray-400">
-              قیمت واحد:
-            </span>
-            <span className="text-sm font-semibold text-green-600 dark:text-green-400">
-              {addCommas(service.servicePrice)}
-            </span>
-          </div>
+          {!readOnly && (
+            <div className="flex items-center justify-between py-2 px-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+              <span className="text-xs text-gray-600 dark:text-gray-400">
+                قیمت واحد:
+              </span>
+              <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                {addCommas(service.servicePrice)}
+              </span>
+            </div>
+          )}
           <div className="flex items-center justify-between py-2 px-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <span className="text-xs text-gray-600 dark:text-gray-400">
               تعداد:
@@ -187,18 +193,20 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             {formatTimeDisplay(service.estimatedMinute)}
           </span>
         </div>
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg p-3 border border-green-200 dark:border-green-700">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-green-700 dark:text-green-300">
-              قیمت کل سرویس:
-            </span>
-            <span className="text-base font-bold text-green-600 dark:text-green-400">
-              {addCommas(service.totalPrice)} ریال
-            </span>
+        {!readOnly && (
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg p-3 border border-green-200 dark:border-green-700">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-green-700 dark:text-green-300">
+                قیمت کل سرویس:
+              </span>
+              <span className="text-base font-bold text-green-600 dark:text-green-400">
+                {addCommas(service.totalPrice)} ریال
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
-        {statusButtonInfo && hasAccess(ACCESS_IDS.CHANGE_STATUS_REPAIR) && !isTested && (
+        {!readOnly && statusButtonInfo && hasAccess(ACCESS_IDS.CHANGE_STATUS_REPAIR) && !isTested && (
           <button
             onClick={handleStatusUpdate}
             disabled={service.statusId === 3}

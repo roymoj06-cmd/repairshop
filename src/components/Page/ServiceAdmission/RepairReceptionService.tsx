@@ -24,6 +24,7 @@ interface IRepairReceptionServiceProps {
     customerName: string;
     plateNumber: string;
   };
+  readOnly?: boolean;
 }
 
 const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
@@ -31,6 +32,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
   customerId,
   carId,
   details,
+  readOnly = false,
 }) => {
   const [showFactorModal, setShowFactorModal] = useState(false);
   const [showViewFactorsModal, setShowViewFactorsModal] = useState(false);
@@ -68,10 +70,26 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
         <Loading />
       ) : (
         <div className="service-management__content">
-          <div className="flex flex-wrap gap-2 mb-4">
-            <AccessGuard accessId={ACCESS_IDS.CREATE_FACTOR_REPAIR}>
+          {!readOnly && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              <AccessGuard accessId={ACCESS_IDS.CREATE_FACTOR_REPAIR}>
+                <Button
+                  onClick={() => setShowFactorModal(true)}
+                  variant="contained"
+                  color="secondary"
+                  size="large"
+                  sx={{
+                    maxWidth: "calc(50% - 8px)",
+                    minWidth: "fit-content",
+                    flex: "1 1 auto",
+                  }}
+                >
+                  ایجاد فاکتور خدمات
+                </Button>
+              </AccessGuard>
+              {/* <AccessGuard accessId={ACCESS_IDS.VIEW_FACTORS_REPAIR}> */}
               <Button
-                onClick={() => setShowFactorModal(true)}
+                onClick={() => setShowViewFactorsModal(true)}
                 variant="contained"
                 color="secondary"
                 size="large"
@@ -81,25 +99,11 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                   flex: "1 1 auto",
                 }}
               >
-                ایجاد فاکتور خدمات
+                مشاهده فاکتور خدمات
               </Button>
-            </AccessGuard>
-            {/* <AccessGuard accessId={ACCESS_IDS.VIEW_FACTORS_REPAIR}> */}
-            <Button
-              onClick={() => setShowViewFactorsModal(true)}
-              variant="contained"
-              color="secondary"
-              size="large"
-              sx={{
-                maxWidth: "calc(50% - 8px)",
-                minWidth: "fit-content",
-                flex: "1 1 auto",
-              }}
-            >
-              مشاهده فاکتور خدمات
-            </Button>
-            {/* </AccessGuard> */}
-          </div>
+              {/* </AccessGuard> */}
+            </div>
+          )}
 
           {services?.problems?.length > 0 ? (
             <div className="space-y-6">
@@ -113,6 +117,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                       problemIndex={problemIndex}
                       problem={problem}
                       repairReceptionId={repairReceptionId}
+                      readOnly={readOnly}
                     />
                     <div className="p-2">
                       {problem.services?.length > 0 ? (
@@ -120,16 +125,17 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                           {problem.services.map(
                             (service: Service, serviceIndex: number) => (
                               <ServiceCard
-                                onUpdateStatus={handleUpdateStatus}
+                                onUpdateStatus={readOnly ? () => {} : handleUpdateStatus}
                                 isUpdatingStatus={
                                   updateStatusMutation.isPending
                                 }
                                 isTested={problem?.isTested}
                                 serviceIndex={serviceIndex}
-                                onDelete={handleDelete}
-                                onEdit={openModal}
+                                onDelete={readOnly ? () => {} : handleDelete}
+                                onEdit={readOnly ? () => {} : openModal}
                                 service={service}
                                 key={service.id}
+                                readOnly={readOnly}
                               />
                             )
                           )}
@@ -142,16 +148,20 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                         </div>
                       )}
 
-                      <AccessGuard accessId={ACCESS_IDS.ADD_REPAIR}>
-                        <AddServiceBox
-                          onAddService={() => openModal(undefined, problem)}
-                        />
-                      </AccessGuard>
+                      {!readOnly && (
+                        <AccessGuard accessId={ACCESS_IDS.ADD_REPAIR}>
+                          <AddServiceBox
+                            onAddService={() => openModal(undefined, problem)}
+                          />
+                        </AccessGuard>
+                      )}
                     </div>
                   </div>
                 )
               )}
-              <ProjectSummary problems={services.problems} />
+              {!readOnly && (
+                <ProjectSummary problems={services.problems} />
+              )}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center p-12">

@@ -2,10 +2,12 @@ import { Typography, Box, useMediaQuery } from "@mui/material";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Person, Lock } from "@mui/icons-material";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Button, EnhancedInput } from "@/components";
 import { useTheme } from "@/context/ThemeContext";
 import { useStore } from "@/Store/useStore";
+import dir from "@/Router/dir";
 
 interface LoginFormInputs {
   username: string;
@@ -17,6 +19,7 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const login = useStore((state) => state.login);
   const { mode } = useTheme();
+  const navigate = useNavigate();
 
   const {
     handleSubmit,
@@ -103,6 +106,7 @@ const LoginForm = () => {
               <Typography
                 color="primary"
                 variant="body2"
+                onClick={() => navigate(dir.resetPassword)}
                 style={{
                   cursor: "pointer",
                   transition: "color 0.3s ease",

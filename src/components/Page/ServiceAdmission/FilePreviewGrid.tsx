@@ -9,8 +9,9 @@ import {
   TableChart, 
   Slideshow, 
   Archive, 
-  InsertDriveFile, 
-  Image
+  Image,
+  VisibilityOff,
+  RemoveRedEye
 } from "@mui/icons-material";
 import { Dialog } from "@mui/material";
 import { useState } from "react";
@@ -22,9 +23,11 @@ import { useTheme } from "@/context/ThemeContext";
 
 interface FilePreviewGridProps {
   progressMap?: Record<number, number>;
-  files: Array<File & { id: number }>;
+  files: IRepairReceptionFile[];
   removeFile: (id: number) => void;
   isLoading?: boolean;
+  toggleShowCustomer?: (fileId: number, currentShowCustomer: boolean) => void;
+  readOnly?: boolean;
 }
 
 // تابع برای تشخیص نوع فایل و برگرداندن ایکون مناسب
@@ -69,6 +72,8 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
   removeFile,
   progressMap,
   isLoading,
+  toggleShowCustomer,
+  readOnly = false,
 }) => {
   const { mode } = useTheme();
   const [modalDetail, setModalDetail] = useState<IModalGlobal>({
@@ -98,8 +103,8 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
             </div>
           </div>
         )}
-        {files?.map((fileObj: File | any) => {
-          const isImage = fileObj?.type?.startsWith("image/");
+        {files?.map((fileObj: IRepairReceptionFile) => {
+          const isImage = fileObj?.mimeType?.startsWith("image/");
           const fileProgress = progressMap?.[fileObj.id] ?? 0;
 
           return (
@@ -110,16 +115,9 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
             >
               {isImage || fileObj.downloadUrl ? (
                 <img
-                  src={
-                    fileObj instanceof File
-                      ? URL?.createObjectURL(fileObj)
-                      : fileObj.downloadUrl
-                  }
-                  alt={fileObj?.name}
+                  src={fileObj.downloadUrl}
+                  alt={fileObj?.fileName}
                   className="w-full h-full object-cover"
-                  onLoad={(e) =>
-                    URL?.revokeObjectURL((e.target as HTMLImageElement).src)
-                  }
                 />
               ) : (
                 <div
@@ -139,7 +137,7 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
                     className={`absolute bottom-0 font-8 is-word-break text-xs w-16 text-center px-1 ${mode === "dark" ? "text-gray-300" : "text-gray-600"
                       }`}
                   >
-                    {fileObj?.name}
+                    {fileObj?.fileName}
                   </pre>
                 </div>
               )}
@@ -161,19 +159,41 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
                 </div>
               )}
 
-              <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-                <Close
-                  fontSize="small"
-                  onClick={() =>
-                    setModalDetail({
-                      show: true,
-                      type: "delete",
-                      data: fileObj,
-                    })
-                  }
-                  className="absolute top-0 right-0 bg-secondary-main text-white p-1 shadow"
-                />
-              </AccessGuard>
+              {!readOnly && (
+                <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+                  <Close
+                    fontSize="small"
+                    onClick={() =>
+                      setModalDetail({
+                        show: true,
+                        type: "delete",
+                        data: fileObj,
+                      })
+                    }
+                    className="absolute top-0 right-0 bg-secondary-main text-white p-1 shadow"
+                  />
+                </AccessGuard>
+              )}
+              
+              {!readOnly && toggleShowCustomer && (
+                <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+                  <div
+                    onClick={() => toggleShowCustomer(fileObj.id, fileObj.showCustomer)}
+                    className={`absolute top-0 left-0 p-1 shadow cursor-pointer ${
+                      fileObj.showCustomer 
+                        ? "bg-green-500 hover:bg-green-600" 
+                        : "bg-gray-500 hover:bg-gray-600"
+                    } text-white transition-colors`}
+                    title={fileObj.showCustomer ? "قابل نمایش برای مشتری" : "غیرقابل نمایش برای مشتری"}
+                  >
+                    {fileObj.showCustomer ? (
+                      <RemoveRedEye fontSize="small" />
+                    ) : (
+                      <VisibilityOff fontSize="small" />
+                    )}
+                  </div>
+                </AccessGuard>
+              )}
               <div
                 onClick={() =>
                   setModalDetail({
@@ -188,7 +208,7 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
                 {isImage ? (
                   <Visibility fontSize="medium" />
                 ) : (
-                  getFileIcon(fileObj.type || fileObj.mimeType, mode)
+                  getFileIcon(fileObj.mimeType, mode)
                 )}
               </div>
             </div>

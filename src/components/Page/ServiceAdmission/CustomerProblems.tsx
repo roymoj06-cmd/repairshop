@@ -19,6 +19,7 @@ import {
 
 interface ICustomerProblemsProps {
   repairReceptionId?: string;
+  readOnly?: boolean;
 }
 
 interface LocalProblem extends ICreateOrUpdateCustomerProblem {
@@ -34,6 +35,7 @@ interface ServerProblemChange {
 
 const CustomerProblems: FC<ICustomerProblemsProps> = ({
   repairReceptionId,
+  readOnly = false,
 }) => {
   const { hasAccess } = useAccessControl();
   const queryClient = useQueryClient();
@@ -244,25 +246,27 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
 
   return (
     <Box>
-      <AccessGuard accessId={ACCESS_IDS.ADD_PROBLEM}>
-        <Box className="mb-2 flex justify-between items-center">
-          <Typography variant="subtitle1">شرح مشکلات</Typography>
-          <Button
-            startIcon={<Add />}
-            variant="outlined"
-            onClick={addProblem}
-            size="small"
-            disabled={
-              isLoading ||
-              createMutation.isPending ||
-              updateMutation.isPending ||
-              deleteMutation.isPending
-            }
-          >
-            افزودن مشکل
-          </Button>
-        </Box>
-      </AccessGuard>
+      <Box className="mb-2 flex justify-between items-center">
+        <Typography variant="subtitle1">شرح مشکلات</Typography>
+        {!readOnly && (
+          <AccessGuard accessId={ACCESS_IDS.ADD_PROBLEM}>
+            <Button
+              startIcon={<Add />}
+              variant="outlined"
+              onClick={addProblem}
+              size="small"
+              disabled={
+                isLoading ||
+                createMutation.isPending ||
+                updateMutation.isPending ||
+                deleteMutation.isPending
+              }
+            >
+              افزودن مشکل
+            </Button>
+          </AccessGuard>
+        )}
+      </Box>
 
       {allProblems.map((problem, index) => {
         const needsSaving = hasChanges(index);
@@ -272,22 +276,23 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
             className="flex items-start mb-3"
           >
             <EnhancedInput
-              onChange={(e) => updateProblemDescription(index, e.target.value)}
+              onChange={readOnly ? () => {} : (e) => updateProblemDescription(index, e.target.value)}
               value={getProblemDescription(index)}
               label={`مشکل ${index + 1}`}
               name={`problem-${index}`}
-              enableSpeechToText
+              enableSpeechToText={!readOnly}
               isTextArea
               fullWidth
               minRows={1}
               maxRows={8}
               disabled={
+                readOnly ||
                 createMutation.isPending ||
                 updateMutation.isPending ||
                 deleteMutation.isPending
               }
             />
-            {needsSaving && hasAccess(ACCESS_IDS.EDIT_PROBLEM) && (
+            {!readOnly && needsSaving && hasAccess(ACCESS_IDS.EDIT_PROBLEM) && (
               <IconButton
                 color="success"
                 onClick={() => saveProblem(index)}
@@ -302,7 +307,7 @@ const CustomerProblems: FC<ICustomerProblemsProps> = ({
                 <Check />
               </IconButton>
             )}
-            {hasAccess(ACCESS_IDS.DELETE_PROBLEM) && (
+            {!readOnly && hasAccess(ACCESS_IDS.DELETE_PROBLEM) && (
               <IconButton
                 color="error"
                 onClick={() => removeProblem(index)}
