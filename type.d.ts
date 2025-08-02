@@ -762,18 +762,27 @@ interface ICreateRepairProductFractional {
 interface IGetRepairProductFractionalsByPlate {
   productCount: number;
   carId: number;
-  products: {
-    plateNumber: string;
-    productName: string;
-    productCode: string;
-    description: string;
-    productId: number;
-    userName: string;
-    createDm: string;
-    quantity: number;
-    userId: number;
-    id: number;
-  }[];
+  products: IGetRepairProductFractionalsByPlateProducts[];
+}
+interface IGetRepairProductFractionalsByPlateProducts {
+  repairCustomerProblemId: number;
+  requestedByUserName: string;
+  requestedByUserId: number;
+  customerUserName: string;
+  customerUserId: number;
+  isDelivering: boolean;
+  deliveryTime: number;
+  plateNumber: string;
+  productName: string;
+  productCode: string;
+  deliveryDay: string;
+  isSendSms: boolean;
+  productId: number;
+  quantity: number;
+  userName: string;
+  createDm: string;
+  carId: number;
+  id: number;
 }
 interface IUpdateRepairProductFractionalPurchased {
   requestedIds: number[];
@@ -809,11 +818,11 @@ interface IUpdateShowCustomer {
 }
 
 interface IRepairReceptionFile {
-  fileName: string;
+  showCustomer: boolean;
   downloadUrl: string;
+  fileName: string;
   filePath: string;
   mimeType: string;
-  showCustomer: boolean;
   fileSize: number;
   id: number;
 }

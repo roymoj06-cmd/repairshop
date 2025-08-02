@@ -167,7 +167,7 @@ const Vehicle: FC = () => {
                   setPage={setSearchParams}
                 />
               </Grid>
-              {user?.isDinawinEmployee !== false && (
+              {user?.isDinawinEmployee && (
                 <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }}>
                   <EnhancedSelect
                     onChange={handleCustomerSearch}

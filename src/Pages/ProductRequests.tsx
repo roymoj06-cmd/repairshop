@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import gregorian_en from "react-date-object/locales/gregorian_en";
 import DatePicker, { DateObject } from "react-multi-date-picker";
+import gregorian from "react-date-object/calendars/gregorian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import persian from "react-date-object/calendars/persian";
-import gregorian_en from "react-date-object/locales/gregorian_en";
-import gregorian from "react-date-object/calendars/gregorian";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import {
@@ -106,7 +106,9 @@ const ProductRequests: React.FC = () => {
         toast.error("خطا در ثبت زمان ارسال");
       },
     });
-  const handleProductSelection = (productId: number, checked: boolean) => {
+  const handleProductSelection = (productId: number, checked: boolean, isDelivering?: boolean) => {
+    if (isDelivering) return;
+    
     if (checked) {
       setSelectedRequestIds((prev) => [...prev, productId]);
     } else {
@@ -114,25 +116,32 @@ const ProductRequests: React.FC = () => {
     }
   };
   const handleSelectAllForCar = (carData: any, checked: boolean) => {
-    const carProductIds = carData.products.map((product: any) => product.id);
+    const selectableProductIds = carData.products
+      .filter((product: any) => !product.isDelivering)
+      .map((product: any) => product.id);
+    
     if (checked) {
       setSelectedRequestIds((prev) => [
-        ...new Set([...prev, ...carProductIds]),
+        ...new Set([...prev, ...selectableProductIds]),
       ]);
     } else {
       setSelectedRequestIds((prev) =>
-        prev.filter((id) => !carProductIds.includes(id))
+        prev.filter((id) => !selectableProductIds.includes(id))
       );
     }
   };
   const isAllSelectedForCar = (carData: any) => {
-    const carProductIds = carData.products.map((product: any) => product.id);
-    return carProductIds.every((id: number) => selectedRequestIds.includes(id));
+    const selectableProductIds = carData.products
+      .filter((product: any) => !product.isDelivering)
+      .map((product: any) => product.id);
+    return selectableProductIds.length > 0 && selectableProductIds.every((id: number) => selectedRequestIds.includes(id));
   };
   const isSomeSelectedForCar = (carData: any) => {
-    const carProductIds = carData.products.map((product: any) => product.id);
+    const selectableProductIds = carData.products
+      .filter((product: any) => !product.isDelivering)
+      .map((product: any) => product.id);
     return (
-      carProductIds.some((id: number) => selectedRequestIds.includes(id)) &&
+      selectableProductIds.some((id: number) => selectedRequestIds.includes(id)) &&
       !isAllSelectedForCar(carData)
     );
   };
@@ -231,15 +240,30 @@ const ProductRequests: React.FC = () => {
       console.error("Error updating delivery:", error);
     }
   };
+  const formatDeliveryInfo = (product: any) => {
+    if (!product.isDelivering) return "-";
+    
+    if (product.deliveryTime) {
+      return `امروز - ${product.deliveryTime} ساعت`;
+    }
+    
+    if (product.deliveryDay) {
+      const deliveryDate = convertGeorginaToJalaliOnlyDayByNumber(product.deliveryDay);
+      return deliveryDate || product.deliveryDay;
+    }
+    
+    return "در حال ارسال";
+  };
   const renderProductRow = (product: any, index: number) => {
     return (
-      <TableRow key={product.id} sx={{ bgcolor: "grey.50" }}>
+      <TableRow key={product.id} sx={{ bgcolor: product.isDelivering ? "warning.50" : "grey.50" }}>
         <TableCell sx={{ pl: 2 }}>
           <Checkbox
             checked={selectedRequestIds.includes(product.id)}
             onChange={(e) =>
-              handleProductSelection(product.id, e.target.checked)
+              handleProductSelection(product.id, e.target.checked, product.isDelivering)
             }
+            disabled={product.isDelivering}
             color="primary"
           />
         </TableCell>
@@ -258,10 +282,18 @@ const ProductRequests: React.FC = () => {
         <TableCell>
           {convertGeorginaToJalaliOnlyDayByNumber(product.createDm) || "-"}
         </TableCell>
+        <TableCell>
+          <Chip
+            label={formatDeliveryInfo(product)}
+            color={product.isDelivering ? "warning" : "default"}
+            size="small"
+            variant={product.isDelivering ? "filled" : "outlined"}
+          />
+        </TableCell>
       </TableRow>
     );
   };
-  const renderCarAccordion = (carData: any) => {
+  const renderCarAccordion = (carData: IGetRepairProductFractionalsByPlate) => {
     const plateData = parsePlateNumber(carData.products[0]?.plateNumber);
 
     return (
@@ -350,11 +382,15 @@ const ProductRequests: React.FC = () => {
                     درخواست کننده
                   </TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>تاریخ ایجاد</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>ساعت/روز ارسال</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {carData.products.map((product: any, productIndex: number) =>
-                  renderProductRow(product, productIndex)
+                {carData.products.map(
+                  (
+                    product: IGetRepairProductFractionalsByPlateProducts,
+                    productIndex: number
+                  ) => renderProductRow(product, productIndex)
                 )}
               </TableBody>
             </Table>
@@ -363,7 +399,9 @@ const ProductRequests: React.FC = () => {
       </Accordion>
     );
   };
-  const renderMobileCarCard = (carData: any) => {
+  const renderMobileCarCard = (
+    carData: IGetRepairProductFractionalsByPlate
+  ) => {
     const plateData = parsePlateNumber(carData.products[0]?.plateNumber);
 
     return (
@@ -431,76 +469,109 @@ const ProductRequests: React.FC = () => {
                   color="primary"
                 />
               }
-              label="انتخاب همه کالاهای این خودرو"
+              label="انتخاب همه کالاهای قابل انتخاب"
             />
           </Box>
 
-          {carData.products.map((product: any, productIndex: number) => (
-            <Box
-              key={product.id}
-              sx={{ mb: 2, p: 2, bgcolor: "grey.50", borderRadius: 1 }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                <Checkbox
-                  checked={selectedRequestIds.includes(product.id)}
-                  onChange={(e) =>
-                    handleProductSelection(product.id, e.target.checked)
-                  }
-                  color="primary"
-                  sx={{ mr: 1 }}
-                />
+          {carData.products.map(
+            (
+              product: IGetRepairProductFractionalsByPlateProducts,
+              productIndex: number
+            ) => (
+              <Box
+                key={product.id}
+                sx={{ 
+                  mb: 2, 
+                  p: 2, 
+                  bgcolor: product.isDelivering ? "warning.50" : "grey.50", 
+                  borderRadius: 1,
+                  border: product.isDelivering ? "1px solid" : "none",
+                  borderColor: product.isDelivering ? "warning.300" : "transparent"
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <Checkbox
+                    checked={selectedRequestIds.includes(product.id)}
+                    onChange={(e) =>
+                      handleProductSelection(product.id, e.target.checked, product.isDelivering)
+                    }
+                    disabled={product.isDelivering}
+                    color="primary"
+                    sx={{ mr: 1 }}
+                  />
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: "bold", flex: 1 }}
+                  >
+                    {product.productName}
+                  </Typography>
+                </Box>
                 <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: "bold", flex: 1 }}
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 1 }}
                 >
-                  {product.productName}
+                  کد: {product.productCode}
                 </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant="body2">تعداد:</Typography>
+                  <Chip label={product.quantity} color="primary" size="small" />
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant="body2">درخواست کننده:</Typography>
+                  <Typography variant="body2">
+                    {product.requestedByUserName || "-"}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant="body2">تاریخ:</Typography>
+                  <Typography variant="body2">
+                    {convertGeorginaToJalaliOnlyDayByNumber(product.createDm) ||
+                      "-"}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography variant="body2">ساعت/روز ارسال:</Typography>
+                  <Chip
+                    label={formatDeliveryInfo(product)}
+                    color={product.isDelivering ? "warning" : "default"}
+                    size="small"
+                    variant={product.isDelivering ? "filled" : "outlined"}
+                  />
+                </Box>
+                {productIndex < carData.products.length - 1 && (
+                  <Divider sx={{ mt: 2 }} />
+                )}
               </Box>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                کد: {product.productCode}
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 1,
-                }}
-              >
-                <Typography variant="body2">تعداد:</Typography>
-                <Chip label={product.quantity} color="primary" size="small" />
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 1,
-                }}
-              >
-                <Typography variant="body2">درخواست کننده:</Typography>
-                <Typography variant="body2">
-                  {product.requestedByUserName || "-"}
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <Typography variant="body2">تاریخ:</Typography>
-                <Typography variant="body2">
-                  {convertGeorginaToJalaliOnlyDayByNumber(product.createDm) ||
-                    "-"}
-                </Typography>
-              </Box>
-              {productIndex < carData.products.length - 1 && (
-                <Divider sx={{ mt: 2 }} />
-              )}
-            </Box>
-          ))}
+            )
+          )}
         </AccordionDetails>
       </Accordion>
     );
@@ -539,12 +610,12 @@ const ProductRequests: React.FC = () => {
                 </Button>
 
                 <Button
+                  disabled={selectedRequestIds.length === 0}
                   onClick={handleOpenDeliveryModal}
+                  startIcon={<Schedule />}
                   variant="contained"
                   color="primary"
                   size="large"
-                  startIcon={<Schedule />}
-                  disabled={selectedRequestIds.length === 0}
                   sx={{
                     width: { xs: "100%", sm: "auto" },
                     minWidth: { sm: "auto" },
@@ -560,11 +631,11 @@ const ProductRequests: React.FC = () => {
               <Grid size={{ xs: 12, md: 4 }}>
                 <Box
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
                     justifyContent: { xs: "flex-start", md: "flex-end" },
+                    alignItems: "center",
                     mt: { xs: 1, md: 0 },
+                    display: "flex",
+                    gap: 1,
                   }}
                 >
                   <Typography variant="body1" color="text.secondary">
@@ -596,11 +667,15 @@ const ProductRequests: React.FC = () => {
           <Box>
             {isMobile ? (
               <Box>
-                {carsData.map((carData: any) => renderMobileCarCard(carData))}
+                {carsData.map((carData: IGetRepairProductFractionalsByPlate) =>
+                  renderMobileCarCard(carData)
+                )}
               </Box>
             ) : (
               <Box>
-                {carsData.map((carData: any) => renderCarAccordion(carData))}
+                {carsData.map((carData: IGetRepairProductFractionalsByPlate) =>
+                  renderCarAccordion(carData)
+                )}
               </Box>
             )}
           </Box>

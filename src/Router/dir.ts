@@ -8,9 +8,10 @@ export default {
   productRequests: "/dashboard/product-requests",
   taskManagement: "/dashboard/task-management",
   carsManagement: "/dashboard/cars-management",
+  resetPassword: "/reset-password",
   vehicles: "/dashboard/vehicles",
+  accessDenied: "/access-denied",
   dashboard: "/dashboard",
   profile: "/profile",
-  resetPassword: "/reset-password",
   login: "/login",
 };

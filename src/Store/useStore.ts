@@ -16,6 +16,7 @@ interface StoreState {
   isAuthenticated: boolean;
   userAccesses: string[];
   isLoading: boolean;
+  isAccessesLoaded: boolean;
   logout: () => void;
   user: any | null;
 }
@@ -29,6 +30,7 @@ export const useStore = create<StoreState>()(
       setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
       isAuthenticated: false,
       isLoading: false,
+      isAccessesLoaded: false,
       setIsLoading: (isLoading) => set({ isLoading }),
       login: async (username: string, password: string) => {
         try {
@@ -52,14 +54,18 @@ export const useStore = create<StoreState>()(
               userData.data?.jwt?.access_token
             );
             set({
-              userAccesses: accessData.data,
+              userAccesses: accessData.data || [],
+              isAccessesLoaded: true,
             });
           } else {
             set({ isLoading: false });
             toast?.error(userData?.message);
           }
         } catch (error) {
-          set({ isLoading: false });
+          set({ 
+            isLoading: false,
+            isAccessesLoaded: false 
+          });
           toast?.error("خطا در ورود به سیستم");
         }
       },
@@ -71,6 +77,7 @@ export const useStore = create<StoreState>()(
           user: null,
           isAuthenticated: false,
           userAccesses: [],
+          isAccessesLoaded: false,
         });
         Cookies.remove("token");
         localStorage.clear();
@@ -86,6 +93,7 @@ export const useStore = create<StoreState>()(
       clearAuth: () => {
         set({
           userAccesses: [],
+          isAccessesLoaded: false,
         });
       },
       hasAccess: (accessGuid: string) => {
@@ -99,6 +107,7 @@ export const useStore = create<StoreState>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
         userAccesses: state.userAccesses,
+        isAccessesLoaded: state.isAccessesLoaded,
       }),
     }
   )

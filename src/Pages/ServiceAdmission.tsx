@@ -13,7 +13,7 @@ const ServiceAdmission: FC = () => {
   return (
     <Box className="py-6">
       <Paper className="p-4">
-        {!user?.isDinawinEmployee ? (
+        {user?.isDinawinEmployee ? (
           <ServiceAdmissionForm repairReceptionId={repairReceptionId} />
         ) : (
           <ServiceAdmissionReadOnly repairReceptionId={repairReceptionId} />

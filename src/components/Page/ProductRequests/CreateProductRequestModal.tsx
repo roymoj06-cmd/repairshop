@@ -28,13 +28,11 @@ interface CreateProductRequestModalProps {
   onClose: () => void;
   open: boolean;
 }
-
 interface FormData {
   customerUserId: number | undefined;
   productId: number | undefined;
   carId: number | undefined;
 }
-
 interface SelectedProduct {
   countryName?: string;
   productName: string;
@@ -72,20 +70,18 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
       productId: undefined,
     },
   });
-
   const { mutateAsync: searchCustomers, isPending: isSearchingCustomers } =
     useMutation({
       mutationFn: getCustomers,
       onSuccess: (data) => {
         const customerOptions = data?.data?.map((i: any) => ({
           label: i?.fullName,
-          value: i.customerId,
-          userId: i.userId,
+          value: i.userId,
+          customerId: i.customerId,
         }));
         setCustomerOptions(customerOptions || []);
       },
     });
-
   const { mutateAsync: getCustomerPlates, isPending: isLoadingPlates } =
     useMutation({
       mutationFn: (customerId: number) => getCustomerCars(customerId),
@@ -101,7 +97,6 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
         }
       },
     });
-
   const { mutateAsync: searchProducts, isPending: isSearchingProducts } =
     useMutation({
       mutationFn: getProductsThatContainsText,
@@ -117,7 +112,6 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
         setProductOptions(products || []);
       },
     });
-
   const { mutateAsync: createRequest, isPending: isCreatingRequest } =
     useMutation({
       mutationFn: createRepairProductFractional,
@@ -135,7 +129,6 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
         toast.error("خطا در ایجاد درخواست کسری قطعه");
       },
     });
-
   const handleCustomerSearch = (searchText: string) => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -146,42 +139,38 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
       }
     }, 300);
   };
-
   const handleCustomerChange = (value: any) => {
     setValue("carId", undefined);
     setCustomerVehicles([]);
-    if (value?.value) {
-      setValue("customerUserId", value.userId || value.value);
-      getCustomerPlates(value.value);
+    if (value) {
+      // setValue("customerUserId", value || value);
+      getCustomerPlates(value.customerId);
     }
   };
-
   const handleProductSearch = (searchText: string) => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-    searchTimeoutRef.current = setTimeout(() => {
-      if (searchText && searchText.length >= 2) {
+    if (searchText && searchText.length >= 2) {
+      const isExistingOption = productOptions.some(
+        (option) => option.label === searchText
+      );
+
+      if (!isExistingOption) {
         searchProducts(searchText);
       }
-    }, 300);
+    }
   };
-
   const handleProductSelection = (option: any) => {
     if (option) {
       const newProduct: SelectedProduct = {
-        productId: option.value,
-        productName: option.productName || option.label.split(" - ")[0],
         productCode: option.productCode || option.label.split(" - ")[1] || "",
-        brand: option.brand || "",
+        productName: option.productName || option.label.split(" - ")[0],
         countryName: option.countryName || "",
+        brand: option.brand || "",
+        productId: option.value,
         quantity: 1,
       };
-      setSelectedProducts([newProduct]); // For now, replace with single product
-      setValue("productId", option.value);
+      setSelectedProducts([newProduct]);
     }
   };
-
   const handleQuantityChange = (change: number, productIndex: number = 0) => {
     if (selectedProducts[productIndex]) {
       const updatedProducts = [...selectedProducts];
@@ -195,7 +184,6 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
       }
     }
   };
-
   const removeProduct = (productIndex: number) => {
     const updatedProducts = selectedProducts.filter(
       (_, index) => index !== productIndex
@@ -205,7 +193,6 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
       setValue("productId", undefined);
     }
   };
-
   const handleClose = () => {
     reset();
     setCustomerOptions([]);
@@ -214,7 +201,6 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
     setSelectedProducts([]);
     onClose();
   };
-
   const onSubmit = async () => {
     if (selectedProducts.length === 0) {
       toast.error("لطفا یک کالا انتخاب کنید");
@@ -222,6 +208,8 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
     }
 
     const formData = watch();
+    console.log(formData);
+
     if (!formData.customerUserId || !formData.carId) {
       toast.error("لطفا مشتری و پلاک را انتخاب کنید");
       return;
@@ -232,9 +220,9 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
       const selectedProduct = selectedProducts[0];
       const requestData: ICreateRepairProductFractional = {
         customerUserId: formData.customerUserId,
-        carId: formData.carId,
         productId: selectedProduct.productId,
         quantity: selectedProduct.quantity,
+        carId: formData.carId,
       };
 
       await createRequest(requestData);
@@ -243,7 +231,6 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
       toast.error("خطا در ایجاد درخواست کسری قطعه");
     }
   };
-
   useEffect(() => {
     return () => {
       if (searchTimeoutRef.current) {
@@ -251,12 +238,7 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
       }
     };
   }, []);
-
-  const isLoading =
-    isSearchingCustomers ||
-    isLoadingPlates ||
-    isSearchingProducts ||
-    isCreatingRequest;
+  const isLoading = isCreatingRequest;
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
@@ -287,9 +269,9 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
                 options={customerOptions}
                 enableSpeechToText={true}
                 storeValueOnly={true}
+                name="customerUserId"
                 iconPosition="end"
                 searchable={true}
-                name="customerUserId"
                 control={control}
                 disabled={false}
                 label="مشتری"
@@ -323,6 +305,7 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
                 loading={isSearchingProducts}
                 placeholder="جست‌وجوی کالا"
                 options={productOptions}
+                storeValueOnly={true}
                 label="انتخاب کالا"
                 control={control}
                 searchable={true}
