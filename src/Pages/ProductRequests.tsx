@@ -248,7 +248,7 @@ const ProductRequests: React.FC = () => {
     }
     
     if (product.deliveryDay) {
-      const deliveryDate = convertGeorginaToJalaliOnlyDayByNumber(product.deliveryDay);
+      const deliveryDate = product.deliveryDay;
       return deliveryDate || product.deliveryDay;
     }
     
