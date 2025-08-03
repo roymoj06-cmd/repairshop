@@ -1,0 +1,577 @@
+.mechanic-attendance {
+  padding: 1rem;
+  
+  .attendance-list {
+    margin-top: 1rem;
+  }
+
+  .attendance-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    
+    &:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      
+      .attendance-card__status-badge {
+        animation: pulse 1.5s infinite;
+      }
+      
+      .attendance-card__avatar {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+    }
+
+    // Status badge animation
+    .attendance-card__status-badge {
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 50%;
+        animation: ripple 3s infinite;
+      }
+    }
+
+    // Avatar animations
+    .attendance-card__avatar {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      &:hover::before {
+        opacity: 1;
+        animation: rotate 2s linear infinite;
+      }
+    }
+
+    // Info sections with type-based styling
+    .attendance-card__info-section {
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, currentColor, transparent);
+      }
+      
+      &.entry {
+        background: linear-gradient(135deg, 
+          rgba(34, 197, 94, 0.08) 0%, 
+          rgba(34, 197, 94, 0.03) 50%,
+          rgba(34, 197, 94, 0.08) 100%);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        color: #16a34a;
+        
+        &::before {
+          color: #22c55e;
+        }
+      }
+      
+      &.exit {
+        background: linear-gradient(135deg, 
+          rgba(239, 68, 68, 0.08) 0%, 
+          rgba(239, 68, 68, 0.03) 50%,
+          rgba(239, 68, 68, 0.08) 100%);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: #dc2626;
+        
+        &::before {
+          color: #ef4444;
+        }
+      }
+    }
+
+    // Action buttons with modern styling
+    .attendance-card__action-button {
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.1;
+        transform: translate(-50%, -50%);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        
+        &::before {
+          width: 120%;
+          height: 120%;
+        }
+      }
+      
+      &:active {
+        transform: translateY(0);
+        transition: transform 0.1s ease;
+      }
+    }
+
+    // Typography enhancements
+    .attendance-card__name {
+      background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .attendance-card__id {
+      color: #6b7280;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.025em;
+    }
+
+    // Modern grid layout for date/time
+    .attendance-card__datetime-grid {
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 1px;
+        height: 60%;
+        background: linear-gradient(to bottom, transparent, #e5e7eb, transparent);
+        transform: translate(-50%, -50%);
+      }
+    }
+  }
+
+  .filters-section {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    
+    .filters-content {
+      padding: 1.5rem;
+      
+      .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+        
+        .filter-item {
+          flex: 1;
+          min-width: 200px;
+        }
+        
+        .filter-actions {
+          display: flex;
+          gap: 0.75rem;
+        }
+      }
+      
+      .quick-filters {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e0e0e0;
+        
+        .filter-button {
+          margin-right: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
+
+  .mechanic-attendance__date-field {
+    width: 100%;
+    
+    .custom-datepicker {
+      width: 100%;
+      height: 56px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 16px;
+      
+      &:focus {
+        outline: none;
+        border-color: #2196f3;
+        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+      }
+    }
+  }
+
+  .attendance-modal__field {
+    width: 100%;
+    
+    .custom-datepicker {
+      width: 100%;
+      height: 56px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 16px;
+      background-color: #fff;
+      
+      &:focus {
+        outline: none;
+        border-color: #2196f3;
+        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+      }
+      
+      &:hover {
+        border-color: #999;
+      }
+    }
+  }
+  }
+
+  .header-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    
+    .header-content {
+      padding: 2rem;
+      
+      .header-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        
+        .header-icon {
+          width: 28px;
+          height: 28px;
+        }
+      }
+      
+      .header-subtitle {
+        opacity: 0.9;
+        font-size: 1rem;
+      }
+      
+      .header-actions {
+        margin-top: 1.5rem;
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    
+    .empty-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      opacity: 0.5;
+    }
+    
+    .empty-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+    
+    .empty-subtitle {
+      color: #7f8c8d;
+      line-height: 1.5;
+    }
+  }
+
+  .floating-add-button {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+    
+    .filters-section {
+      .filters-content {
+        padding: 1rem;
+        
+        .filter-row {
+          flex-direction: column;
+          
+          .filter-item {
+            width: 100%;
+            min-width: unset;
+          }
+          
+          .filter-actions {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+      }
+    }
+    
+    .header-section {
+      .header-content {
+        padding: 1.5rem;
+        
+        .header-title {
+          font-size: 1.25rem;
+        }
+      }
+    }
+    
+    .attendance-list {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .floating-add-button {
+      bottom: 1rem;
+      right: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .attendance-card {
+      .card-content {
+        .info-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.25rem;
+        }
+      }
+      
+      .card-actions {
+        justify-content: center;
+      }
+    }
+  }
+}
+
+// Animation Classes
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// New Modern Animations
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.1;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+// Timeline Card Styles
+.mechanic-timeline-card {
+  .timeline-container {
+    .timeline-entry {
+      position: relative;
+      margin-bottom: 1rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .timeline-dot {
+        position: relative;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: inherit;
+          transform: translate(-50%, -50%) scale(0);
+          animation: dotPulse 2s infinite;
+        }
+      }
+      
+      .entry-content {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 8px;
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          border-color: #cbd5e1;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+      }
+      
+      .entry-actions {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      
+      &:hover .entry-actions {
+        opacity: 1;
+      }
+    }
+  }
+  
+  .working-hours-badge {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  }
+  
+  .summary-section {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    
+    .complete-badge {
+      color: #16a34a;
+      background: rgba(34, 197, 94, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .incomplete-badge {
+      color: #ea580c;
+      background: rgba(234, 88, 12, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+  }
+}
+
+@keyframes dotPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}

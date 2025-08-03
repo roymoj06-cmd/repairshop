@@ -18,6 +18,8 @@ export { default as CircularProgressWithLabel } from "./common/CircularProgressW
 export { default as ProductRequestCard } from "./Page/ProductRequest/ProductRequestCard";
 export { default as RequestListModal } from "./Page/ServiceAdmission/RequestListModal";
 export { default as CustomerProblems } from "./Page/ServiceAdmission/CustomerProblems";
+export { default as AttendanceModal } from "./Page/MechanicAttendance/AttendanceModal";
+export { default as AttendanceCard } from "./Page/MechanicAttendance/AttendanceCard";
 export { default as MechanicLedger } from "./Page/mechanicManagement/MechanicLedger";
 export { default as ProjectSummary } from "./Page/ServiceAdmission/ProjectSummary";
 export { default as MechanicModal } from "./Page/mechanicManagement/MechanicModal";

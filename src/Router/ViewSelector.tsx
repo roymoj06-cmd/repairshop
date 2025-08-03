@@ -10,6 +10,7 @@ import dir from "./dir";
 const AddServiceAdmission = lazy(() => import("@/Pages/AddServiceAdmission"));
 const MechanicPerformance = lazy(() => import("@/Pages/MechanicPerformance"));
 const MechanicsManagement = lazy(() => import("@/Pages/MechanicManagement"));
+const MechanicAttendance = lazy(() => import("@/Pages/MechanicAttendance"));
 const ServiceManagement = lazy(() => import("@/Pages/ServiceManagement"));
 const ServiceAdmission = lazy(() => import("@/Pages/ServiceAdmission"));
 const LeaveManagement = lazy(() => import("@/Pages/LeaveManagement"));
@@ -108,6 +109,15 @@ const ViewSelector: FC = () => {
             element={
               <RouteWrapper path={dir.mechanicsManagement}>
                 <MechanicsManagement />
+              </RouteWrapper>
+            }
+          />
+
+          <Route
+            path={dir.mechanicAttendance}
+            element={
+              <RouteWrapper path={dir.mechanicAttendance}>
+                <MechanicAttendance />
               </RouteWrapper>
             }
           />

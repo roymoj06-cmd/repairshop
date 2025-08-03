@@ -816,7 +816,6 @@ interface IUpdateShowCustomer {
   showCustomer: boolean;
   fileId: number;
 }
-
 interface IRepairReceptionFile {
   showCustomer: boolean;
   downloadUrl: string;
@@ -825,4 +824,49 @@ interface IRepairReceptionFile {
   mimeType: string;
   fileSize: number;
   id: number;
+}
+interface ICreateMechanicAttendance {
+  description: string;
+  mechanicId: number;
+  dateTime: string;
+  id?: number;
+  type: any;
+}
+interface IGetMechanicAttendanceByDateRange {
+  endDate: string;
+  startDate: string;
+  mechanicId: number;
+}
+interface IGetMechanicAttendanceById {
+  mechanicExpertLevel: number;
+  mechanicUserName: string;
+  shamsiDateTime: string;
+  mechanicName: string;
+  description: string;
+  mechanicId: number;
+  dateTime: string;
+  typeText: string;
+  createDm: string;
+  id: number;
+  type: any;
+}
+interface IGetMechanicAttendanceByMechanicId {
+  shamsiDateTime: string;
+  mechanicName: string;
+  description: string;
+  mechanicId: number;
+  dateTime: string;
+  typeText: string;
+  id: number;
+  type: any;
+}
+interface IGetMechanicAttendanceByDateRange {
+  shamsiDateTime: string;
+  mechanicName: string;
+  description: string;
+  mechanicId: number;
+  dateTime: string;
+  typeText: string;
+  id: number;
+  type: any;
 }

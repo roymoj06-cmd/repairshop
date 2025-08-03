@@ -1,34 +1,35 @@
+import { Link, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import {
-  BarChart,
-  Build,
   CalendarMonth,
+  DirectionsCar,
+  AccessTime,
   CarRepair,
   Dashboard,
-  DirectionsCar,
   Inventory,
+  BarChart,
   Logout,
   Person,
+  Build,
   Task,
 } from "@mui/icons-material";
 import {
-  Avatar,
-  Box,
-  Divider,
-  Drawer,
-  List,
-  ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Typography,
+  ListItem,
+  Divider,
+  Avatar,
+  Drawer,
+  List,
+  Box,
 } from "@mui/material";
-import { useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
 
-import { ThemeToggle } from "@/components";
 import { useTheme } from "@/context/ThemeContext";
-import dir from "@/Router/dir";
 import { useStore } from "@/Store/useStore";
+import { ThemeToggle } from "@/components";
+import dir from "@/Router/dir";
 
 interface NavItemProps {
   info?: React.ReactNode;
@@ -73,6 +74,12 @@ const navConfig: NavItemProps[] = [
     path: dir.mechanicsManagement,
     icon: <Person />,
     guid: "b33b23a8-9d34-4375-a05c-94c5b18450b7",
+  },
+  {
+    title: "حضور و غیاب کارکنان",
+    path: dir.mechanicAttendance,
+    icon: <AccessTime />,
+    guid: "9bf86168-cb18-47f3-a886-90cb6d47663c",
   },
   {
     title: "مدیریت مرخصی ها",

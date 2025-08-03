@@ -46,6 +46,11 @@ export const routesConfig: RouteConfig[] = [
         requiredMainAccess: [ACCESS_IDS.MECHANIC_MANAGEMENT],
       },
       {
+        path: dir.mechanicAttendance,
+        title: "حضور و غیاب کارکنان",
+        requiredMainAccess: [ACCESS_IDS.MECHANIC_ATTENDANCE],
+      },
+      {
         path: dir.leaveManagement,
         title: "مدیریت مرخصی ها",
         requiredMainAccess: [ACCESS_IDS.LEAVE_MANAGEMENT],

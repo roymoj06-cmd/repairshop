@@ -171,4 +171,12 @@ export const proxyServerUrl = {
   updateRepairProductFractionalPurchased: `${panelServiceBaseUrl}/RepairProductFractional/UpdateRepairProductFractionalPurchased`,
   getRepairProductFractionalsByPlate: `${panelServiceBaseUrl}/RepairProductFractional/GetRepairProductFractionalsByPlate`,
   createRepairProductFractional: `${panelServiceBaseUrl}/RepairProductFractional/CreateRepairProductFractional`,
+
+  // MechanicAttendance Controller
+  getMechanicAttendanceByMechanicId: `${panelServiceBaseUrl}/MechanicAttendance/GetMechanicAttendanceByMechanicId`,
+  getMechanicAttendanceByDateRange: `${panelServiceBaseUrl}/MechanicAttendance/GetMechanicAttendanceByDateRange`,
+  getMechanicAttendanceById: `${panelServiceBaseUrl}/MechanicAttendance/GetMechanicAttendanceById`,
+  createMechanicAttendance: `${panelServiceBaseUrl}/MechanicAttendance/CreateMechanicAttendance`,
+  updateMechanicAttendance: `${panelServiceBaseUrl}/MechanicAttendance/UpdateMechanicAttendance`,
+  deleteMechanicAttendance: `${panelServiceBaseUrl}/MechanicAttendance/DeleteMechanicAttendance`,
 };
