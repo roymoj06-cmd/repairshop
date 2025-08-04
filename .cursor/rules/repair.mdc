@@ -1,51 +1,137 @@
 ---
-description: 
+description: AI behavior rules for RepairShop frontend project
 globs: 
 alwaysApply: true
 ---
 
+# AI Behavior for Cursor (RepairShop Frontend - React + TypeScript + Material-UI)
 
-# AI Behavior for Cursor (Frontend Project - Vite + TypeScript + Tailwind)
+You are part of a front-end team working on a Persian/RTL repair shop management system using React, TypeScript, Material-UI, and SCSS.
 
-You are part of a front-end team working on a TypeScript-based SPA using Vite and Tailwind CSS.
+## Project Architecture & Technology Stack
+- **Framework**: React 18 with TypeScript 
+- **Build Tool**: Vite with PWA support
+- **UI Library**: Material-UI (MUI) v6 with RTL support
+- **Styling**: SCSS + Tailwind CSS for utility classes
+- **State Management**: React Query (@tanstack/react-query) + Zustand
+- **Forms**: React Hook Form with Zod validation
+- **Router**: React Router v6 with HashRouter
+- **Date/Time**: Persian/Jalali calendar (moment-jalaali)
+- **HTTP Client**: Axios with interceptors
+- **Language**: Persian UI with RTL layout
 
 ## Project Guidelines
-- Use TypeScript for all logic.
-- Follow component-based design patterns (preferably functional components).
-- Tailwind CSS is used for all styling. Do not use external CSS frameworks unless specified.
-- Structure logic using hooks and modular utilities.
-- Keep components small and single-responsibility.
-- Do not modify other files unless explicitly asked.
-- All new files should go under `src/` and follow the existing folder structure.
-- Use `PascalCase` for component names and `camelCase` for variables.
-- Never assume global styles or hidden state unless defined.
-- Prefer composition over inheritance.
-- Always write code as if it's going to production.
+- Use TypeScript for all logic with strict typing
+- Follow component-based functional design patterns  
+- Use React Query for all server state management and data fetching
+- Use Material-UI components as base, extend with custom props when needed
+- SCSS files for complex styles, Tailwind for utilities
+- Persian language for all UI text and error messages
+- RTL layout support is mandatory
+- Always handle loading, error, and empty states
+- Implement proper form validation with React Hook Form + Zod
+- Use absolute imports with `@/` prefix
+- Keep components small and single-responsibility
+- Write production-ready code with proper error handling
 
-## Page Structure Rules
-- For every **new page**, create a folder in: `src/pages/{PageNamePascalCase}/`
-- The main file for the page must be named: `{PageNamePascalCase}.tsx`
-- All **sub-pages** or nested views of a page must also be placed inside this same folder.
-- Do not place page files directly under `src/pages/` without a folder.
+## Correct Directory Structure (Important!)
+- **Pages**: `src/Pages/{PageNamePascalCase}.tsx` (not `src/pages/`)
+- **Page Components**: `src/components/Page/{PageName}/{ComponentName}.tsx`
+- **Common Components**: `src/components/common/{ComponentName}.tsx`
+- **Styles - Components**: `src/Styles/components/{componentName}.scss`
+- **Styles - Pages**: `src/Styles/page/{pageName}.scss`
+- **Services**: `src/service/{domain}/{domain}.service.ts`
+- **Types**: `type.d.ts` (root level only)
 
-## Style File Placement Rules
-- Style files for **components** must be created under: `src/Style/components/`
-- Style files for **pages** must be created under: `src/Style/page/`
-- Do not place style files outside of these two folders unless explicitly told.
+## Component Development Rules
+- All components must be functional with TypeScript
+- Use forwardRef for components that need ref access
+- Extend Material-UI component props when creating wrappers
+- Include loading states for async operations
+- Handle Persian/RTL text and layout properly
+- Use consistent error messaging in Persian
+- Implement responsive design with Material-UI breakpoints
 
-## Component Placement Rules
-- If a component is intended to be used **only within a specific page**, place it in:  
-  `src/components/page/{pageName}/{componentName}`
-- If a component is **shared across multiple pages**, place it in:  
-  `src/components/common/{componentName}`
-- Do not mix page-specific and global components.
-- Always name the component file the same as the component name (PascalCase).
+## Service Layer Patterns
+- Create domain-specific service files in `src/service/{controller}/`
+- Use axios instance with proper error handling
+- Return response.data from service functions
+- Implement proper TypeScript interfaces for API responses
+- Use React Query for caching and state management
+- Handle authentication tokens automatically via interceptors
 
-## Interface Declaration Rules
-- All shared interfaces and types must be declared in the root-level file: `type.d.ts`
-- Do not create separate interface files unless explicitly told.
-- Group related interfaces together in logical sections within `type.d.ts`.
+## State Management Rules
+- Use React Query for server state (API data, caching, etc.)
+- Use Zustand for global client state (user preferences, UI state)
+- Use React Hook Form for form state management
+- Local component state with useState for UI-only state
+- Context only for theme and authentication status
+
+## Styling Guidelines
+- Primary styling: SCSS files in `src/Styles/`
+- Utility classes: Tailwind CSS for spacing, colors, etc.
+- Material-UI theme customization in `src/theme.ts`
+- RTL support: use Material-UI's RTL capabilities
+- Dark/Light mode: implement via ThemeContext
+- Responsive: Mobile-first approach with MUI breakpoints
+
+## Form Implementation Rules
+- Use React Hook Form for all forms
+- Implement Zod schemas for validation
+- Create reusable form components (Input, Select, etc.)
+- Handle Persian date inputs with react-multi-date-picker
+- Implement proper error display in Persian
+- Use Material-UI form components as base
+
+## Error Handling & UX
+- Centralized error handling via axios interceptors
+- Toast notifications for user feedback (react-toastify)
+- Loading states for all async operations
+- Empty states with meaningful messages in Persian
+- Proper HTTP status code handling (401, 403, 404, 500)
+- User-friendly error messages in Persian
+
+## Interface & Type Rules
+- All shared interfaces in root `type.d.ts`
+- Use descriptive interface names with 'I' prefix
+- Group related interfaces together
+- Define proper TypeScript types for API responses
+- Use Material-UI component prop types when extending
+
+## Authentication & Security
+- JWT token handling via axios interceptors
+- Protected routes with role-based access control
+- Automatic token refresh and logout on expiry
+- Store sensitive data properly (cookies for tokens)
+- Implement proper access control checks
+
+## Performance & Best Practices
+- Use React Query for data caching and background updates
+- Implement code splitting for better bundle size
+- Lazy load images and heavy components
+- Use React.memo for expensive components
+- Debounce search and input operations
+- Optimize re-renders with proper dependency arrays
+
+## Persian/RTL Specific Rules
+- All UI text must be in Persian
+- Use Jalali calendar for all date operations
+- Implement RTL layout with proper text alignment  
+- Use Persian number formatting where appropriate
+- Handle Persian text input and validation correctly
+- Ensure proper RTL Material-UI component behavior
+
+## Development Workflow
+- Follow existing code patterns and naming conventions
+- Test components in both RTL and LTR modes
+- Ensure dark/light theme compatibility
+- Handle offline/online states for PWA functionality
+- Implement proper loading skeletons for better UX
 
 ## AI Behavior Style
-- Respond concisely and write code that blends into the existing style of the project.
+- Write concise, production-ready code
+- Follow established patterns in the codebase
+- Prioritize user experience and accessibility
+- Always consider Persian/RTL layout requirements
+- Implement proper error boundaries and fallbacks
 
