@@ -362,6 +362,7 @@ const ServiceAdmissionReadOnly: FC<IServiceAdmissionReadOnlyProps> = ({
                     repairReceptionId={repairReceptionId}
                     readOnly={true}
                     showCustomerOnly={true}
+                    enableFileSending={true}
                   />
                 </Box>
               )}

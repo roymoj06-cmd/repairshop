@@ -64,3 +64,13 @@ export const updateShowCustomer = async (data: IUpdateShowCustomer) => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const sendFileLinksNotification = async (
+  data: ISendFileLinksNotification
+) => {
+  const reqConfig = {
+    method: "POST",
+    url: `${proxyServerUrl.sendFileLinksNotification}`,
+    data,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

@@ -870,3 +870,6 @@ interface IGetMechanicAttendanceByDateRange {
   id: number;
   type: any;
 }
+interface ISendFileLinksNotification {
+  fileIds: number[];
+}

@@ -9,12 +9,18 @@ import {
   Videocam,
   Image,
   Mic,
+  Send,
+  Clear,
 } from "@mui/icons-material";
 import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
   List,
+  Button,
+  Box,
+  Typography,
+  Chip,
 } from "@mui/material";
 
 import {
@@ -22,6 +28,7 @@ import {
   uploadFileRepairReceptionFile,
   getFilesByReceptionId,
   updateShowCustomer,
+  sendFileLinksNotification,
 } from "@/service/repairReceptionFile/repairReceptionFile.service";
 import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 import { useTheme } from "@/context/ThemeContext";
@@ -32,16 +39,20 @@ type UploadModalProps = {
   repairReceptionId?: number | string;
   readOnly?: boolean;
   showCustomerOnly?: boolean;
+  enableFileSending?: boolean;
 };
 
 const UploaderDocs: FC<UploadModalProps> = ({ 
   repairReceptionId, 
   readOnly = false, 
-  showCustomerOnly = false 
+  showCustomerOnly = false,
+  enableFileSending = false 
 }) => {
   const { mode } = useTheme();
   const [files, setFiles] = useState<IRepairReceptionFile[]>([]);
   const [progressMap, setProgressMap] = useState<Record<number, number>>({});
+  const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
+  const [loadingFileIds, setLoadingFileIds] = useState<Set<number>>(new Set());
 
   const handleFileUpload = useCallback(async (acceptedFiles: File[]) => {
     for (const file of acceptedFiles) {
@@ -183,10 +194,17 @@ const UploaderDocs: FC<UploadModalProps> = ({
     },
   });
 
-  const { mutateAsync: mutateAsyncUpdateShowCustomer } = useMutation({
+  const { mutateAsync: mutateAsyncUpdateShowCustomer, isPending: isUpdatingShowCustomer } = useMutation({
     mutationFn: updateShowCustomer,
     onSuccess: () => {
       mutateAsyncGetFilesByReceptionId();
+    },
+  });
+
+  const { mutateAsync: mutateAsyncSendFileLinks, isPending: isSendingFileLinks } = useMutation({
+    mutationFn: sendFileLinksNotification,
+    onSuccess: () => {
+      setSelectedFiles(new Set());
     },
   });
   const removeFile = useCallback(
@@ -197,18 +215,55 @@ const UploaderDocs: FC<UploadModalProps> = ({
   );
 
   const toggleShowCustomer = useCallback(
-    (fileId: number, currentShowCustomer: boolean) => {
-      mutateAsyncUpdateShowCustomer({
-        fileId,
-        showCustomer: !currentShowCustomer,
-      });
+    async (fileId: number, currentShowCustomer: boolean) => {
+      setLoadingFileIds(prev => new Set(prev).add(fileId));
+      try {
+        await mutateAsyncUpdateShowCustomer({
+          fileId,
+          showCustomer: !currentShowCustomer,
+        });
+      } finally {
+        setLoadingFileIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(fileId);
+          return newSet;
+        });
+      }
     },
     [mutateAsyncUpdateShowCustomer]
   );
 
+  const toggleFileSelection = useCallback((fileId: number) => {
+    setSelectedFiles(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(fileId)) {
+        newSet.delete(fileId);
+      } else {
+        newSet.add(fileId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const clearSelectedFiles = useCallback(() => {
+    setSelectedFiles(new Set());
+  }, []);
+
+  const handleSendFileLinks = useCallback(async () => {
+    if (selectedFiles.size === 0) return;
+    
+    try {
+      await mutateAsyncSendFileLinks({
+        fileIds: Array.from(selectedFiles)
+      });
+    } catch (error) {
+      console.error("Error sending file links", error);
+    }
+  }, [selectedFiles, mutateAsyncSendFileLinks]);
+
   return (
     <div className="w-full">
-      {isLoadingFiles || (isLoadingDeleteFile && <Loading />)}
+      {(isLoadingFiles || isLoadingDeleteFile || isSendingFileLinks || isUpdatingShowCustomer) && <Loading />}
       {!readOnly && (
         <List
           sx={{
@@ -477,6 +532,97 @@ const UploaderDocs: FC<UploadModalProps> = ({
           </div>
         </>
       )}
+
+      {/* File Selection and Send Message Section */}
+      {files && files.length > 0 && (
+        <Box sx={{ mt: 2, mb: 2 }}>
+          {selectedFiles.size > 0 && (
+            <>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  mb: 2, 
+                  color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : "text.primary" 
+                }}
+              >
+                فایل‌های انتخابی
+              </Typography>
+              
+              <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ color: mode === "dark" ? "rgba(255, 255, 255, 0.7)" : "text.secondary" }}
+                >
+                  تعداد انتخابی ({selectedFiles.size}):
+                </Typography>
+                {Array.from(selectedFiles).map(fileId => {
+                  const file = files.find(f => f.id === fileId);
+                  return file ? (
+                    <Chip
+                      key={fileId}
+                      label={file.fileName}
+                      size="small"
+                      onDelete={() => toggleFileSelection(fileId)}
+                      sx={{
+                        bgcolor: mode === "dark" ? "rgba(33, 150, 243, 0.2)" : "primary.light",
+                        color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : "primary.dark",
+                        "& .MuiChip-deleteIcon": {
+                          color: mode === "dark" ? "rgba(255, 255, 255, 0.6)" : "primary.main"
+                        }
+                      }}
+                    />
+                  ) : null;
+                })}
+              </Box>
+
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center", mb: 2 }}>
+                {enableFileSending && (
+                  <Button
+                    variant="contained"
+                    startIcon={isSendingFileLinks ? undefined : <Send />}
+                    onClick={handleSendFileLinks}
+                    disabled={selectedFiles.size === 0 || isSendingFileLinks}
+                    sx={{
+                      bgcolor: "primary.main",
+                      "&:hover": {
+                        bgcolor: "primary.dark"
+                      },
+                      "&:disabled": {
+                        bgcolor: "grey.400"
+                      }
+                    }}
+                  >
+                    {isSendingFileLinks ? "در حال ارسال..." : "ارسال پیام"}
+                  </Button>
+                )}
+                
+                <Button
+                  variant="outlined"
+                  startIcon={<Clear />}
+                  onClick={clearSelectedFiles}
+                  size="small"
+                  disabled={isSendingFileLinks || isUpdatingShowCustomer || isLoadingDeleteFile}
+                  sx={{
+                    borderColor: mode === "dark" ? "rgba(255, 255, 255, 0.3)" : "text.secondary",
+                    color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : "text.secondary",
+                    "&:hover": {
+                      borderColor: mode === "dark" ? "rgba(255, 255, 255, 0.5)" : "text.primary",
+                      color: mode === "dark" ? "rgba(255, 255, 255, 1)" : "text.primary"
+                    },
+                    "&:disabled": {
+                      borderColor: mode === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.12)",
+                      color: mode === "dark" ? "rgba(255, 255, 255, 0.3)" : "rgba(0, 0, 0, 0.26)"
+                    }
+                  }}
+                >
+                  پاک کردن انتخاب
+                </Button>
+              </Box>
+            </>
+          )}
+        </Box>
+      )}
+
       <FilePreviewGrid
         files={files ?? []}
         progressMap={progressMap}
@@ -484,6 +630,11 @@ const UploaderDocs: FC<UploadModalProps> = ({
         isLoading={isLoadingUploadFileToServerFile}
         toggleShowCustomer={toggleShowCustomer}
         readOnly={readOnly}
+        selectedFiles={selectedFiles}
+        onFileSelectionToggle={toggleFileSelection}
+        isDeleting={isLoadingDeleteFile}
+        isUpdatingVisibility={isUpdatingShowCustomer}
+        loadingFileIds={loadingFileIds}
       />
     </div>
   );

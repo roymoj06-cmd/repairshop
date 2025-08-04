@@ -140,6 +140,7 @@ export const proxyServerUrl = {
   getCustomerAccountBalance: `${copserverUrl}/Customer/GetCustomerAccountBalance`,
 
   // RepairReceptionFile Controller
+  sendFileLinksNotification: `${panelServiceBaseUrl}/RepairReceptionFile/SendFileLinksNotification`,
   getFilesByReceptionId: `${panelServiceBaseUrl}/RepairReceptionFile/GetFilesByReceptionId`,
   uploadFileRepairReceptionFile: `${panelServiceBaseUrl}/RepairReceptionFile/UploadFile`,
   deleteFileRepairReceptionFile: `${panelServiceBaseUrl}/RepairReceptionFile/DeleteFile`,
