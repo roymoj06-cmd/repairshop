@@ -1,3 +1,3 @@
 window.globalConfig = {
-  mode: "production",
+  mode: "development",
 };

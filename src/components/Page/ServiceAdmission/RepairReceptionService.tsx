@@ -29,10 +29,10 @@ interface IRepairReceptionServiceProps {
 
 const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
   repairReceptionId,
-  customerId,
-  carId,
-  details,
   readOnly = false,
+  customerId,
+  details,
+  carId,
 }) => {
   const [showFactorModal, setShowFactorModal] = useState(false);
   const [showViewFactorsModal, setShowViewFactorsModal] = useState(false);
@@ -87,21 +87,21 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                   ایجاد فاکتور خدمات
                 </Button>
               </AccessGuard>
-              {/* <AccessGuard accessId={ACCESS_IDS.VIEW_FACTORS_REPAIR}> */}
-              <Button
-                onClick={() => setShowViewFactorsModal(true)}
-                variant="contained"
-                color="secondary"
-                size="large"
-                sx={{
-                  maxWidth: "calc(50% - 8px)",
-                  minWidth: "fit-content",
-                  flex: "1 1 auto",
-                }}
-              >
-                مشاهده فاکتور خدمات
-              </Button>
-              {/* </AccessGuard> */}
+              <AccessGuard accessId={ACCESS_IDS.VIEW_FACTORS_REPAIR}>
+                <Button
+                  onClick={() => setShowViewFactorsModal(true)}
+                  variant="contained"
+                  color="secondary"
+                  size="large"
+                  sx={{
+                    maxWidth: "calc(50% - 8px)",
+                    minWidth: "fit-content",
+                    flex: "1 1 auto",
+                  }}
+                >
+                  مشاهده فاکتور خدمات
+                </Button>
+              </AccessGuard>
             </div>
           )}
 
@@ -125,7 +125,9 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                           {problem.services.map(
                             (service: Service, serviceIndex: number) => (
                               <ServiceCard
-                                onUpdateStatus={readOnly ? () => {} : handleUpdateStatus}
+                                onUpdateStatus={
+                                  readOnly ? () => {} : handleUpdateStatus
+                                }
                                 isUpdatingStatus={
                                   updateStatusMutation.isPending
                                 }
@@ -159,9 +161,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
                   </div>
                 )
               )}
-              {!readOnly && (
-                <ProjectSummary problems={services.problems} />
-              )}
+              {!readOnly && <ProjectSummary problems={services.problems} />}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center p-12">
@@ -218,7 +218,7 @@ const RepairReceptionService: FC<IRepairReceptionServiceProps> = ({
           details={details}
           open={showFactorModal}
           onClose={() => setShowFactorModal(false)}
-        // onSuccess={handleFactorSuccess}
+          // onSuccess={handleFactorSuccess}
         />
       )}
 

@@ -1,6 +1,7 @@
 import { Edit, Delete } from "@mui/icons-material";
 import { IconButton, Chip } from "@mui/material";
 
+import { useAccessControl, ACCESS_IDS } from "@/utils/accessControl";
 import {
   formatTimeDisplay,
   getStatusColor,
@@ -8,7 +9,6 @@ import {
   getStatusText,
   addCommas,
 } from "@/utils";
-import { useAccessControl, ACCESS_IDS } from "@/utils/accessControl";
 
 interface ServiceCardProps {
   onUpdateStatus: (serviceId: number, newStatus: number) => void;
@@ -16,20 +16,20 @@ interface ServiceCardProps {
   onEdit: (service: Service) => void;
   isUpdatingStatus?: boolean;
   serviceIndex: number;
+  readOnly?: boolean;
   isTested?: boolean;
   service: Service;
-  readOnly?: boolean;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
   isUpdatingStatus = false,
+  readOnly = false,
   onUpdateStatus,
   serviceIndex,
   isTested,
   onDelete,
   service,
   onEdit,
-  readOnly = false,
 }) => {
   const { hasAccess } = useAccessControl();
 
@@ -53,7 +53,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         return {
           text: isTested === false ? "تست رد شد" : "آماده تست",
           nextStatus: 4,
-          color: isTested === false ? "bg-red-500 hover:bg-red-600" : "bg-emerald-500 hover:bg-emerald-600",
+          color:
+            isTested === false
+              ? "bg-red-500 hover:bg-red-600"
+              : "bg-emerald-500 hover:bg-emerald-600",
           textColor: "text-white",
         };
       default:
@@ -70,7 +73,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       onUpdateStatus(service.id, statusButtonInfo.nextStatus);
     }
   };
-  
+
   return (
     <div className="bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 overflow-hidden">
       <div className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 p-4 border-b border-gray-200 dark:border-gray-600">
@@ -90,12 +93,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                   label={getStatusText(service.statusId)}
                   color={getStatusColor(service.statusId)}
                   size="small"
-                  className='!text-xs !h-5'
+                  className="!text-xs !h-5"
                 />
               </div>
             </div>
           </div>
-          {!readOnly && (
+          {!readOnly && !isTested && (
             <div className="flex items-center gap-1">
               {hasAccess(ACCESS_IDS.EDIT_REPAIR) && (
                 <IconButton
@@ -206,19 +209,26 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           </div>
         )}
 
-        {!readOnly && statusButtonInfo && hasAccess(ACCESS_IDS.CHANGE_STATUS_REPAIR) && !isTested && (
-          <button
-            onClick={handleStatusUpdate}
-            disabled={service.statusId === 3}
-            className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${isUpdatingStatus
-              ? "bg-gray-400 cursor-not-allowed"
-              : statusButtonInfo?.color
-              } ${statusButtonInfo?.textColor
+        {!readOnly &&
+          statusButtonInfo &&
+          hasAccess(ACCESS_IDS.CHANGE_STATUS_REPAIR) &&
+          !isTested && (
+            <button
+              onClick={handleStatusUpdate}
+              disabled={service.statusId === 3}
+              className={`w-full py-3 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
+                isUpdatingStatus
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : statusButtonInfo?.color
+              } ${
+                statusButtonInfo?.textColor
               } shadow-sm hover:shadow-md disabled:hover:shadow-sm`}
-          >
-            {isUpdatingStatus ? "در حال بروزرسانی..." : statusButtonInfo?.text}
-          </button>
-        )}
+            >
+              {isUpdatingStatus
+                ? "در حال بروزرسانی..."
+                : statusButtonInfo?.text}
+            </button>
+          )}
       </div>
     </div>
   );

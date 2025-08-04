@@ -1,4 +1,9 @@
-import { Delete as DeleteIcon, CheckCircle, Cancel, Search } from "@mui/icons-material";
+import {
+  Delete as DeleteIcon,
+  CheckCircle,
+  Cancel,
+  Search,
+} from "@mui/icons-material";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { FC, useState } from "react";
@@ -47,6 +52,7 @@ import {
   RequestListModal,
   Loading,
 } from "@/components";
+import { useStore } from "@/Store/useStore";
 
 interface RepairReceptionProductsProps {
   repairReceptionId?: string;
@@ -57,6 +63,7 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
   repairReceptionId,
   readOnly = false,
 }) => {
+  const { user } = useStore();
   const { hasAccess } = useAccessControl();
   const queryClient = useQueryClient();
   const theme = useTheme();
@@ -168,14 +175,15 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
       hasOldPart,
     });
   };
-  const filteredProducts = repairReception?.details?.filter((product: any) => {
-    if (!searchTerm.trim()) return true;
-    const term = searchTerm.toLowerCase().trim();
-    return (
-      product.productName?.toLowerCase().includes(term) ||
-      product.productCode?.toLowerCase().includes(term)
-    );
-  }) || [];
+  const filteredProducts =
+    repairReception?.details?.filter((product: any) => {
+      if (!searchTerm.trim()) return true;
+      const term = searchTerm.toLowerCase().trim();
+      return (
+        product.productName?.toLowerCase().includes(term) ||
+        product.productCode?.toLowerCase().includes(term)
+      );
+    }) || [];
   const ProductCard: FC<{ product: any; index: number }> = ({ product }) => (
     <Card key={product.repairReceptionDetailId} sx={{ mb: 2, boxShadow: 2 }}>
       <CardContent sx={{ p: 2 }}>
@@ -192,7 +200,7 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
             component="div"
             sx={{ fontWeight: "bold", fontSize: isMobile ? "1rem" : "1.1rem" }}
           >
-            {product.productName}
+            {user?.isDinawinEmployee ? product.productName : product.partName}
           </Typography>
           {!readOnly && hasAccess(ACCESS_IDS.DELETE_SCANNED_PART) && (
             <IconButton
@@ -234,14 +242,16 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
             </Typography>
           </Box>
 
-          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Typography variant="body2" color="text.secondary">
-              برند / کشور:
-            </Typography>
-            <Typography variant="body2" sx={{ fontWeight: "medium" }}>
-              {product.brand} / {product.countryName}
-            </Typography>
-          </Box>
+          {user?.isDinawinEmployee && (
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography variant="body2" color="text.secondary">
+                برند / کشور:
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                {product.brand} / {product.countryName}
+              </Typography>
+            </Box>
+          )}
         </Stack>
 
         {!readOnly && (
@@ -251,11 +261,14 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
                 control={
                   <Switch
                     checked={product.hasOldPart || false}
-                    onChange={readOnly ? undefined : (e) =>
-                      handleOldPartStatusChange(
-                        product.repairReceptionDetailId,
-                        e.target.checked
-                      )
+                    onChange={
+                      readOnly
+                        ? undefined
+                        : (e) =>
+                            handleOldPartStatusChange(
+                              product.repairReceptionDetailId,
+                              e.target.checked
+                            )
                     }
                     disabled={readOnly || updateHasOldPartMutation.isPending}
                     color="primary"
@@ -310,9 +323,11 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
             <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
               شماره فنی
             </TableCell>
-            <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
-              برند / کشور
-            </TableCell>
+            {user?.isDinawinEmployee && (
+              <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
+                برند / کشور
+              </TableCell>
+            )}
             {!readOnly && (
               <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
                 <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
@@ -335,7 +350,9 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
                 {product.productCode}
               </TableCell>
               <TableCell sx={{ textAlign: "center", fontWeight: "medium" }}>
-                {product.productName}
+                {user?.isDinawinEmployee
+                  ? product.productName
+                  : product.partName}
               </TableCell>
               <TableCell dir="ltr" sx={{ textAlign: "center" }}>
                 {product.productCode} - {product.barcodeCode}
@@ -343,9 +360,11 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
               <TableCell sx={{ textAlign: "center" }}>
                 {product.partNumber || "-"}
               </TableCell>
-              <TableCell sx={{ textAlign: "center" }}>
-                {product.brand} / {product.countryName}
-              </TableCell>
+              {user?.isDinawinEmployee && (
+                <TableCell sx={{ textAlign: "center" }}>
+                  {product.brand} / {product.countryName}
+                </TableCell>
+              )}
               {!readOnly && (
                 <AccessGuard accessId={ACCESS_IDS.OLD_PART_DELIVERED}>
                   <TableCell sx={{ textAlign: "center" }}>
@@ -359,13 +378,18 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
                     >
                       <Switch
                         checked={product.hasOldPart || false}
-                        onChange={readOnly ? undefined : (e) =>
-                          handleOldPartStatusChange(
-                            product.repairReceptionDetailId,
-                            e.target.checked
-                          )
+                        onChange={
+                          readOnly
+                            ? undefined
+                            : (e) =>
+                                handleOldPartStatusChange(
+                                  product.repairReceptionDetailId,
+                                  e.target.checked
+                                )
                         }
-                        disabled={readOnly || updateHasOldPartMutation.isPending}
+                        disabled={
+                          readOnly || updateHasOldPartMutation.isPending
+                        }
                         color="primary"
                         size="small"
                       />
@@ -567,8 +591,7 @@ const RepairReceptionProducts: FC<RepairReceptionProductsProps> = ({
               <Typography variant="h6" color="text.secondary">
                 {searchTerm.trim()
                   ? "هیچ کالایی با این جستجو یافت نشد"
-                  : "هیچ کالایی در این پذیرش ثبت نشده است"
-                }
+                  : "هیچ کالایی در این پذیرش ثبت نشده است"}
               </Typography>
             </Box>
           )}
