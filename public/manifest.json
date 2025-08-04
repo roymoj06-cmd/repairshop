@@ -1,6 +1,10 @@
 {
-  "short_name": "repairShop-Dinawin",
-  "name": "repairShop-Dinawin",
+  "short_name": "تعمیرگاه ایسوزو",
+  "name": "تعمیرگاه مرکزی ایسوزو تهران",
+  "description": "سیستم مدیریت جامع تعمیرگاه مرکزی ایسوزو تهران - ارائه خدمات تخصصی تعمیر و نگهداری خودروهای ایسوزو با امکانات پیشرفته مدیریت پذیرش، تعمیرات، قطعات و گزارش‌گیری",
+  "lang": "fa",
+  "dir": "rtl",
+  "categories": ["automotive", "business", "productivity"],
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +14,56 @@
     {
       "src": "/images/favicon/android-chrome-192x192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "/images/favicon/android-chrome-512x512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "orientation": "portrait-primary",
+  "theme_color": "#1976d2",
+  "background_color": "#ffffff",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "پذیرش جدید",
+      "description": "ثبت پذیرش جدید خودرو",
+      "url": "/service-admission",
+      "icons": [
+        {
+          "src": "/images/favicon/android-chrome-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "مدیریت خودروها",
+      "description": "مشاهده و مدیریت خودروهای در تعمیر",
+      "url": "/cars-management",
+      "icons": [
+        {
+          "src": "/images/favicon/android-chrome-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "گزارش‌ها",
+      "description": "مشاهده گزارش‌های تعمیرگاه",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/images/favicon/android-chrome-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
 }
