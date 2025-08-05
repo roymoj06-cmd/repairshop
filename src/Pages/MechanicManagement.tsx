@@ -122,8 +122,8 @@ const MechanicManagement: FC = () => {
       <div className="mechanic-management__create-btn">
         <Button
           onClick={() => setIsModalOpen(true)}
-          containerClassName="my-3"
           label="افزودن مکانیک جدید"
+          containerClassName="my-3"
           startIcon={<Add />}
           variant="contained"
           color="secondary"

@@ -100,7 +100,6 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
         className={`flex justify-start gap-2 w-full p-2 overflow-x-auto ${
           mode === "dark" ? "bg-gray-800" : "bg-white"
         }`}
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {isLoading && (
           <div
@@ -194,7 +193,7 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
               )}
 
               {/* File Selection Indicator */}
-              {showSelectionUI && (
+              {showSelectionUI && !readOnly && (
                 <div
                   className="absolute top-1 left-1 z-10"
                   onClick={(e) => {
@@ -203,9 +202,7 @@ const FilePreviewGrid: React.FC<FilePreviewGridProps> = ({
                   }}
                 >
                   {isSelected ? (
-                    <CheckBox          
-                      fontSize="medium"
-                    />
+                    <CheckBox fontSize="medium" />
                   ) : (
                     <CheckBoxOutlineBlank
                       sx={{

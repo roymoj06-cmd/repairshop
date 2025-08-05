@@ -3,17 +3,17 @@ import { IconButton, Paper } from "@mui/material";
 import { FC } from "react";
 
 interface MechanicCardProps {
+  onViewLedger: (mechanic: IGetAllMechanics) => void;
   onEdit: (mechanic: IGetAllMechanics) => void;
   onDelete: (id: string) => void;
-  onViewLedger: (mechanic: IGetAllMechanics) => void;
   mechanic: IGetAllMechanics;
 }
 
 const MechanicCard: FC<MechanicCardProps> = ({
+  onViewLedger,
+  onDelete,
   mechanic,
   onEdit,
-  onDelete,
-  onViewLedger,
 }) => {
   const getExpertLevelText = (level: number) => {
     switch (level) {
@@ -25,11 +25,9 @@ const MechanicCard: FC<MechanicCardProps> = ({
         return "نامشخص";
     }
   };
-
   const getStatusText = (isActive: boolean) => {
     return isActive ? "فعال" : "غیرفعال";
   };
-
   const formatDate = (dateString: string) => {
     if (!dateString) return "نامشخص";
     return new Date(dateString).toLocaleDateString("fa-IR");

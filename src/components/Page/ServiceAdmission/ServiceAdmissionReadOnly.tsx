@@ -361,8 +361,6 @@ const ServiceAdmissionReadOnly: FC<IServiceAdmissionReadOnlyProps> = ({
                   <UploaderDocs 
                     repairReceptionId={repairReceptionId}
                     readOnly={true}
-                    showCustomerOnly={true}
-                    enableFileSending={true}
                   />
                 </Box>
               )}

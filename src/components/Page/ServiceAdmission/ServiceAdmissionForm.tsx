@@ -814,7 +814,7 @@ const ServiceAdmissionForm: FC<IServiceAdmissionFormProps> = ({
                     <Typography variant="h6" className="mb-2">
                       آپلود فایل
                     </Typography>
-                    <UploaderDocs repairReceptionId={repairReceptionId} />
+                    <UploaderDocs repairReceptionId={repairReceptionId} enableFileSending={true}/>
                   </Box>
                 </Grid>
               </Box>

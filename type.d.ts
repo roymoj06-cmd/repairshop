@@ -215,7 +215,7 @@ interface ICreateOrUpdateMechanic {
     expertLevel: number;
     isActive: boolean;
     fullName: string;
-    userId?: number;
+    userId: number;
     id?: number;
   };
 }
