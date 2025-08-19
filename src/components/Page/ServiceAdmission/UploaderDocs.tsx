@@ -34,6 +34,7 @@ import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 import { useTheme } from "@/context/ThemeContext";
 import FilePreviewGrid from "./FilePreviewGrid";
 import { Loading } from "@/components";
+import { CompressLevelStatic } from "@/utils/statics";
 
 type UploadModalProps = {
   repairReceptionId?: number | string;
@@ -42,11 +43,11 @@ type UploadModalProps = {
   enableFileSending?: boolean;
 };
 
-const UploaderDocs: FC<UploadModalProps> = ({ 
-  repairReceptionId, 
-  readOnly = false, 
+const UploaderDocs: FC<UploadModalProps> = ({
+  repairReceptionId,
+  readOnly = false,
   showCustomerOnly = false,
-  enableFileSending = false 
+  enableFileSending = false,
 }) => {
   const { mode } = useTheme();
   const [files, setFiles] = useState<IRepairReceptionFile[]>([]);
@@ -58,6 +59,7 @@ const UploaderDocs: FC<UploadModalProps> = ({
     for (const file of acceptedFiles) {
       try {
         await mutateAsyncUploadFileToServerFile({
+          CompressionLevel: CompressLevelStatic.GoodQuality_20,
           file: file,
           repairReceptionId: repairReceptionId,
           onProgress: (progress) => {
@@ -81,7 +83,9 @@ const UploaderDocs: FC<UploadModalProps> = ({
     onSuccess: (data) => {
       let filteredFiles = data?.data || [];
       if (showCustomerOnly) {
-        filteredFiles = filteredFiles.filter((file: IRepairReceptionFile) => file.showCustomer === true);
+        filteredFiles = filteredFiles.filter(
+          (file: IRepairReceptionFile) => file.showCustomer === true
+        );
       }
       setFiles(filteredFiles);
     },
@@ -194,14 +198,20 @@ const UploaderDocs: FC<UploadModalProps> = ({
     },
   });
 
-  const { mutateAsync: mutateAsyncUpdateShowCustomer, isPending: isUpdatingShowCustomer } = useMutation({
+  const {
+    mutateAsync: mutateAsyncUpdateShowCustomer,
+    isPending: isUpdatingShowCustomer,
+  } = useMutation({
     mutationFn: updateShowCustomer,
     onSuccess: () => {
       mutateAsyncGetFilesByReceptionId();
     },
   });
 
-  const { mutateAsync: mutateAsyncSendFileLinks, isPending: isSendingFileLinks } = useMutation({
+  const {
+    mutateAsync: mutateAsyncSendFileLinks,
+    isPending: isSendingFileLinks,
+  } = useMutation({
     mutationFn: sendFileLinksNotification,
     onSuccess: () => {
       setSelectedFiles(new Set());
@@ -216,14 +226,14 @@ const UploaderDocs: FC<UploadModalProps> = ({
 
   const toggleShowCustomer = useCallback(
     async (fileId: number, currentShowCustomer: boolean) => {
-      setLoadingFileIds(prev => new Set(prev).add(fileId));
+      setLoadingFileIds((prev) => new Set(prev).add(fileId));
       try {
         await mutateAsyncUpdateShowCustomer({
           fileId,
           showCustomer: !currentShowCustomer,
         });
       } finally {
-        setLoadingFileIds(prev => {
+        setLoadingFileIds((prev) => {
           const newSet = new Set(prev);
           newSet.delete(fileId);
           return newSet;
@@ -234,7 +244,7 @@ const UploaderDocs: FC<UploadModalProps> = ({
   );
 
   const toggleFileSelection = useCallback((fileId: number) => {
-    setSelectedFiles(prev => {
+    setSelectedFiles((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(fileId)) {
         newSet.delete(fileId);
@@ -251,10 +261,10 @@ const UploaderDocs: FC<UploadModalProps> = ({
 
   const handleSendFileLinks = useCallback(async () => {
     if (selectedFiles.size === 0) return;
-    
+
     try {
       await mutateAsyncSendFileLinks({
-        fileIds: Array.from(selectedFiles)
+        fileIds: Array.from(selectedFiles),
       });
     } catch (error) {
       console.error("Error sending file links", error);
@@ -263,7 +273,10 @@ const UploaderDocs: FC<UploadModalProps> = ({
 
   return (
     <div className="w-full">
-      {(isLoadingFiles || isLoadingDeleteFile || isSendingFileLinks || isUpdatingShowCustomer) && <Loading />}
+      {(isLoadingFiles ||
+        isLoadingDeleteFile ||
+        isSendingFileLinks ||
+        isUpdatingShowCustomer) && <Loading />}
       {!readOnly && (
         <List
           sx={{
@@ -276,223 +289,223 @@ const UploaderDocs: FC<UploadModalProps> = ({
           component="nav"
           aria-labelledby="nested-list-subheader"
         >
-        <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-          <ListItemButton
-            onClick={openImagePicker}
-            sx={{
-              "&:hover": {
-                bgcolor:
-                  mode === "dark"
-                    ? "rgba(255, 255, 255, 0.05)"
-                    : "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <ListItemIcon>
-              <Image
-                sx={{
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
-                }}
-              />
-            </ListItemIcon>
-            <ListItemText
-              primary="تصاویر"
+          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+            <ListItemButton
+              onClick={openImagePicker}
               sx={{
-                "& .MuiListItemText-primary": {
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                "&:hover": {
+                  bgcolor:
+                    mode === "dark"
+                      ? "rgba(255, 255, 255, 0.05)"
+                      : "rgba(0, 0, 0, 0.04)",
                 },
               }}
-            />
-          </ListItemButton>
-        </AccessGuard>
-        <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-          <ListItemButton
-            onClick={openVideoPicker}
-            sx={{
-              "&:hover": {
-                bgcolor:
-                  mode === "dark"
-                    ? "rgba(255, 255, 255, 0.05)"
-                    : "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <ListItemIcon>
-              <VideoLibrary
+            >
+              <ListItemIcon>
+                <Image
+                  sx={{
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary="تصاویر"
                 sx={{
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  "& .MuiListItemText-primary": {
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  },
                 }}
               />
-            </ListItemIcon>
-            <ListItemText
-              primary="فیلم ها"
+            </ListItemButton>
+          </AccessGuard>
+          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+            <ListItemButton
+              onClick={openVideoPicker}
               sx={{
-                "& .MuiListItemText-primary": {
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                "&:hover": {
+                  bgcolor:
+                    mode === "dark"
+                      ? "rgba(255, 255, 255, 0.05)"
+                      : "rgba(0, 0, 0, 0.04)",
                 },
               }}
-            />
-          </ListItemButton>
-        </AccessGuard>
-        <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-          <ListItemButton
-            onClick={openCamera}
-            sx={{
-              "&:hover": {
-                bgcolor:
-                  mode === "dark"
-                    ? "rgba(255, 255, 255, 0.05)"
-                    : "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <ListItemIcon>
-              <CameraAlt
+            >
+              <ListItemIcon>
+                <VideoLibrary
+                  sx={{
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary="فیلم ها"
                 sx={{
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  "& .MuiListItemText-primary": {
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  },
                 }}
               />
-            </ListItemIcon>
-            <ListItemText
-              primary="دوربین"
+            </ListItemButton>
+          </AccessGuard>
+          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+            <ListItemButton
+              onClick={openCamera}
               sx={{
-                "& .MuiListItemText-primary": {
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                "&:hover": {
+                  bgcolor:
+                    mode === "dark"
+                      ? "rgba(255, 255, 255, 0.05)"
+                      : "rgba(0, 0, 0, 0.04)",
                 },
               }}
-            />
-          </ListItemButton>
-        </AccessGuard>
-        <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-          <ListItemButton
-            onClick={openVideoCamera}
-            sx={{
-              "&:hover": {
-                bgcolor:
-                  mode === "dark"
-                    ? "rgba(255, 255, 255, 0.05)"
-                    : "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <ListItemIcon>
-              <Videocam
+            >
+              <ListItemIcon>
+                <CameraAlt
+                  sx={{
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary="دوربین"
                 sx={{
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  "& .MuiListItemText-primary": {
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  },
                 }}
               />
-            </ListItemIcon>
-            <ListItemText
-              primary="فیلمبرداری"
+            </ListItemButton>
+          </AccessGuard>
+          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+            <ListItemButton
+              onClick={openVideoCamera}
               sx={{
-                "& .MuiListItemText-primary": {
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                "&:hover": {
+                  bgcolor:
+                    mode === "dark"
+                      ? "rgba(255, 255, 255, 0.05)"
+                      : "rgba(0, 0, 0, 0.04)",
                 },
               }}
-            />
-          </ListItemButton>
-        </AccessGuard>
-        <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-          <ListItemButton
-            onClick={openDocPicker}
-            sx={{
-              "&:hover": {
-                bgcolor:
-                  mode === "dark"
-                    ? "rgba(255, 255, 255, 0.05)"
-                    : "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <ListItemIcon>
-              <FolderOpen
+            >
+              <ListItemIcon>
+                <Videocam
+                  sx={{
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary="فیلمبرداری"
                 sx={{
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  "& .MuiListItemText-primary": {
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  },
                 }}
               />
-            </ListItemIcon>
-            <ListItemText
-              primary="فایل"
+            </ListItemButton>
+          </AccessGuard>
+          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+            <ListItemButton
+              onClick={openDocPicker}
               sx={{
-                "& .MuiListItemText-primary": {
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                "&:hover": {
+                  bgcolor:
+                    mode === "dark"
+                      ? "rgba(255, 255, 255, 0.05)"
+                      : "rgba(0, 0, 0, 0.04)",
                 },
               }}
-            />
-          </ListItemButton>
-        </AccessGuard>
-        <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-          <ListItemButton
-            onClick={openAudioPicker}
-            sx={{
-              "&:hover": {
-                bgcolor:
-                  mode === "dark"
-                    ? "rgba(255, 255, 255, 0.05)"
-                    : "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <ListItemIcon>
-              <Audiotrack
+            >
+              <ListItemIcon>
+                <FolderOpen
+                  sx={{
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary="فایل"
                 sx={{
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  "& .MuiListItemText-primary": {
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  },
                 }}
               />
-            </ListItemIcon>
-            <ListItemText
-              primary="فایل صدا"
+            </ListItemButton>
+          </AccessGuard>
+          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+            <ListItemButton
+              onClick={openAudioPicker}
               sx={{
-                "& .MuiListItemText-primary": {
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                "&:hover": {
+                  bgcolor:
+                    mode === "dark"
+                      ? "rgba(255, 255, 255, 0.05)"
+                      : "rgba(0, 0, 0, 0.04)",
                 },
               }}
-            />
-          </ListItemButton>
-        </AccessGuard>
-        <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-          <ListItemButton
-            onClick={openAudioRecording}
-            sx={{
-              "&:hover": {
-                bgcolor:
-                  mode === "dark"
-                    ? "rgba(255, 255, 255, 0.05)"
-                    : "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <ListItemIcon>
-              <Mic
+            >
+              <ListItemIcon>
+                <Audiotrack
+                  sx={{
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary="فایل صدا"
                 sx={{
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  "& .MuiListItemText-primary": {
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  },
                 }}
               />
-            </ListItemIcon>
-            <ListItemText
-              primary="ضبط صدا"
+            </ListItemButton>
+          </AccessGuard>
+          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+            <ListItemButton
+              onClick={openAudioRecording}
               sx={{
-                "& .MuiListItemText-primary": {
-                  color:
-                    mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                "&:hover": {
+                  bgcolor:
+                    mode === "dark"
+                      ? "rgba(255, 255, 255, 0.05)"
+                      : "rgba(0, 0, 0, 0.04)",
                 },
               }}
-            />
-          </ListItemButton>
-        </AccessGuard>
+            >
+              <ListItemIcon>
+                <Mic
+                  sx={{
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary="ضبط صدا"
+                sx={{
+                  "& .MuiListItemText-primary": {
+                    color:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  },
+                }}
+              />
+            </ListItemButton>
+          </AccessGuard>
         </List>
       )}
       {!readOnly && (
@@ -538,25 +551,41 @@ const UploaderDocs: FC<UploadModalProps> = ({
         <Box sx={{ mt: 2, mb: 2 }}>
           {selectedFiles.size > 0 && (
             <>
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  mb: 2, 
-                  color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : "text.primary" 
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 2,
+                  color:
+                    mode === "dark"
+                      ? "rgba(255, 255, 255, 0.8)"
+                      : "text.primary",
                 }}
               >
                 فایل‌های انتخابی
               </Typography>
-              
-              <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-                <Typography 
-                  variant="body2" 
-                  sx={{ color: mode === "dark" ? "rgba(255, 255, 255, 0.7)" : "text.secondary" }}
+
+              <Box
+                sx={{
+                  mb: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  flexWrap: "wrap",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color:
+                      mode === "dark"
+                        ? "rgba(255, 255, 255, 0.7)"
+                        : "text.secondary",
+                  }}
                 >
                   تعداد انتخابی ({selectedFiles.size}):
                 </Typography>
-                {Array.from(selectedFiles).map(fileId => {
-                  const file = files.find(f => f.id === fileId);
+                {Array.from(selectedFiles).map((fileId) => {
+                  const file = files.find((f) => f.id === fileId);
                   return file ? (
                     <Chip
                       key={fileId}
@@ -564,18 +593,29 @@ const UploaderDocs: FC<UploadModalProps> = ({
                       size="small"
                       onDelete={() => toggleFileSelection(fileId)}
                       sx={{
-                        bgcolor: mode === "dark" ? "rgba(33, 150, 243, 0.2)" : "primary.light",
-                        color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : "primary.dark",
+                        bgcolor:
+                          mode === "dark"
+                            ? "rgba(33, 150, 243, 0.2)"
+                            : "primary.light",
+                        color:
+                          mode === "dark"
+                            ? "rgba(255, 255, 255, 0.8)"
+                            : "primary.dark",
                         "& .MuiChip-deleteIcon": {
-                          color: mode === "dark" ? "rgba(255, 255, 255, 0.6)" : "primary.main"
-                        }
+                          color:
+                            mode === "dark"
+                              ? "rgba(255, 255, 255, 0.6)"
+                              : "primary.main",
+                        },
                       }}
                     />
                   ) : null;
                 })}
               </Box>
 
-              <Box sx={{ display: "flex", gap: 1, alignItems: "center", mb: 2 }}>
+              <Box
+                sx={{ display: "flex", gap: 1, alignItems: "center", mb: 2 }}
+              >
                 {enableFileSending && (
                   <Button
                     variant="contained"
@@ -585,34 +625,56 @@ const UploaderDocs: FC<UploadModalProps> = ({
                     sx={{
                       bgcolor: "primary.main",
                       "&:hover": {
-                        bgcolor: "primary.dark"
+                        bgcolor: "primary.dark",
                       },
                       "&:disabled": {
-                        bgcolor: "grey.400"
-                      }
+                        bgcolor: "grey.400",
+                      },
                     }}
                   >
                     {isSendingFileLinks ? "در حال ارسال..." : "ارسال پیام"}
                   </Button>
                 )}
-                
+
                 <Button
                   variant="outlined"
                   startIcon={<Clear />}
                   onClick={clearSelectedFiles}
                   size="small"
-                  disabled={isSendingFileLinks || isUpdatingShowCustomer || isLoadingDeleteFile}
+                  disabled={
+                    isSendingFileLinks ||
+                    isUpdatingShowCustomer ||
+                    isLoadingDeleteFile
+                  }
                   sx={{
-                    borderColor: mode === "dark" ? "rgba(255, 255, 255, 0.3)" : "text.secondary",
-                    color: mode === "dark" ? "rgba(255, 255, 255, 0.8)" : "text.secondary",
+                    borderColor:
+                      mode === "dark"
+                        ? "rgba(255, 255, 255, 0.3)"
+                        : "text.secondary",
+                    color:
+                      mode === "dark"
+                        ? "rgba(255, 255, 255, 0.8)"
+                        : "text.secondary",
                     "&:hover": {
-                      borderColor: mode === "dark" ? "rgba(255, 255, 255, 0.5)" : "text.primary",
-                      color: mode === "dark" ? "rgba(255, 255, 255, 1)" : "text.primary"
+                      borderColor:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.5)"
+                          : "text.primary",
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 1)"
+                          : "text.primary",
                     },
                     "&:disabled": {
-                      borderColor: mode === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.12)",
-                      color: mode === "dark" ? "rgba(255, 255, 255, 0.3)" : "rgba(0, 0, 0, 0.26)"
-                    }
+                      borderColor:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.1)"
+                          : "rgba(0, 0, 0, 0.12)",
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.3)"
+                          : "rgba(0, 0, 0, 0.26)",
+                    },
                   }}
                 >
                   پاک کردن انتخاب

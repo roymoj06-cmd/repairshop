@@ -15,18 +15,40 @@ export const getFilesByReceptionId = async (
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+
 export const uploadFileRepairReceptionFile = async ({
   description,
   file,
   repairReceptionId,
   onProgress,
+  CompressionLevel,
 }: {
   onProgress?: (progress: number) => void;
   file?: any;
   repairReceptionId?: string | number;
   description?: string;
+  CompressionLevel: number;
+  // [Description("کیفیت بالا - حجم کم‌تر از 10% اصل")]
+  // HighQuality_10Percent = 1,
+
+  // [Description("کیفیت خوب - حجم کم‌تر از 20% اصل")]
+  // GoodQuality_20Percent = 2,
+
+  // [Description("کیفیت متوسط - حجم کم‌تر از 30% اصل")]
+  // MediumQuality_30Percent = 3,
+
+  // [Description("کیفیت پایین - حجم کم‌تر از 50% اصل")]
+  // LowQuality_50Percent = 4,
+
+  // [Description("حداکثر فشرده‌سازی - حجم کم‌تر از 70% اصل")]
+  // MaxCompression_70Percent = 5
 }) => {
-  const data = createFormData({ file, description, repairReceptionId });
+  const data = createFormData({
+    file,
+    description,
+    repairReceptionId,
+    CompressionLevel,
+  });
 
   const reqConfig = {
     method: "POST",
