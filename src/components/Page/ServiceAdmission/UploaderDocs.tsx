@@ -35,6 +35,7 @@ import { useTheme } from "@/context/ThemeContext";
 import FilePreviewGrid from "./FilePreviewGrid";
 import { Loading } from "@/components";
 import { CompressLevelStatic } from "@/utils/statics";
+import { toast } from "react-toastify";
 
 type UploadModalProps = {
   repairReceptionId?: number | string;
@@ -67,6 +68,27 @@ const UploaderDocs: FC<UploadModalProps> = ({
             const tempId = file.name + "_" + file.size + "_" + Date.now();
             setProgressMap((prev) => ({ ...prev, [tempId]: progress }));
           },
+        }).then((res) => {
+          toast.success(
+            `فایل آپلودی ${(
+              res?.data?.compressionResult?.compressedSizeBytes / 1000000
+            ).toFixed(2)} MB به سایز ${(
+              res?.data?.compressionResult?.originalSizeBytes / 1000000
+            ).toFixed(
+              2
+            )} MB کاهش یافت و  ${(res?.data?.compressionResult?.sizeDifferenceMB).toFixed(
+              2
+            )} MB حجم فایل کاهش یافت`,
+            {
+              position: "top-center",
+              autoClose: false,
+              hideProgressBar: false,
+              closeOnClick: true,
+              style: {
+                direction: "rtl",
+              },
+            }
+          );
         });
         // After successful upload, refresh the files list
         mutateAsyncGetFilesByReceptionId();
