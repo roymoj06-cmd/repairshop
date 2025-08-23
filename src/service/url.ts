@@ -8,7 +8,7 @@ declare global {
 const serverTestIp = "http://192.168.0.113";
 const copserverUrl =
   window.globalConfig?.mode === "production"
-    ? "http://copserver.copapp.ir/api/v1"
+    ? "https://copserver.copapp.ir/api/v1"
     : `${serverTestIp}:8075/api/v1`;
 const panelServiceBaseUrl =
   window.globalConfig?.mode === "production"
