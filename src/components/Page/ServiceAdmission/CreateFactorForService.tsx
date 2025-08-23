@@ -15,7 +15,6 @@ import {
   TableHead,
   TextField,
   TableRow,
-  Checkbox,
   useTheme,
   Dialog,
   Button,
@@ -24,6 +23,7 @@ import {
   Card,
   Chip,
   Box,
+  Checkbox,
 } from "@mui/material";
 
 import { getRepairReceptionServices } from "@/service/repairReceptionService/repairReceptionService.service";
@@ -56,9 +56,7 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const queryClient = useQueryClient();
-  const [services, setServices] = useState<
-    IGetRepairReceptionService[]
-  >([]);
+  const [services, setServices] = useState<IGetRepairReceptionService[]>([]);
 
   const { data: servicesData, isLoading: loadingServices } = useQuery({
     queryKey: ["getRepairReceptionServices", repairReceptionId],
@@ -102,10 +100,10 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
       prevServices.map((service) =>
         service.id === serviceId
           ? {
-            ...service,
-            isSelectedForFactorLocal: !service.isSelectedForFactorLocal,
-            isSelectedForFactor: !service.isSelectedForFactorLocal,
-          }
+              ...service,
+              isSelectedForFactorLocal: !service.isSelectedForFactorLocal,
+              isSelectedForFactor: !service.isSelectedForFactorLocal,
+            }
           : service
       )
     );
@@ -132,25 +130,23 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
   };
   useEffect(() => {
     if (servicesData?.isSuccess) {
-      const servicesWithDefaults = (servicesData.data.services || []).map((service: any) => ({
-        ...service,
-        isSelectedForFactorLocal: service.isSelectedForFactorLocal ?? false
-      }));
+      const servicesWithDefaults = (servicesData.data.services || []).map(
+        (service: any) => ({
+          ...service,
+          isSelectedForFactorLocal: service.isSelectedForFactorLocal ?? false,
+        })
+      );
       setServices(servicesWithDefaults);
     } else if (servicesData?.message) {
       toast.error(servicesData.message);
     }
   }, [servicesData]);
   const isLoading = loadingServices || generateFactorsMutation.isPending;
-  const availableServices = services.filter(
-    (service) => service.status === "created" && !service.hasFactor
-  );
+  const availableServices = services.filter((service) => !service.hasFactor);
   const selectedServices = services.filter(
     (service) => service.isSelectedForFactorLocal
   );
-  const completedServices = services.filter(
-    (service) => service.status !== "created" || service.hasFactor
-  );
+  const completedServices = services.filter((service) => service.hasFactor);
   const totalAmount = selectedServices.reduce(
     (total, service) => total + service.servicePrice * service.serviceCount,
     0
@@ -315,7 +311,9 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                           <TableRow key={`available-${service.id}`}>
                             <TableCell align="center" sx={{ fontSize: 14 }}>
                               <Checkbox
-                                checked={service.isSelectedForFactorLocal ?? false}
+                                checked={
+                                  service.isSelectedForFactorLocal ?? false
+                                }
                                 onChange={() =>
                                   handleSelectedService(service.id)
                                 }
@@ -382,14 +380,14 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                               backgroundColor: service.hasFactor
                                 ? "success.light"
                                 : service.status
-                                  ? "success.light"
-                                  : "warning.light",
+                                ? "success.light"
+                                : "warning.light",
                               "& .MuiTableCell-root": {
                                 color: service.hasFactor
                                   ? "success.dark"
                                   : service.status
-                                    ? "success.dark"
-                                    : "warning.dark",
+                                  ? "success.dark"
+                                  : "warning.dark",
                                 fontSize: 14,
                               },
                             }}
@@ -400,15 +398,15 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                                   service.hasFactor
                                     ? "فاکتور شده"
                                     : service.status
-                                      ? "انتخاب شده"
-                                      : "در انتظار"
+                                    ? "انتخاب شده"
+                                    : "در انتظار"
                                 }
                                 color={
                                   service.hasFactor
                                     ? "success"
                                     : service.status
-                                      ? "success"
-                                      : "warning"
+                                    ? "success"
+                                    : "warning"
                                 }
                                 size="small"
                               />
@@ -465,7 +463,9 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                           >
                             <Box sx={{ display: "flex", alignItems: "center" }}>
                               <Checkbox
-                                checked={service.isSelectedForFactorLocal ?? false}
+                                checked={
+                                  service.isSelectedForFactorLocal ?? false
+                                }
                                 onChange={() =>
                                   handleSelectedService(service.id)
                                 }
@@ -632,8 +632,8 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                           border: service.hasFactor
                             ? "2px solid #4caf50"
                             : service.status
-                              ? "2px solid #4caf50"
-                              : "2px solid #ff9800",
+                            ? "2px solid #4caf50"
+                            : "2px solid #ff9800",
                           fontSize: 14,
                         }}
                       >
@@ -657,15 +657,15 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                                 service.hasFactor
                                   ? "فاکتور شده"
                                   : service.status
-                                    ? "انتخاب شده"
-                                    : "در انتظار"
+                                  ? "انتخاب شده"
+                                  : "در انتظار"
                               }
                               color={
                                 service.hasFactor
                                   ? "success"
                                   : service.status
-                                    ? "success"
-                                    : "warning"
+                                  ? "success"
+                                  : "warning"
                               }
                               size="small"
                             />
@@ -687,8 +687,8 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                                 color: service.hasFactor
                                   ? "success.dark"
                                   : service.status
-                                    ? "success.dark"
-                                    : "warning.dark",
+                                  ? "success.dark"
+                                  : "warning.dark",
                                 fontSize: 14,
                               }}
                             >
@@ -720,8 +720,8 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                                   color: service.hasFactor
                                     ? "success.dark"
                                     : service.status
-                                      ? "success.dark"
-                                      : "warning.dark",
+                                    ? "success.dark"
+                                    : "warning.dark",
                                   fontSize: 14,
                                 }}
                               >
@@ -743,8 +743,8 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                                   color: service.hasFactor
                                     ? "success.dark"
                                     : service.status
-                                      ? "success.dark"
-                                      : "warning.dark",
+                                    ? "success.dark"
+                                    : "warning.dark",
                                   fontSize: 14,
                                 }}
                               >
@@ -766,8 +766,8 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                                   color: service.hasFactor
                                     ? "success.dark"
                                     : service.status
-                                      ? "success.dark"
-                                      : "warning.dark",
+                                    ? "success.dark"
+                                    : "warning.dark",
                                   fontSize: 14,
                                 }}
                               >
@@ -789,8 +789,8 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                                   color: service.hasFactor
                                     ? "success.dark"
                                     : service.status
-                                      ? "success.dark"
-                                      : "warning.dark",
+                                    ? "success.dark"
+                                    : "warning.dark",
                                   fontSize: 14,
                                 }}
                               >
@@ -815,8 +815,8 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                                 color: service.hasFactor
                                   ? "success.dark"
                                   : service.status
-                                    ? "success.dark"
-                                    : "warning.dark",
+                                  ? "success.dark"
+                                  : "warning.dark",
                                 fontSize: 14,
                               }}
                             >

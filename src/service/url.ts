@@ -5,16 +5,17 @@ declare global {
     };
   }
 }
-const copserverUrl = "https://copserver.copapp.ir/api/v1";
 const serverTestIp = "http://192.168.0.113";
+const copserverUrl =
+  window.globalConfig?.mode === "production"
+    ? "http://copserver.copapp.ir/api/v1"
+    : `${serverTestIp}:8075/api/v1`;
 const panelServiceBaseUrl =
   window.globalConfig?.mode === "production"
     ? "https://repairservice.baaz.ir/api/v1"
     : `${serverTestIp}:8091/api/v1`;
 // =========================================================================
 export const proxyServerUrl = {
-  copServer: "https://copserver.copapp.ir",
-
   // authentication Controller
   login: `${panelServiceBaseUrl}/Users/Token`,
 
