@@ -70,7 +70,7 @@ const navConfig: NavItemProps[] = [
     guid: "3362fe9b-5b43-436e-a440-aefc0d1d00d8",
   },
   {
-    title: "مدیریت مکانیک ها",
+    title: "مدیریت تعمیرکاران",
     path: dir.mechanicsManagement,
     icon: <Person />,
     guid: "b33b23a8-9d34-4375-a05c-94c5b18450b7",

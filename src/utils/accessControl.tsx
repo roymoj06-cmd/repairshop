@@ -85,8 +85,8 @@ export const ACCESS_CONFIG: AccessControlConfig = {
 
     // مدیریت مکانیک ها
     "b33b23a8-9d34-4375-a05c-94c5b18450b7": {
-      title: "مدیریت مکانیک ها",
-      description: "دسترسی به مدیریت مکانیک‌ها",
+      title: "مدیریت تعمیرکاران",
+      description: "دسترسی به مدیریت تعمیرکاران",
       operations: [
         "7216502f-2cbf-4257-9235-5038c29bc837", // افزودن مکانیک
         "6f01745a-1f18-45d8-8c86-ebe7b58fa588", // ویرایش مکانیک
@@ -368,7 +368,7 @@ export const ACCESS_IDS = {
   LEAVE_MANAGEMENT: "c1b563f4-9299-4865-97ba-fe56db6c5d3b",
   MY_GARAGE: "2f326128-473e-4d6e-9d78-efed1eca42c0",
   ADMISSION: "431dbdc6-5e47-4d2c-9c97-8a23162648b8",
-  
+
   // دسته‌های پذیرش
   EDIT_ADMISSION: "76f03ebb-e5e1-468c-9b1c-3a19396ea29a",
   DOCUMENTS: "0ede3bbe-c307-49e5-afbc-7cda0a1d0310",
@@ -377,12 +377,12 @@ export const ACCESS_IDS = {
   OLDPART: "f097c2a4-4f33-4a02-b349-8881ff7014f2",
   REPAIRS: "f36fe06e-8b0c-460f-b84d-badab5243bd0",
   PARTS: "4d87f085-3eb3-4379-84e4-0b1458ee48bc",
-  
+
   // عملیات مشکلات
   DELETE_PROBLEM: "8cc75b5a-8be3-4d23-8c71-69b4e64b893d",
   EDIT_PROBLEM: "1f189625-a1df-48c5-a67b-90b707efd267",
   ADD_PROBLEM: "a5f9709d-04fc-4d1f-8eef-dc925e0145de",
-  
+
   // عملیات تعمیرات
   DISCHARGE_REPAIR_RECEPTION: "faddee5d-7277-420f-9452-ccb315b15f1e",
   CREATE_FACTOR_REPAIR: "1bb6afa9-bb66-4022-88b7-45b2c3cea518",
@@ -394,7 +394,7 @@ export const ACCESS_IDS = {
   EDIT_REPAIR: "a9b54cdd-8f69-48ad-a80c-2e3c34c61c4b",
   TEST_REPAIR: "0e6452e0-6c89-44a6-8f0c-6a9ba61d1584",
   ADD_REPAIR: "78d1c8c5-21aa-4772-a070-ff43572768cc",
-  
+
   // عملیات قطعات
   WAREHOUSE_PART_REQUEST: "daa4b4db-d8e4-416c-9a6a-33e97f409810",
   CUSTOMER_PART_RECEIPT: "aafef540-c7d1-43e4-8507-70b361c44d13",
@@ -404,14 +404,14 @@ export const ACCESS_IDS = {
   VIEW_REQUESTS: "05bee620-fdfc-437d-a066-99b2413a342c",
   CREATE_FACTOR: "19a0f770-0ebc-445e-aab1-e612eeff481f",
   VIEW_FACTORS: "ecb593d0-a8c8-4ba9-84ee-629e2e1e6dee",
-  
+
   // عملیات درخواست‌ها
   DECLARE_SHORTAGE: "54049da6-2c41-48d4-8b5b-a82502bfe24f",
   REJECT_REQUEST: "99caac81-e74b-4abb-936c-151ca9d0b404",
-  
+
   // عملیات حذف پذیرش
   DELETE_ADMISSION: "faddee5d-7277-420f-9452-ccb315b15f1e",
-  
+
   // عملیات حضور و غیاب
   DELETE_MECHANIC_ATTENDANCE: "f56ce112-f2b2-4706-ac67-270027645163",
   EDIT_MECHANIC_ATTENDANCE: "43f5ef02-8d36-450d-85af-f83b7aa9a534",

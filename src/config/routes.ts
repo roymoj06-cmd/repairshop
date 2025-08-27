@@ -42,7 +42,7 @@ export const routesConfig: RouteConfig[] = [
       },
       {
         path: dir.mechanicsManagement,
-        title: "مدیریت مکانیک ها",
+        title: "مدیریت تعمیرکاران",
         requiredMainAccess: [ACCESS_IDS.MECHANIC_MANAGEMENT],
       },
       {

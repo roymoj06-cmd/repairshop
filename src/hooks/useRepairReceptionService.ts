@@ -41,11 +41,12 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
   });
   const { data: repairServices = [] } = useQuery({
     queryKey: ["repairServices", serviceSearchText],
-    queryFn: () => getAllRepairServices({
-      page: 1,
-      size: 100,
-      searchText: serviceSearchText || undefined
-    }),
+    queryFn: () =>
+      getAllRepairServices({
+        page: 1,
+        size: 100,
+        searchText: serviceSearchText || undefined,
+      }),
     select: (data) =>
       data?.data?.values?.map((service: IGetAllRepairServices) => ({
         label: `${service.serviceTitle} - ${addCommas(service.price)}`,
@@ -212,16 +213,20 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
           );
           setSelectedProblem(problemOption);
         }
-        const serviceOption = repairServices.find((s: any) =>
-          s.value === service.serviceId
+        const serviceOption = repairServices.find(
+          (s: any) => s.value === service.serviceId
         );
         const mechanicOption = mechanics.find(
           (m: any) => m.value === service.performedByMechanicId
+        );
+        const headOdMechanicId = mechanics.find(
+          (m: any) => m.value === service?.headOfMechanicId
         );
         setCurrentServices([
           {
             serviceId: serviceOption,
             mechanicId: mechanicOption,
+            headOfMechanicId: headOdMechanicId,
             servicePrice: service.servicePrice,
             serviceCount: service.serviceCount,
             totalPrice: service.totalPrice,
@@ -323,6 +328,10 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
             repairCustomerProblemId: selectedProblem?.value,
             performedByMechanicId:
               Number(currentServices[0].mechanicId?.value) || 0,
+            headOfMechanicId:
+              currentServices[0].headOfMechanicId?.value !== undefined
+                ? Number(currentServices[0].headOfMechanicId?.value)
+                : undefined,
             estimatedMinute: Number(currentServices[0].estimatedMinute) || 0,
             serviceCount: currentServices[0].serviceCount || 1,
             serviceId: Number(currentServices[0].serviceId?.value) || 0,
@@ -342,6 +351,10 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
             repairCustomerProblemId: selectedProblem?.value,
             performedByMechanicId:
               Number(currentServices[0].mechanicId?.value) || 0,
+            headOfMechanicId:
+              currentServices[0].headOfMechanicId?.value !== undefined
+                ? Number(currentServices[0].headOfMechanicId?.value)
+                : undefined,
             estimatedMinute: Number(currentServices[0].estimatedMinute) || 0,
             serviceCount: currentServices[0].serviceCount || 1,
             serviceId: Number(currentServices[0].serviceId?.value) || 0,
@@ -361,6 +374,10 @@ export const useRepairReceptionService = (repairReceptionId?: string) => {
             repairCustomerProblemId: selectedProblem?.value,
             performedByMechanicId:
               Number(currentServices[0].mechanicId?.value) || 0,
+            headOfMechanicId:
+              currentServices[0].headOfMechanicId?.value !== undefined
+                ? Number(currentServices[0].headOfMechanicId?.value)
+                : undefined,
             estimatedMinute: Number(currentServices[0].estimatedMinute) || 0,
             serviceCount: currentServices[0].serviceCount || 1,
             serviceId: Number(currentServices[0].serviceId?.value) || 0,

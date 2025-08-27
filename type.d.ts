@@ -269,6 +269,7 @@ interface ICreateOrUpdateRepairReceptionService {
     repairReceptionServiceId: number;
     repairCustomerProblemId: number;
     performedByMechanicId: number;
+    headOfMechanicId?: number;
     estimatedMinute: number;
     serviceCount: number;
     description?: string;
@@ -300,6 +301,7 @@ interface Service {
   repairCustomerProblemId: number;
   performedByMechanicId: number;
   repairReceptionId: number;
+  headOfMechanicId?: number;
   createdByUserName: string;
   createdByUserId: number;
   estimatedMinute: number;
@@ -716,6 +718,7 @@ interface IGetRepairReceptionServiceForEdit {
 }
 interface ServiceFormData {
   mechanicId: SelectOption | undefined;
+  headOfMechanicId?: SelectOption | undefined;
   serviceId: SelectOption | undefined;
   estimatedMinute: number | undefined;
   servicePrice: number | undefined;

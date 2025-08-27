@@ -28,7 +28,6 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
   mechanics,
   problems,
 }) => {
-
   return (
     <>
       <div style={{ margin: "1rem 0" }}>
@@ -49,15 +48,17 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
             !service.isDeleted && (
               <Paper
                 key={index}
-                className={`service-item service-item--${index % 2 === 0 ? "even" : "odd"
-                  } service-item--border-${index % 4 === 0
+                className={`service-item service-item--${
+                  index % 2 === 0 ? "even" : "odd"
+                } service-item--border-${
+                  index % 4 === 0
                     ? "blue"
                     : index % 4 === 1
-                      ? "green"
-                      : index % 4 === 2
-                        ? "orange"
-                        : "red"
-                  }`}
+                    ? "green"
+                    : index % 4 === 2
+                    ? "orange"
+                    : "red"
+                }`}
               >
                 <div className="service-item__content">
                   <div className="service-item__grid service-item__grid--two-cols">
@@ -76,14 +77,36 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
 
                     <EnhancedSelect
                       name={`mechanicId_${index}`}
-                      label="انتخاب مکانیک"
+                      label="انتخاب تعمیرکار"
                       options={mechanics}
                       value={service.mechanicId}
                       onChange={(value) =>
                         onServiceChange(index, "mechanicId", value)
                       }
-                      placeholder="مکانیک را انتخاب کنید"
+                      placeholder="تعمیرکار را انتخاب کنید"
                       searchable
+                    />
+                    <EnhancedSelect
+                      name={`headOfMechanicId_${index}`}
+                      label="انتخاب پیمانکار"
+                      options={mechanics}
+                      value={service.headOfMechanicId}
+                      onChange={(value) =>
+                        onServiceChange(index, "headOfMechanicId", value)
+                      }
+                      placeholder="پیمانکار را انتخاب کنید"
+                      searchable
+                    />
+                    <EnhancedInput
+                      value={service.description || ""}
+                      name={`description_${index}`}
+                      label="توضیحات"
+                      placeholder="توضیحات مربوط به سرویس..."
+                      multiline
+                      rows={3}
+                      onChange={(e) =>
+                        onServiceChange(index, "description", e.target.value)
+                      }
                     />
                   </div>
 
@@ -121,9 +144,11 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                       placeholder="زمان به دقیقه"
                       inputProps={{
                         min: 1,
-                        step: 1
+                        step: 1,
                       }}
-                      error={!service.estimatedMinute || service.estimatedMinute <= 0}
+                      error={
+                        !service.estimatedMinute || service.estimatedMinute <= 0
+                      }
                     />
 
                     <EnhancedInput
@@ -154,19 +179,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                   </div>
 
                   {/* Description Section */}
-                  <div className="mt-4">
-                    <EnhancedInput
-                      value={service.description || ""}
-                      name={`description_${index}`}
-                      label="توضیحات"
-                      placeholder="توضیحات مربوط به سرویس..."
-                      multiline
-                      rows={3}
-                      onChange={(e) =>
-                        onServiceChange(index, "description", e.target.value)
-                      }
-                    />
-                  </div>
+                  <div className="mt-4"></div>
 
                   {/* Date/Time Section */}
                   <div className="service-item__grid service-item__grid--two-cols mt-4">
@@ -180,9 +193,9 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         value={
                           service.startDate
                             ? new DateObject({
-                              calendar: persian,
-                              date: new Date(service.startDate),
-                            })
+                                calendar: persian,
+                                date: new Date(service.startDate),
+                              })
                             : null
                         }
                         onChange={(date: DateObject) => {
@@ -218,9 +231,9 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         value={
                           service.endDate
                             ? new DateObject({
-                              calendar: persian,
-                              date: new Date(service.endDate),
-                            })
+                                calendar: persian,
+                                date: new Date(service.endDate),
+                              })
                             : null
                         }
                         onChange={(date: DateObject) => {
