@@ -95,7 +95,6 @@ const Dashboard: FC = () => {
     const dates = shortcut.getDates();
     setDateRange({ fromDate: dates.from, toDate: dates.to });
     setActiveShortcut(shortcut.value);
-    console.log("Active shortcut set to:", shortcut.value);
 
     // Update date pickers
     const fromDate = new DateObject({ date: dates.from, calendar: gregorian });

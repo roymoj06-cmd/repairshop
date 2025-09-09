@@ -208,7 +208,6 @@ const CreateProductRequestModal: React.FC<CreateProductRequestModalProps> = ({
     }
 
     const formData = watch();
-    console.log(formData);
 
     if (!formData.customerUserId || !formData.carId) {
       toast.error("لطفا مشتری و پلاک را انتخاب کنید");

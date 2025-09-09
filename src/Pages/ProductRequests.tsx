@@ -106,9 +106,13 @@ const ProductRequests: React.FC = () => {
         toast.error("خطا در ثبت زمان ارسال");
       },
     });
-  const handleProductSelection = (productId: number, checked: boolean, isDelivering?: boolean) => {
+  const handleProductSelection = (
+    productId: number,
+    checked: boolean,
+    isDelivering?: boolean
+  ) => {
     if (isDelivering) return;
-    
+
     if (checked) {
       setSelectedRequestIds((prev) => [...prev, productId]);
     } else {
@@ -119,7 +123,7 @@ const ProductRequests: React.FC = () => {
     const selectableProductIds = carData.products
       .filter((product: any) => !product.isDelivering)
       .map((product: any) => product.id);
-    
+
     if (checked) {
       setSelectedRequestIds((prev) => [
         ...new Set([...prev, ...selectableProductIds]),
@@ -134,15 +138,21 @@ const ProductRequests: React.FC = () => {
     const selectableProductIds = carData.products
       .filter((product: any) => !product.isDelivering)
       .map((product: any) => product.id);
-    return selectableProductIds.length > 0 && selectableProductIds.every((id: number) => selectedRequestIds.includes(id));
+    return (
+      selectableProductIds.length > 0 &&
+      selectableProductIds.every((id: number) =>
+        selectedRequestIds.includes(id)
+      )
+    );
   };
   const isSomeSelectedForCar = (carData: any) => {
     const selectableProductIds = carData.products
       .filter((product: any) => !product.isDelivering)
       .map((product: any) => product.id);
     return (
-      selectableProductIds.some((id: number) => selectedRequestIds.includes(id)) &&
-      !isAllSelectedForCar(carData)
+      selectableProductIds.some((id: number) =>
+        selectedRequestIds.includes(id)
+      ) && !isAllSelectedForCar(carData)
     );
   };
   const handleOpenDeliveryModal = () => {
@@ -184,7 +194,6 @@ const ProductRequests: React.FC = () => {
   };
   const handleDeliveryTimeChange = (option: any) => {
     setDeliveryTime(option || null);
-    console.log(option);
     if (option) {
       setIsTomorrow(false);
       setIsDayAfterTomorrow(false);
@@ -242,26 +251,33 @@ const ProductRequests: React.FC = () => {
   };
   const formatDeliveryInfo = (product: any) => {
     if (!product.isDelivering) return "-";
-    
+
     if (product.deliveryTime) {
       return `امروز - ${product.deliveryTime} ساعت`;
     }
-    
+
     if (product.deliveryDay) {
       const deliveryDate = product.deliveryDay;
       return deliveryDate || product.deliveryDay;
     }
-    
+
     return "در حال ارسال";
   };
   const renderProductRow = (product: any, index: number) => {
     return (
-      <TableRow key={product.id} sx={{ bgcolor: product.isDelivering ? "warning.50" : "grey.50" }}>
+      <TableRow
+        key={product.id}
+        sx={{ bgcolor: product.isDelivering ? "warning.50" : "grey.50" }}
+      >
         <TableCell sx={{ pl: 2 }}>
           <Checkbox
             checked={selectedRequestIds.includes(product.id)}
             onChange={(e) =>
-              handleProductSelection(product.id, e.target.checked, product.isDelivering)
+              handleProductSelection(
+                product.id,
+                e.target.checked,
+                product.isDelivering
+              )
             }
             disabled={product.isDelivering}
             color="primary"
@@ -382,7 +398,9 @@ const ProductRequests: React.FC = () => {
                     درخواست کننده
                   </TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>تاریخ ایجاد</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>ساعت/روز ارسال</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>
+                    ساعت/روز ارسال
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -480,20 +498,26 @@ const ProductRequests: React.FC = () => {
             ) => (
               <Box
                 key={product.id}
-                sx={{ 
-                  mb: 2, 
-                  p: 2, 
-                  bgcolor: product.isDelivering ? "warning.50" : "grey.50", 
+                sx={{
+                  mb: 2,
+                  p: 2,
+                  bgcolor: product.isDelivering ? "warning.50" : "grey.50",
                   borderRadius: 1,
                   border: product.isDelivering ? "1px solid" : "none",
-                  borderColor: product.isDelivering ? "warning.300" : "transparent"
+                  borderColor: product.isDelivering
+                    ? "warning.300"
+                    : "transparent",
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                   <Checkbox
                     checked={selectedRequestIds.includes(product.id)}
                     onChange={(e) =>
-                      handleProductSelection(product.id, e.target.checked, product.isDelivering)
+                      handleProductSelection(
+                        product.id,
+                        e.target.checked,
+                        product.isDelivering
+                      )
                     }
                     disabled={product.isDelivering}
                     color="primary"

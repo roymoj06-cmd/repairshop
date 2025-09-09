@@ -47,7 +47,8 @@ export const uploadFileRepairReceptionFile = async ({
     file,
     description,
     repairReceptionId,
-    CompressionLevel,
+    compressionLevel: CompressionLevel, // Try camelCase
+    CompressionLevel: CompressionLevel, // Keep original
   });
 
   const reqConfig = {

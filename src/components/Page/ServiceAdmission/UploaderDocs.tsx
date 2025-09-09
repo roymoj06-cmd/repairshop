@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useDropzone } from "react-dropzone";
 import {
@@ -21,6 +21,11 @@ import {
   Box,
   Typography,
   Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Paper,
 } from "@mui/material";
 
 import {
@@ -34,7 +39,7 @@ import { ACCESS_IDS, AccessGuard } from "@/utils/accessControl";
 import { useTheme } from "@/context/ThemeContext";
 import FilePreviewGrid from "./FilePreviewGrid";
 import { Loading } from "@/components";
-import { CompressLevelStatic } from "@/utils/statics";
+// import { CompressLevelStatic } from "@/utils/statics"; // Not needed anymore
 import { toast } from "react-toastify";
 
 type UploadModalProps = {
@@ -52,51 +57,49 @@ const UploaderDocs: FC<UploadModalProps> = ({
 }) => {
   const { mode } = useTheme();
   const [files, setFiles] = useState<IRepairReceptionFile[]>([]);
-  const [progressMap, setProgressMap] = useState<Record<number, number>>({});
+  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+  type UploadStatus = "uploading" | "compressing" | "completed" | "failed";
+
+  const [uploadStatusMap, setUploadStatusMap] = useState<
+    Record<string, UploadStatus>
+  >({});
   const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
   const [loadingFileIds, setLoadingFileIds] = useState<Set<number>>(new Set());
+  const [selectedCompressionLevel, setSelectedCompressionLevel] =
+    useState<number>(2); // Default to "کیفیت خوب"
 
-  const handleFileUpload = useCallback(async (acceptedFiles: File[]) => {
-    for (const file of acceptedFiles) {
-      try {
-        await mutateAsyncUploadFileToServerFile({
-          CompressionLevel: CompressLevelStatic.GoodQuality_20,
-          file: file,
-          repairReceptionId: repairReceptionId,
-          onProgress: (progress) => {
-            // Create a temporary ID for tracking progress before the file has a server ID
-            const tempId = file.name + "_" + file.size + "_" + Date.now();
-            setProgressMap((prev) => ({ ...prev, [tempId]: progress }));
-          },
-        }).then((res) => {
-          toast.success(
-            `فایل آپلودی ${(
-              res?.data?.compressionResult?.compressedSizeBytes / 1000000
-            ).toFixed(2)} MB به سایز ${(
-              res?.data?.compressionResult?.originalSizeBytes / 1000000
-            ).toFixed(
-              2
-            )} MB کاهش یافت و  ${(res?.data?.compressionResult?.sizeDifferenceMB).toFixed(
-              2
-            )} MB حجم فایل کاهش یافت`,
-            {
-              position: "top-center",
-              autoClose: false,
-              hideProgressBar: false,
-              closeOnClick: true,
-              style: {
-                direction: "rtl",
-              },
-            }
-          );
-        });
-        // After successful upload, refresh the files list
-        mutateAsyncGetFilesByReceptionId();
-      } catch (error) {
-        console.error("Error uploading file", error);
-      }
-    }
-  }, []);
+  // Use ref to always get the latest compression level
+  const compressionLevelRef = useRef(selectedCompressionLevel);
+  compressionLevelRef.current = selectedCompressionLevel;
+  // Compression level options
+  const compressionOptions = [
+    {
+      value: 1,
+      label: "کیفیت بالا - حجم کم‌تر از 10% اصل",
+      description: "بهترین کیفیت، کمترین فشرده‌سازی",
+    },
+    {
+      value: 2,
+      label: "کیفیت خوب - حجم کم‌تر از 20% اصل",
+      description: "کیفیت خوب، فشرده‌سازی متوسط",
+    },
+    {
+      value: 3,
+      label: "کیفیت متوسط - حجم کم‌تر از 30% اصل",
+      description: "کیفیت متوسط، فشرده‌سازی بیشتر",
+    },
+    {
+      value: 4,
+      label: "کیفیت پایین - حجم کم‌تر از 50% اصل",
+      description: "کیفیت پایین، فشرده‌سازی زیاد",
+    },
+    {
+      value: 5,
+      label: "حداکثر فشرده‌سازی - حجم کم‌تر از 70% اصل",
+      description: "حداکثر فشرده‌سازی، کمترین حجم",
+    },
+  ];
+
   const {
     isPending: isLoadingFiles,
     mutateAsync: mutateAsyncGetFilesByReceptionId,
@@ -112,6 +115,129 @@ const UploaderDocs: FC<UploadModalProps> = ({
       setFiles(filteredFiles);
     },
   });
+
+  const {
+    mutateAsync: mutateAsyncUploadFileToServerFile,
+    isPending: isLoadingUploadFileToServerFile,
+  } = useMutation({
+    mutationFn: uploadFileRepairReceptionFile,
+    onSuccess: () => {
+      // Progress cleanup is handled in the individual file upload handlers
+    },
+  });
+
+  const handleFileUpload = useCallback(
+    async (acceptedFiles: File[]) => {
+      for (const file of acceptedFiles) {
+        // Create a unique temporary ID for tracking progress
+        const tempId = `${file.name}_${file.size}_${Date.now()}`;
+
+        try {
+          // Set initial upload status
+          setUploadStatusMap((prev) => ({ ...prev, [tempId]: "uploading" }));
+          setProgressMap((prev) => ({ ...prev, [tempId]: 0 }));
+
+          const currentCompressionLevel = compressionLevelRef.current;
+
+          await mutateAsyncUploadFileToServerFile({
+            CompressionLevel: Number(currentCompressionLevel),
+            file: file,
+            repairReceptionId: repairReceptionId,
+            onProgress: (progress) => {
+              setProgressMap((prev) => ({ ...prev, [tempId]: progress }));
+
+              // When upload reaches 100%, switch to compressing state
+              if (progress >= 100) {
+                setUploadStatusMap((prev) => ({
+                  ...prev,
+                  [tempId]: "compressing",
+                }));
+              }
+            },
+          }).then((res) => {
+            // Mark upload as completed
+            setUploadStatusMap((prev) => ({ ...prev, [tempId]: "completed" }));
+
+            const compressionDescription =
+              compressionOptions.find(
+                (opt) => opt.value === currentCompressionLevel
+              )?.label || "نامشخص";
+
+            toast.success(
+              `فایل آپلودی با سطح ${compressionDescription} - ${(
+                res?.data?.compressionResult?.originalSizeBytes / 1000000
+              ).toFixed(2)}MB به سایز ${(
+                res?.data?.compressionResult?.compressedSizeBytes / 1000000
+              ).toFixed(
+                2
+              )}MB کاهش یافت و  ${(res?.data?.compressionResult?.sizeDifferenceMB).toFixed(
+                2
+              )}MB حجم فایل کاهش یافت`,
+              {
+                position: "top-center",
+                autoClose: false,
+                hideProgressBar: false,
+                closeOnClick: true,
+                style: {
+                  direction: "rtl",
+                },
+              }
+            );
+
+            // Clean up progress tracking after a delay
+            setTimeout(() => {
+              setProgressMap((prev) => {
+                const newMap = { ...prev };
+                delete newMap[tempId];
+                return newMap;
+              });
+              setUploadStatusMap((prev) => {
+                const newMap = { ...prev };
+                delete newMap[tempId];
+                return newMap;
+              });
+            }, 2000);
+          });
+
+          // After successful upload, refresh the files list
+          mutateAsyncGetFilesByReceptionId();
+        } catch (error) {
+          console.error("Error uploading file", error);
+          // Mark upload as failed
+          setUploadStatusMap((prev) => ({ ...prev, [tempId]: "failed" }));
+
+          toast.error(`خطا در آپلود فایل ${file.name}`, {
+            position: "top-center",
+            autoClose: 5000,
+            style: {
+              direction: "rtl",
+            },
+          });
+
+          // Clean up failed upload tracking after a delay
+          setTimeout(() => {
+            setProgressMap((prev) => {
+              const newMap = { ...prev };
+              delete newMap[tempId];
+              return newMap;
+            });
+            setUploadStatusMap((prev) => {
+              const newMap = { ...prev };
+              delete newMap[tempId];
+              return newMap;
+            });
+          }, 5000);
+        }
+      }
+    },
+    [
+      repairReceptionId,
+      mutateAsyncUploadFileToServerFile,
+      mutateAsyncGetFilesByReceptionId,
+      compressionOptions,
+    ]
+  );
+
   const { isPending: isLoadingDeleteFile, mutateAsync: mutateAsyncDeleteFile } =
     useMutation({
       mutationFn: deleteFileRepairReceptionFile,
@@ -210,15 +336,6 @@ const UploaderDocs: FC<UploadModalProps> = ({
     noKeyboard: true,
     onDrop: onDropAudioRecording,
   });
-  const {
-    mutateAsync: mutateAsyncUploadFileToServerFile,
-    isPending: isLoadingUploadFileToServerFile,
-  } = useMutation({
-    mutationFn: uploadFileRepairReceptionFile,
-    onSuccess: () => {
-      setProgressMap({});
-    },
-  });
 
   const {
     mutateAsync: mutateAsyncUpdateShowCustomer,
@@ -300,235 +417,373 @@ const UploaderDocs: FC<UploadModalProps> = ({
         isSendingFileLinks ||
         isUpdatingShowCustomer) && <Loading />}
       {!readOnly && (
-        <List
-          sx={{
-            width: "100%",
-            maxWidth: 360,
-            bgcolor: mode === "dark" ? "#222e3c" : "background.paper",
-            borderRadius: 1,
-            overflow: "hidden",
-          }}
-          component="nav"
-          aria-labelledby="nested-list-subheader"
-        >
-          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-            <ListItemButton
-              onClick={openImagePicker}
+        <>
+          {/* Compression Level Selector */}
+          <Paper
+            sx={{
+              p: 2,
+              mb: 2,
+              bgcolor: mode === "dark" ? "#222e3c" : "background.paper",
+              borderRadius: 1,
+            }}
+          >
+            <Typography
+              variant="h6"
               sx={{
-                "&:hover": {
-                  bgcolor:
-                    mode === "dark"
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : "rgba(0, 0, 0, 0.04)",
-                },
+                mb: 2,
+                color:
+                  mode === "dark" ? "rgba(255, 255, 255, 0.8)" : "text.primary",
+                fontSize: "1rem",
+                fontWeight: 600,
               }}
             >
-              <ListItemIcon>
-                <Image
-                  sx={{
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
-                  }}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary="تصاویر"
+              سطح فشرده‌سازی فایل
+            </Typography>
+            <FormControl fullWidth size="small">
+              <InputLabel
                 sx={{
-                  "& .MuiListItemText-primary": {
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
-                  },
-                }}
-              />
-            </ListItemButton>
-          </AccessGuard>
-          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-            <ListItemButton
-              onClick={openVideoPicker}
-              sx={{
-                "&:hover": {
-                  bgcolor:
+                  color:
                     mode === "dark"
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : "rgba(0, 0, 0, 0.04)",
-                },
-              }}
-            >
-              <ListItemIcon>
-                <VideoLibrary
-                  sx={{
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
-                  }}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary="فیلم ها"
-                sx={{
-                  "& .MuiListItemText-primary": {
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
-                  },
+                      ? "rgba(255, 255, 255, 0.7)"
+                      : "text.secondary",
                 }}
-              />
-            </ListItemButton>
-          </AccessGuard>
-          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-            <ListItemButton
-              onClick={openCamera}
-              sx={{
-                "&:hover": {
-                  bgcolor:
+              >
+                انتخاب سطح فشرده‌سازی
+              </InputLabel>
+              <Select
+                value={selectedCompressionLevel}
+                onChange={(e) => {
+                  const newLevel = Number(e.target.value);
+                  setSelectedCompressionLevel(newLevel);
+
+                  // Show a brief toast to confirm the change
+                  const selectedOption = compressionOptions.find(
+                    (opt) => opt.value === newLevel
+                  );
+                  if (selectedOption) {
+                    toast.info(
+                      `سطح فشرده‌سازی به "${selectedOption.label}" تغییر یافت`,
+                      {
+                        position: "top-center",
+                        autoClose: 2000,
+                        style: {
+                          direction: "rtl",
+                        },
+                      }
+                    );
+                  }
+                }}
+                label="انتخاب سطح فشرده‌سازی"
+                sx={{
+                  color:
                     mode === "dark"
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : "rgba(0, 0, 0, 0.04)",
-                },
-              }}
-            >
-              <ListItemIcon>
-                <CameraAlt
-                  sx={{
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
-                  }}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary="دوربین"
-                sx={{
-                  "& .MuiListItemText-primary": {
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                      ? "rgba(255, 255, 255, 0.8)"
+                      : "text.primary",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.3)" : undefined,
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor:
+                      mode === "dark" ? "rgba(255, 255, 255, 0.5)" : undefined,
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "primary.main",
                   },
                 }}
-              />
-            </ListItemButton>
-          </AccessGuard>
-          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-            <ListItemButton
-              onClick={openVideoCamera}
-              sx={{
-                "&:hover": {
-                  bgcolor:
-                    mode === "dark"
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : "rgba(0, 0, 0, 0.04)",
-                },
-              }}
-            >
-              <ListItemIcon>
-                <Videocam
-                  sx={{
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
-                  }}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary="فیلمبرداری"
+              >
+                {compressionOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Box>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 500,
+                          color:
+                            mode === "dark"
+                              ? "rgba(255, 255, 255, 0.8)"
+                              : "text.primary",
+                        }}
+                      >
+                        {option.label}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color:
+                            mode === "dark"
+                              ? "rgba(255, 255, 255, 0.6)"
+                              : "text.secondary",
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        {option.description}
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Paper>
+
+          <List
+            sx={{
+              width: "100%",
+              maxWidth: 360,
+              bgcolor: mode === "dark" ? "#222e3c" : "background.paper",
+              borderRadius: 1,
+              overflow: "hidden",
+            }}
+            component="nav"
+            aria-labelledby="nested-list-subheader"
+          >
+            <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+              <ListItemButton
+                onClick={openImagePicker}
                 sx={{
-                  "& .MuiListItemText-primary": {
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  "&:hover": {
+                    bgcolor:
+                      mode === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(0, 0, 0, 0.04)",
                   },
                 }}
-              />
-            </ListItemButton>
-          </AccessGuard>
-          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-            <ListItemButton
-              onClick={openDocPicker}
-              sx={{
-                "&:hover": {
-                  bgcolor:
-                    mode === "dark"
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : "rgba(0, 0, 0, 0.04)",
-                },
-              }}
-            >
-              <ListItemIcon>
-                <FolderOpen
+              >
+                <ListItemIcon>
+                  <Image
+                    sx={{
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary="تصاویر"
                   sx={{
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                    "& .MuiListItemText-primary": {
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    },
                   }}
                 />
-              </ListItemIcon>
-              <ListItemText
-                primary="فایل"
+              </ListItemButton>
+            </AccessGuard>
+            <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+              <ListItemButton
+                onClick={openVideoPicker}
                 sx={{
-                  "& .MuiListItemText-primary": {
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  "&:hover": {
+                    bgcolor:
+                      mode === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(0, 0, 0, 0.04)",
                   },
                 }}
-              />
-            </ListItemButton>
-          </AccessGuard>
-          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-            <ListItemButton
-              onClick={openAudioPicker}
-              sx={{
-                "&:hover": {
-                  bgcolor:
-                    mode === "dark"
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : "rgba(0, 0, 0, 0.04)",
-                },
-              }}
-            >
-              <ListItemIcon>
-                <Audiotrack
+              >
+                <ListItemIcon>
+                  <VideoLibrary
+                    sx={{
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary="فیلم ها"
                   sx={{
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                    "& .MuiListItemText-primary": {
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    },
                   }}
                 />
-              </ListItemIcon>
-              <ListItemText
-                primary="فایل صدا"
+              </ListItemButton>
+            </AccessGuard>
+            <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+              <ListItemButton
+                onClick={openCamera}
                 sx={{
-                  "& .MuiListItemText-primary": {
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  "&:hover": {
+                    bgcolor:
+                      mode === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(0, 0, 0, 0.04)",
                   },
                 }}
-              />
-            </ListItemButton>
-          </AccessGuard>
-          <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
-            <ListItemButton
-              onClick={openAudioRecording}
-              sx={{
-                "&:hover": {
-                  bgcolor:
-                    mode === "dark"
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : "rgba(0, 0, 0, 0.04)",
-                },
-              }}
-            >
-              <ListItemIcon>
-                <Mic
+              >
+                <ListItemIcon>
+                  <CameraAlt
+                    sx={{
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary="دوربین"
                   sx={{
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                    "& .MuiListItemText-primary": {
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    },
                   }}
                 />
-              </ListItemIcon>
-              <ListItemText
-                primary="ضبط صدا"
+              </ListItemButton>
+            </AccessGuard>
+            <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+              <ListItemButton
+                onClick={openVideoCamera}
                 sx={{
-                  "& .MuiListItemText-primary": {
-                    color:
-                      mode === "dark" ? "rgba(255, 255, 255, 0.8)" : undefined,
+                  "&:hover": {
+                    bgcolor:
+                      mode === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(0, 0, 0, 0.04)",
                   },
                 }}
-              />
-            </ListItemButton>
-          </AccessGuard>
-        </List>
+              >
+                <ListItemIcon>
+                  <Videocam
+                    sx={{
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary="فیلمبرداری"
+                  sx={{
+                    "& .MuiListItemText-primary": {
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    },
+                  }}
+                />
+              </ListItemButton>
+            </AccessGuard>
+            <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+              <ListItemButton
+                onClick={openDocPicker}
+                sx={{
+                  "&:hover": {
+                    bgcolor:
+                      mode === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(0, 0, 0, 0.04)",
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <FolderOpen
+                    sx={{
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary="فایل"
+                  sx={{
+                    "& .MuiListItemText-primary": {
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    },
+                  }}
+                />
+              </ListItemButton>
+            </AccessGuard>
+            <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+              <ListItemButton
+                onClick={openAudioPicker}
+                sx={{
+                  "&:hover": {
+                    bgcolor:
+                      mode === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(0, 0, 0, 0.04)",
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Audiotrack
+                    sx={{
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary="فایل صدا"
+                  sx={{
+                    "& .MuiListItemText-primary": {
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    },
+                  }}
+                />
+              </ListItemButton>
+            </AccessGuard>
+            <AccessGuard accessId={ACCESS_IDS.DOCUMENTS}>
+              <ListItemButton
+                onClick={openAudioRecording}
+                sx={{
+                  "&:hover": {
+                    bgcolor:
+                      mode === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(0, 0, 0, 0.04)",
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Mic
+                    sx={{
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary="ضبط صدا"
+                  sx={{
+                    "& .MuiListItemText-primary": {
+                      color:
+                        mode === "dark"
+                          ? "rgba(255, 255, 255, 0.8)"
+                          : undefined,
+                    },
+                  }}
+                />
+              </ListItemButton>
+            </AccessGuard>
+          </List>
+        </>
       )}
       {!readOnly && (
         <>
@@ -710,6 +965,7 @@ const UploaderDocs: FC<UploadModalProps> = ({
       <FilePreviewGrid
         files={files ?? []}
         progressMap={progressMap}
+        uploadStatusMap={uploadStatusMap}
         removeFile={removeFile}
         isLoading={isLoadingUploadFileToServerFile}
         toggleShowCustomer={toggleShowCustomer}
@@ -719,6 +975,7 @@ const UploaderDocs: FC<UploadModalProps> = ({
         isDeleting={isLoadingDeleteFile}
         isUpdatingVisibility={isUpdatingShowCustomer}
         loadingFileIds={loadingFileIds}
+        selectedCompressionLevel={selectedCompressionLevel}
       />
     </div>
   );
