@@ -25,13 +25,13 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@lib/*": ["src/lib/*"]
+      "@/*": ["./src/*"],
+      "@lib/*": ["./src/lib/*"]
     }
   },
   "include": [
-    "src",
-    "./**/*.ts",
-    "./**/*.tsx"
+    "./src",
+    "./src/**/*.ts",
+    "./src/**/*.tsx"
   ]
 }
