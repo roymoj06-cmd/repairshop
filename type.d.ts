@@ -579,6 +579,7 @@ interface IGetMechanicProductRequestByProblemId {
 interface IGetRepairReceptionService {
   repairCustomerProblemDescription: string;
   isSelectedForFactorLocal?: boolean;
+  isSelectedForFactor?: boolean;
   performedByMechanicName: string;
   repairCustomerProblemId: number;
   performedByMechanicId: number;
@@ -594,7 +595,7 @@ interface IGetRepairReceptionService {
   serviceId: number;
   startDate: string;
   endDate: string;
-  status: string;
+  status?: string;
   description?: string;
   id: number;
 }

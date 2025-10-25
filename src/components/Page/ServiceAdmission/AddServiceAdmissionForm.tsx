@@ -36,7 +36,7 @@ const AddServiceAdmissionForm: FC = () => {
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
   const [showNewPlateDialog, setShowNewPlateDialog] = useState(false);
   const [customerVehicles, setCustomerVehicles] = useState<any[]>([]);
-  const [repairReceptionId, setRepairReceptionId] = useState<
+  const [_repairReceptionId, _setRepairReceptionId] = useState<
     string | undefined
   >();
   const [activeTab, setActiveTab] = useState(0);
@@ -57,7 +57,7 @@ const AddServiceAdmissionForm: FC = () => {
     handleSubmit,
     control,
     watch,
-    reset,
+    reset: _reset,
     formState: { errors },
   } = useForm<IServiceAdmissionForm>({
     defaultValues: {
@@ -505,13 +505,13 @@ const AddServiceAdmissionForm: FC = () => {
 
             {/* تب مشکلات */}
             {activeTab === 0 && (
-              <CustomerProblems repairReceptionId={repairReceptionId} />
+              <CustomerProblems repairReceptionId={_repairReceptionId} />
             )}
 
             {/* تب تعمیرات */}
             {activeTab === 1 && (
               <RepairReceptionService
-                repairReceptionId={repairReceptionId}
+                repairReceptionId={_repairReceptionId}
                 customerId={watch("customerId")}
                 carId={watch("carId")}
                 details={{
@@ -528,7 +528,7 @@ const AddServiceAdmissionForm: FC = () => {
 
             {/* تب قطعات */}
             {activeTab === 2 && (
-              <RepairReceptionProducts repairReceptionId={repairReceptionId} />
+              <RepairReceptionProducts repairReceptionId={_repairReceptionId} />
             )}
 
             {/* تب مستندات */}
@@ -539,7 +539,7 @@ const AddServiceAdmissionForm: FC = () => {
                     <Typography variant="h6" className="mb-2">
                       آپلود فایل
                     </Typography>
-                    <UploaderDocs repairReceptionId={repairReceptionId} />
+                    <UploaderDocs repairReceptionId={_repairReceptionId} />
                   </Box>
                 </Grid>
               </Box>

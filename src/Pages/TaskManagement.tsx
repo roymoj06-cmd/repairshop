@@ -199,7 +199,7 @@ export default function TaskManagement() {
   // آرایه روزهای تعطیل (UTC timestamps)
   // برای اضافه کردن روز تعطیل جدید، تاریخ را به فرمت ISO string اضافه کنید
   // مثال: "2024-03-21T00:00:00.000Z" برای نوروز
-  const [holidays, setHolidays] = useState<string[]>([
+  const [holidays, _setHolidays] = useState<string[]>([
     // مثال: روزهای تعطیل - می‌توانید این‌ها را تغییر دهید
     "2024-01-01T00:00:00.000Z", // روز سال نو میلادی
     "2024-03-21T00:00:00.000Z", // نوروز

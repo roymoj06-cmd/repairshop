@@ -104,9 +104,9 @@ const Vehicle: FC = () => {
   };
   const handleCustomerSearch = (newValue: any) => {
     if (newValue?.value) {
-      setFilter((prev) => ({ ...prev, customerId: newValue.value }));
+      setFilter((prev: any) => ({ ...prev, customerId: newValue.value }));
     } else {
-      setFilter((prev) => ({ ...prev, customerId: undefined }));
+      setFilter((prev: any) => ({ ...prev, customerId: undefined }));
     }
     setSearchParams({ page: "1" });
   };
