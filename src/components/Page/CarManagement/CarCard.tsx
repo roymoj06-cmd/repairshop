@@ -1,7 +1,7 @@
 import { Edit, Delete, Palette, DirectionsCar } from "@mui/icons-material";
 import { FC } from "react";
 import {
-  Grid2 as Grid,
+  Grid,
   Typography,
   IconButton,
   Box,

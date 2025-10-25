@@ -6,7 +6,7 @@ import { FC, useState } from "react";
 import {
   AccordionSummary,
   AccordionDetails,
-  Grid2 as Grid,
+  Grid,
   useMediaQuery,
   Pagination,
   Accordion,

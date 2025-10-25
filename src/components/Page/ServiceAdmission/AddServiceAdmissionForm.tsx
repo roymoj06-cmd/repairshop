@@ -1,4 +1,4 @@
-import { Box, Grid2 as Grid, Tab, Tabs, Typography, Divider } from "@mui/material";
+import { Box, Grid, Tab, Tabs, Typography, Divider } from "@mui/material";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import gregorian_en from "react-date-object/locales/gregorian_en";
 import DatePicker, { DateObject } from "react-multi-date-picker";

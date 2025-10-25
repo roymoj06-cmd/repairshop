@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import {
   DialogContent,
   DialogActions,
-  Grid2 as Grid,
+  Grid,
   DialogTitle,
   Dialog,
   Box,

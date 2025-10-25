@@ -9,7 +9,7 @@ import {
     Person,
 } from "@mui/icons-material";
 import {
-    Grid2 as Grid,
+    Grid,
     CardContent,
     CardActions,
     Typography,

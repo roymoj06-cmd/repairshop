@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { FC, useState } from "react";
 import {
   TableContainer,
-  Grid2 as Grid,
+  Grid,
   CardContent,
   Typography,
   TableBody,

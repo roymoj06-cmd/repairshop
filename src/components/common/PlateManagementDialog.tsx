@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import {
   DialogActions,
   DialogContent,
-  Grid2 as Grid,
+  Grid,
   DialogTitle,
   Typography,
   Dialog,

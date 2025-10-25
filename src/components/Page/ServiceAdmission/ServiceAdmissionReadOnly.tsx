@@ -3,7 +3,7 @@ import { DateObject } from "react-multi-date-picker";
 import { FC, useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
-  Grid2 as Grid,
+  Grid,
   Typography,
   Divider,
   Tabs,

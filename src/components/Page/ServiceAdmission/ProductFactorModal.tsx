@@ -11,7 +11,7 @@ import {
   AccordionDetails,
   TableContainer,
   DialogContent,
-  Grid2 as Grid,
+  Grid,
   useMediaQuery,
   DialogTitle,
   CardContent,
