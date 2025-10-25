@@ -1,10 +1,7 @@
-import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 
 export const getToken = () => {
-  if (Cookies.get("token")) {
-    return Cookies.get("token");
-  }
+  return localStorage.getItem("token");
 };
 export const getSessionCustomerToken = () => {
   if (sessionStorage?.getItem("customerToken")) {
@@ -12,10 +9,10 @@ export const getSessionCustomerToken = () => {
   }
 };
 export const useAuth = () => {
-  return Cookies.get("token");
+  return localStorage.getItem("token");
 };
 export const checkLogin = () => {
-  return !!Cookies.get("token");
+  return !!localStorage.getItem("token");
 };
 export const p2e = (s: any) =>
   s?.replace(/[۰-۹]/g, (d: any) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));

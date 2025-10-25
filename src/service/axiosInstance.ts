@@ -2,7 +2,6 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 import { getToken } from "@/utils";
-import Cookies from "js-cookie";
 
 const axiosInstance = axios.create({
   headers: {
@@ -28,7 +27,7 @@ axiosInstance.interceptors.response.use(
       if (error.status === 401) {
         try {
           localStorage.removeItem("auth-storage");
-          Cookies.remove("token");
+          localStorage.removeItem("token");
           window.location.replace(`/`);
         } catch (refreshError) {}
       } else if (error.status === 400) {
