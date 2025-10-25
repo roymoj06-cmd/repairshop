@@ -2,9 +2,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
+import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     VitePWA({
@@ -17,8 +18,10 @@ export default defineConfig({
         enabled: true,
       },
     }),
-  ],
+    mode === 'development' && componentTagger(),
+  ].filter(Boolean),
   server: {
+    host: "::",
     port: 8080,
   },
   resolve: {
@@ -37,4 +40,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
