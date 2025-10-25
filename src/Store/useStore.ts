@@ -1,7 +1,6 @@
 import { persist } from "zustand/middleware";
 import { toast } from "react-toastify";
 import { create } from "zustand";
-import Cookies from "js-cookie";
 
 import { token } from "@/service/authentication/authentication.service";
 import { getCurrentUserAccesses } from "@/service/userSecurity/userSecurity.service";
@@ -47,9 +46,7 @@ export const useStore = create<StoreState>()(
               isAuthenticated: true,
             });
 
-            Cookies.set("token", userData.data?.jwt?.access_token, {
-              expires: 1,
-            });
+            localStorage.setItem("token", userData.data?.jwt?.access_token);
             const accessData = await getCurrentUserAccesses(
               userData.data?.jwt?.access_token
             );
@@ -79,8 +76,8 @@ export const useStore = create<StoreState>()(
           userAccesses: [],
           isAccessesLoaded: false,
         });
-        Cookies.remove("token");
-        localStorage.clear();
+        localStorage.removeItem("token");
+        localStorage.removeItem("auth-storage");
 
         // Restore theme preference after clearing localStorage
         if (savedTheme) {
