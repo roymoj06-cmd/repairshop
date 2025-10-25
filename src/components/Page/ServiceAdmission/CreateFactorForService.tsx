@@ -357,10 +357,9 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                                 size="small"
                                 className="font-14"
                                 onChange={(e) => {
-                                  const rawValue = e.target.value.replaceAll(
-                                    ",",
-                                    ""
-                                  );
+                                  const rawValue = e.target.value
+                                    .split(",")
+                                    .join("");
                                   handleChangeServicePrice(
                                     service.id,
                                     rawValue
@@ -607,10 +606,9 @@ const CreateFactorForService: React.FC<CreateFactorForServiceProps> = ({
                                   : ""
                               }
                               onChange={(e) => {
-                                const rawValue = e.target.value.replaceAll(
-                                  ",",
-                                  ""
-                                );
+                                const rawValue = e.target.value
+                                  .split(",")
+                                  .join("");
                                 handleChangeServicePrice(service.id, rawValue);
                               }}
                               placeholder="قیمت جدید سرویس"
