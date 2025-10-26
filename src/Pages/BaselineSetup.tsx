@@ -41,7 +41,7 @@ const BaselineSetup: React.FC = () => {
     queryFn: () => getRepairReceptions({ 
       page: 1, 
       size: 1000, 
-      isDischarged: null // Fetch all vehicles, we'll filter if needed
+      isDischarged: false // Only fetch unreleased vehicles (ترخیص نشده)
     }),
   });
 
