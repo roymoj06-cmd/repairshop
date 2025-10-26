@@ -43,6 +43,24 @@ const Vehicle: FC = () => {
   // Check if baseline setup is completed
   const isBaselineCompleted = localStorage.getItem('baselineSetupCompleted') === 'true';
   
+  // Separate query for KPI metrics - fetch ALL vehicles without filters
+  const { data: allVehiclesForKPI } = useQuery({
+    queryKey: ["allVehiclesKPI"],
+    queryFn: async () => {
+      if (!user?.isDinawinEmployee) {
+        return await getRepairReceptionsByCustomerId({
+          page: 1,
+          size: 10000, // Get all
+        });
+      } else {
+        return await getRepairReceptions({
+          page: 1,
+          size: 10000, // Get all
+        });
+      }
+    },
+  });
+  
   const isCustomRange = useMediaQuery(
     "(min-width: 1200px) and (max-width: 1300px)"
   );
@@ -65,12 +83,22 @@ const Vehicle: FC = () => {
     queryKey: ["repairReceptions", filter, vehicleStatusFilter],
     queryFn: async () => {
       let result;
+      
+      // Determine isDischarged filter based on vehicle status filter
+      let dischargedFilter: boolean | null | undefined = filter?.isDischarged !== null ? filter?.isDischarged : undefined;
+      
+      // Override isDischarged filter based on vehicle status
+      if (vehicleStatusFilter === 'Resident' || vehicleStatusFilter === 'TempReleased') {
+        dischargedFilter = false; // Both are undischarged
+      } else if (vehicleStatusFilter === 'Released') {
+        dischargedFilter = true; // Released means discharged
+      }
+      
       if (!user?.isDinawinEmployee) {
         result = await getRepairReceptionsByCustomerId({
           page: 1,
           size: 1000,
-          isDischarged:
-            filter?.isDischarged !== null ? filter?.isDischarged : undefined,
+          isDischarged: dischargedFilter,
           plateSection1: filter?.plateSection1,
           plateSection2: filter?.plateSection2,
           plateSection3: filter?.plateSection3,
@@ -80,8 +108,7 @@ const Vehicle: FC = () => {
         result = await getRepairReceptions({
           page: 1,
           size: 1000,
-          isDischarged:
-            filter?.isDischarged !== null ? filter?.isDischarged : undefined,
+          isDischarged: dischargedFilter,
           customerId: filter?.customerId,
           plateSection1: filter?.plateSection1,
           plateSection2: filter?.plateSection2,
@@ -90,14 +117,20 @@ const Vehicle: FC = () => {
         });
       }
 
-      // Filter by vehicle status
+      // Filter by vehicle status (Resident vs TempReleased)
       if (vehicleStatusFilter && result?.data?.values) {
         const filteredValues = result.data.values.filter((v: IGetRepairReceptions) => {
-          // Map old data to new status logic
-          const status = v.vehicleStatus || 
-            (v.isDischarged ? 'Released' : 
-             (v.isTemporaryRelease ? 'TempReleased' : 'Resident'));
-          return status === vehicleStatusFilter;
+          if (vehicleStatusFilter === 'Resident') {
+            // Resident = not discharged AND not temporarily released
+            return !v.isDischarged && !v.isTemporaryRelease;
+          } else if (vehicleStatusFilter === 'TempReleased') {
+            // TempReleased = not discharged BUT temporarily released
+            return !v.isDischarged && v.isTemporaryRelease === true;
+          } else if (vehicleStatusFilter === 'Released') {
+            // Released = discharged
+            return v.isDischarged === true;
+          }
+          return true;
         });
         
         return {
@@ -143,32 +176,21 @@ const Vehicle: FC = () => {
       searchCustomers(newInputValue);
     }
   };
-  // Calculate KPI metrics based on vehicle status
+  // Calculate KPI metrics based on ALL vehicles (separate query, no filters)
   const kpiMetrics = useMemo(() => {
-    // Get all vehicles without filter to calculate totals
-    const allVehicles = vehicles?.data?.values || [];
+    const allVehicles = allVehiclesForKPI?.data?.values || [];
     
-    // Count by status
-    const residentCount = allVehicles.filter((v: any) => {
-      const status = v.vehicleStatus || 
-        (v.isDischarged ? 'Released' : 
-         (v.isTemporaryRelease ? 'TempReleased' : 'Resident'));
-      return status === 'Resident';
-    }).length;
+    const residentCount = allVehicles.filter((v: any) => 
+      !v.isDischarged && !v.isTemporaryRelease
+    ).length;
     
-    const tempReleasedCount = allVehicles.filter((v: any) => {
-      const status = v.vehicleStatus || 
-        (v.isDischarged ? 'Released' : 
-         (v.isTemporaryRelease ? 'TempReleased' : 'Resident'));
-      return status === 'TempReleased';
-    }).length;
+    const tempReleasedCount = allVehicles.filter((v: any) => 
+      !v.isDischarged && v.isTemporaryRelease === true
+    ).length;
     
-    const releasedCount = allVehicles.filter((v: any) => {
-      const status = v.vehicleStatus || 
-        (v.isDischarged ? 'Released' : 
-         (v.isTemporaryRelease ? 'TempReleased' : 'Resident'));
-      return status === 'Released';
-    }).length;
+    const releasedCount = allVehicles.filter((v: any) => 
+      v.isDischarged === true
+    ).length;
     
     const total = residentCount + tempReleasedCount + releasedCount;
     
@@ -178,7 +200,7 @@ const Vehicle: FC = () => {
       released: releasedCount,
       total
     };
-  }, [vehicles?.data?.values]);
+  }, [allVehiclesForKPI?.data?.values]);
   const handleCardClick = (
     receptionId: string | number,
     event?: React.MouseEvent
