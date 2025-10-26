@@ -22,6 +22,7 @@ import {
 } from "@/service/repair/repair.service";
 import { getCustomers } from "@/service/customer/customer.service";
 import { useStore } from "@/Store/useStore";
+import { useTheme } from "@/context/ThemeContext";
 import dir from "@/Router/dir";
 import {
   PlateNumberDisplay,
@@ -36,6 +37,7 @@ const Vehicle: FC = () => {
   const navigate = useNavigate();
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
   const { user } = useStore();
+  const { mode } = useTheme();
   const isCustomRange = useMediaQuery(
     "(min-width: 1200px) and (max-width: 1300px)"
   );
@@ -173,12 +175,26 @@ const Vehicle: FC = () => {
   };
 
   return (
-    <Box className="vehicle-page">
+    <Box className="vehicle-page" sx={{ 
+      bgcolor: mode === 'dark' ? '#222222' : '#fafafa',
+      minHeight: '100vh'
+    }}>
       {isPendingRepairReceptions && <Loading />}
       <Box>
         <Accordion
           defaultExpanded
-          style={{ borderRadius: "10px", marginBottom: "10px" }}
+          sx={{
+            borderRadius: '12px',
+            mb: 2,
+            bgcolor: mode === 'dark' ? '#222222' : '#ffffff',
+            border: mode === 'dark' ? '1px solid #333333' : '1px solid #ebebeb',
+            boxShadow: mode === 'dark' 
+              ? '0 2px 8px rgba(0,0,0,0.2)' 
+              : '0 2px 12px rgba(31, 31, 31, 0.08)',
+            '&:before': {
+              display: 'none',
+            },
+          }}
         >
           <AccordionSummary
             expandIcon={<ExpandMore />}
@@ -243,20 +259,22 @@ const Vehicle: FC = () => {
         </Accordion>
       </Box>
 
-      {/* KPI Dashboard */}
+      {/* KPI Dashboard - Design System Colored Cards */}
       <Box sx={{ mb: 3 }}>
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card sx={{ 
-              background: 'linear-gradient(135deg, #aa8c78 0%, #98877b 100%)',
-              color: 'white',
-              boxShadow: '0 4px 12px rgba(170, 140, 120, 0.2)'
+              background: 'linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)',
+              color: '#1d1d1d',
+              boxShadow: '0 2px 12px rgba(31, 31, 31, 0.08)',
+              borderRadius: '12px',
+              border: '1px solid #ebebeb'
             }}>
-              <CardContent>
-                <Typography variant="h4" component="div" fontWeight="bold">
+              <CardContent sx={{ p: 2.5 }}>
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#1d1d1d' }}>
                   {kpiMetrics.total}
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ color: '#666666', fontSize: '0.875rem' }}>
                   خودروهای داخل تعمیرگاه
                 </Typography>
               </CardContent>
@@ -265,15 +283,17 @@ const Vehicle: FC = () => {
           
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card sx={{ 
-              background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
-              color: '#991b1b',
-              boxShadow: '0 4px 12px rgba(254, 202, 202, 0.3)'
+              background: 'linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%)',
+              color: '#dc3545',
+              boxShadow: '0 2px 12px rgba(220, 53, 69, 0.1)',
+              borderRadius: '12px',
+              border: '1px solid #fecaca'
             }}>
-              <CardContent>
-                <Typography variant="h4" component="div" fontWeight="bold">
+              <CardContent sx={{ p: 2.5 }}>
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#dc3545' }}>
                   {kpiMetrics.delayed}
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ color: '#991b1b', fontSize: '0.875rem' }}>
                   بیش از ۳ روز خوابیده
                 </Typography>
               </CardContent>
@@ -282,15 +302,17 @@ const Vehicle: FC = () => {
           
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card sx={{ 
-              background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-              color: '#92400e',
-              boxShadow: '0 4px 12px rgba(253, 230, 138, 0.3)'
+              background: 'linear-gradient(135deg, #fff8e1 0%, #fffbeb 100%)',
+              color: '#f2a102',
+              boxShadow: '0 2px 12px rgba(242, 161, 2, 0.1)',
+              borderRadius: '12px',
+              border: '1px solid #fde68a'
             }}>
-              <CardContent>
-                <Typography variant="h4" component="div" fontWeight="bold">
+              <CardContent sx={{ p: 2.5 }}>
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#f2a102' }}>
                   {kpiMetrics.waitingForParts}
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ color: '#92400e', fontSize: '0.875rem' }}>
                   منتظر قطعه / خرید
                 </Typography>
               </CardContent>
@@ -299,15 +321,17 @@ const Vehicle: FC = () => {
           
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card sx={{ 
-              background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
-              color: '#065f46',
-              boxShadow: '0 4px 12px rgba(167, 243, 208, 0.3)'
+              background: 'linear-gradient(135deg, #e8f5f1 0%, #f0faf7 100%)',
+              color: '#42a68c',
+              boxShadow: '0 2px 12px rgba(66, 166, 140, 0.1)',
+              borderRadius: '12px',
+              border: '1px solid #a7f3d0'
             }}>
-              <CardContent>
-                <Typography variant="h4" component="div" fontWeight="bold">
+              <CardContent sx={{ p: 2.5 }}>
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#42a68c' }}>
                   {kpiMetrics.readyForDelivery}
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ color: '#065f46', fontSize: '0.875rem' }}>
                   آماده تحویل امروز
                 </Typography>
               </CardContent>
