@@ -22,7 +22,7 @@ import { CheckCircle, Delete, Info, Search } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getRepairReceptions, updateTemporaryReleaseStatus } from '@/service/repair/repair.service';
+import { getRepairReceptions, updateTemporaryReleaseStatus, updateResidentVehicleStatus } from '@/service/repair/repair.service';
 import { PlateNumberDisplay } from '@/components';
 import { useTheme } from '@/context/ThemeContext';
 import PlateSearchInput from '@/components/common/PlateSearchInput';
@@ -181,20 +181,19 @@ const BaselineSetup: React.FC = () => {
         : [];
       
       // Create status map for API
-      // Selected vehicles = Resident = isTemporaryRelease: false
-      // Unselected vehicles = TempReleased = isTemporaryRelease: true
+      // Selected vehicles = Resident = true
+      // Unselected vehicles = NOT Resident = false
       
       const vehicleStatuses: Record<number, boolean> = {};
       
       vehicleList.forEach((vehicle: IGetRepairReceptions) => {
-        // Selected = INSIDE workshop (Resident) = isTemporaryRelease: false
-        // Unselected = OUTSIDE workshop (TempReleased) = isTemporaryRelease: true
-        const isTemporaryRelease = !selectedVehicles.has(vehicle.id);
-        vehicleStatuses[vehicle.id] = isTemporaryRelease;
+        // Selected = Resident = true
+        // Unselected = NOT Resident = false
+        vehicleStatuses[vehicle.id] = selectedVehicles.has(vehicle.id);
         
         // Debug log for first few vehicles
         if (Object.keys(vehicleStatuses).length <= 5) {
-          console.log(`Vehicle ${vehicle.id}: selected=${selectedVehicles.has(vehicle.id)}, isTemporaryRelease=${isTemporaryRelease}`);
+          console.log(`Vehicle ${vehicle.id}: selected=${selectedVehicles.has(vehicle.id)}, isResidentVehicle=${vehicleStatuses[vehicle.id]}`);
         }
       });
 
@@ -206,14 +205,14 @@ const BaselineSetup: React.FC = () => {
       console.log('Sample status map (first 3):', Object.entries(vehicleStatuses).slice(0, 3));
       console.log('===================================');
 
-      // Call API to update temporary release status
-      await updateTemporaryReleaseStatus(vehicleStatuses);
+      // Call API to update resident vehicle status
+      await updateResidentVehicleStatus(vehicleStatuses);
 
       // Mark baseline as completed
       localStorage.setItem('baselineSetupCompleted', 'true');
 
       toast.success(
-        `راه‌اندازی موفق: ${selectedVehicles.size} خودرو به عنوان "مقیم" و ${vehicleList.length - selectedVehicles.size} خودرو به عنوان "ترخیص موقت" ثبت شد.`
+        `خودروهای مقیم با موفقیت ثبت شدند. ${selectedVehicles.size} خودرو به عنوان "خودروهای مقیم" ثبت شد.`
       );
       
       // Navigate to vehicles page
