@@ -90,6 +90,8 @@ interface IGetRepairReceptions {
   code: number;
   status: true;
   id: number;
+  isDischarged?: boolean;
+  isTemporaryRelease?: boolean | null;
 }
 interface IGenerateRepairRecaptionFactors {
   repairReception: {
