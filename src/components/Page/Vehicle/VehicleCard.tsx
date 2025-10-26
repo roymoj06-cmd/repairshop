@@ -2,6 +2,7 @@ import { IconButton, Paper, Chip, Box, Typography } from "@mui/material";
 import { Delete as DeleteIcon, NoteAdd, CheckCircle, Build, AccessTime } from "@mui/icons-material";
 import React, { useState, useMemo } from "react";
 import { toast } from "react-toastify";
+import moment from "moment-jalaali";
 
 import { deleteRepairReception } from "@/service/repair/repair.service";
 import { PlateNumberDisplay, ConfirmDeleteDialog } from "@/components";
@@ -20,21 +21,40 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  // Calculate days and hours in workshop
+  // Calculate days and hours in workshop using moment-jalaali for accurate conversion
   const timeInWorkshop = useMemo(() => {
-    if (!vehicle.receptionDate || !vehicle.receptionTime) return { days: 0, hours: 0, totalHours: 0 };
+    if (!vehicle.receptionDate) return { days: 0, hours: 0, totalHours: 0 };
     
-    const [year, month, day] = vehicle.receptionDate.split('/').map(Number);
-    const [hour, minute] = vehicle.receptionTime.split(':').map(Number);
-    const receptionDate = new Date(year, month - 1, day, hour || 0, minute || 0);
-    const now = new Date();
-    
-    const diffTime = now.getTime() - receptionDate.getTime();
-    const totalHours = Math.floor(diffTime / (1000 * 60 * 60));
-    const days = Math.floor(totalHours / 24);
-    const hours = totalHours % 24;
-    
-    return { days, hours, totalHours };
+    try {
+      // Parse Jalali date - format: YYYY/MM/DD
+      const dateTimeStr = vehicle.receptionTime 
+        ? `${vehicle.receptionDate} ${vehicle.receptionTime}`
+        : `${vehicle.receptionDate} 00:00`;
+      
+      // Parse as Jalali date using moment-jalaali
+      const receptionMoment = moment(dateTimeStr, 'jYYYY/jMM/jDD HH:mm');
+      
+      if (!receptionMoment.isValid()) {
+        console.warn('Invalid date:', vehicle.receptionDate);
+        return { days: 0, hours: 0, totalHours: 0 };
+      }
+      
+      const now = moment();
+      const diffHours = now.diff(receptionMoment, 'hours');
+      
+      // Ensure non-negative difference
+      if (diffHours < 0) {
+        return { days: 0, hours: 0, totalHours: 0 };
+      }
+      
+      const days = Math.floor(diffHours / 24);
+      const hours = diffHours % 24;
+      
+      return { days, hours, totalHours: diffHours };
+    } catch (error) {
+      console.error('Error calculating time in workshop:', error);
+      return { days: 0, hours: 0, totalHours: 0 };
+    }
   }, [vehicle.receptionDate, vehicle.receptionTime]);
 
   const daysInWorkshop = timeInWorkshop.days;
@@ -62,26 +82,26 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
     ? Math.min(((timeInWorkshop.totalHours - maxAllowedHours) / maxAllowedHours) * 100, 100)
     : 0;
 
-  // Get color for days in workshop
+  // Get color for days in workshop (using brand colors)
   const getDaysColor = (days: number) => {
-    if (days <= 2) return { bg: '#10b981', text: 'white' }; // green
-    if (days <= 4) return { bg: '#f59e0b', text: 'white' }; // yellow/orange
-    return { bg: '#ef4444', text: 'white' }; // red
+    if (days <= 2) return { bg: '#d1fae5', text: '#065f46', border: '#a7f3d0' }; // light green
+    if (days <= 4) return { bg: '#fef3c7', text: '#92400e', border: '#fde68a' }; // light yellow
+    return { bg: '#fee2e2', text: '#991b1b', border: '#fecaca' }; // light red
   };
 
-  // Get status info
+  // Get status info (using brand colors)
   const getStatusInfo = () => {
     if (vehicle.status) {
-      return { label: 'آماده تحویل', color: '#10b981' };
+      return { label: 'آماده تحویل', color: '#42a68c', bgColor: '#d1fae5' }; // brand success green
     }
     // Check description for specific statuses
     if (vehicle.description?.includes('منتظر قطعه')) {
-      return { label: 'منتظر قطعه', color: '#f59e0b' };
+      return { label: 'منتظر قطعه', color: '#92400e', bgColor: '#fef3c7' }; // beige/yellow
     }
     if (vehicle.description?.includes('منتظر تایید')) {
-      return { label: 'منتظر تایید', color: '#f59e0b' };
+      return { label: 'منتظر تایید', color: '#92400e', bgColor: '#fef3c7' }; // beige/yellow
     }
-    return { label: 'در حال تعمیر', color: '#3b82f6' };
+    return { label: 'در حال تعمیر', color: '#98877b', bgColor: '#f5f5f4' }; // brand secondary gray-brown
   };
 
   const formatPrice = (price: number) => {
@@ -171,7 +191,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
         )}
 
         {/* Header: Plate + Status */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1 }}>
           <Box sx={{ flex: 1 }}>
             <PlateNumberDisplay
               plateSection1={vehicle.plateSection1}
@@ -180,30 +200,42 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
               plateSection4={vehicle.plateSection4}
             />
           </Box>
+        </Box>
+
+        {/* Status badge - top left, subtle */}
+        <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
           <Chip
             label={statusInfo.label}
             size="small"
             sx={{
-              bgcolor: statusInfo.color,
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: '0.75rem',
+              bgcolor: statusInfo.bgColor,
+              color: statusInfo.color,
+              fontWeight: 600,
+              fontSize: '0.7rem',
+              height: '22px',
+              border: `1px solid ${statusInfo.color}20`,
             }}
           />
         </Box>
 
-        {/* Days in workshop - prominent */}
+        {/* Days in workshop - prominent with brand colors */}
         <Box
           sx={{
             bgcolor: daysColor.bg,
             color: daysColor.text,
-            p: 1,
+            p: 1.5,
             borderRadius: 1,
             textAlign: 'center',
             fontWeight: 'bold',
+            border: `1px solid ${daysColor.border}`,
+            fontSize: '0.9rem',
           }}
         >
-          {daysInWorkshop} روز در تعمیرگاه
+          {timeInWorkshop.days > 0 ? (
+            <>{timeInWorkshop.days} روز در تعمیرگاه</>
+          ) : (
+            <>امروز وارد شده</>
+          )}
         </Box>
 
         {/* Info Grid */}
@@ -261,21 +293,27 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
             <AccessTime sx={{ fontSize: '1rem', color: mode === 'dark' ? '#94a3b8' : '#64748b' }} />
             <Typography variant="caption" sx={{ color: mode === 'dark' ? '#94a3b8' : '#64748b', fontWeight: 600 }}>
-              مدت خواب: {timeInWorkshop.days} روز
-              {timeInWorkshop.hours > 0 && ` و ${timeInWorkshop.hours} ساعت`}
-              {delayInfo.hasDelay && (
-                <span style={{ color: '#ef4444', fontWeight: 'bold' }}>
-                  {' '}(+{delayInfo.delayDays} روز
-                  {delayInfo.delayHours > 0 && ` و ${delayInfo.delayHours} ساعت`}
-                  {' '}تأخیر)
-                </span>
+              {timeInWorkshop.days === 0 && timeInWorkshop.hours === 0 ? (
+                'تازه وارد شده'
+              ) : (
+                <>
+                  مدت خواب: {timeInWorkshop.days} روز
+                  {timeInWorkshop.hours > 0 && ` و ${timeInWorkshop.hours} ساعت`}
+                  {delayInfo.hasDelay && (
+                    <span style={{ color: '#ef4444', fontWeight: 'bold' }}>
+                      {' '}(+{delayInfo.delayDays} روز
+                      {delayInfo.delayHours > 0 && ` و ${delayInfo.delayHours} ساعت`}
+                      {' '}تأخیر)
+                    </span>
+                  )}
+                </>
               )}
             </Typography>
           </Box>
           
           {/* Progress bar container */}
-          <Box sx={{ position: 'relative', height: 8, bgcolor: mode === 'dark' ? '#1e293b' : '#e2e8f0', borderRadius: 1, overflow: 'hidden' }}>
-            {/* Normal time (green) */}
+          <Box sx={{ position: 'relative', height: 8, bgcolor: mode === 'dark' ? '#1e293b' : '#e5e7eb', borderRadius: 1, overflow: 'hidden' }}>
+            {/* Normal time (brand green) */}
             <Box
               sx={{
                 position: 'absolute',
@@ -283,13 +321,13 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
                 top: 0,
                 height: '100%',
                 width: `${progressPercent}%`,
-                bgcolor: delayInfo.hasDelay ? '#10b981' : '#10b981',
+                bgcolor: '#42a68c',
                 transition: 'width 0.3s ease',
                 borderRadius: 1,
               }}
             />
             
-            {/* Delay time (red) - overlays on top */}
+            {/* Delay time (soft red) - overlays on top */}
             {delayInfo.hasDelay && (
               <Box
                 sx={{
@@ -298,7 +336,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
                   top: 0,
                   height: '100%',
                   width: `${Math.min(progressPercent + overProgressPercent, 200)}%`,
-                  background: 'linear-gradient(90deg, #10b981 0%, #10b981 50%, #ef4444 50%, #ef4444 100%)',
+                  background: 'linear-gradient(90deg, #42a68c 0%, #42a68c 50%, #ef4444 50%, #ef4444 100%)',
                   backgroundSize: '200% 100%',
                   backgroundPosition: 'left',
                   transition: 'width 0.3s ease',
@@ -316,7 +354,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
                 top: -2,
                 width: 2,
                 height: 12,
-                bgcolor: mode === 'dark' ? '#64748b' : '#475569',
+                bgcolor: mode === 'dark' ? '#64748b' : '#9ca3af',
                 transform: 'translateX(-1px)',
               }}
             />
@@ -324,10 +362,10 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
           
           {/* Labels */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-            <Typography variant="caption" sx={{ fontSize: '0.65rem', color: mode === 'dark' ? '#64748b' : '#94a3b8' }}>
+            <Typography variant="caption" sx={{ fontSize: '0.65rem', color: mode === 'dark' ? '#64748b' : '#9ca3af' }}>
               ورود
             </Typography>
-            <Typography variant="caption" sx={{ fontSize: '0.65rem', color: mode === 'dark' ? '#64748b' : '#94a3b8' }}>
+            <Typography variant="caption" sx={{ fontSize: '0.65rem', color: mode === 'dark' ? '#64748b' : '#9ca3af' }}>
               حد مجاز: {maxAllowedDays} روز
             </Typography>
           </Box>
@@ -339,7 +377,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
             size="small"
             sx={{
               flex: 1,
-              bgcolor: mode === 'dark' ? '#1e40af' : '#dbeafe',
+              bgcolor: mode === 'dark' ? '#1e3a8a' : '#dbeafe',
               color: mode === 'dark' ? '#93c5fd' : '#1e40af',
               borderRadius: 1,
               fontSize: '0.7rem',
@@ -355,12 +393,12 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
             size="small"
             sx={{
               flex: 1,
-              bgcolor: mode === 'dark' ? '#15803d' : '#dcfce7',
-              color: mode === 'dark' ? '#86efac' : '#15803d',
+              bgcolor: mode === 'dark' ? '#15803d' : '#d1fae5',
+              color: mode === 'dark' ? '#86efac' : '#065f46',
               borderRadius: 1,
               fontSize: '0.7rem',
               '&:hover': {
-                bgcolor: mode === 'dark' ? '#166534' : '#bbf7d0',
+                bgcolor: mode === 'dark' ? '#166534' : '#a7f3d0',
               },
             }}
             title="اعلام آماده تحویل"
@@ -371,12 +409,12 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
             size="small"
             sx={{
               flex: 1,
-              bgcolor: mode === 'dark' ? '#b45309' : '#fed7aa',
-              color: mode === 'dark' ? '#fcd34d' : '#b45309',
+              bgcolor: mode === 'dark' ? '#92400e' : '#fef3c7',
+              color: mode === 'dark' ? '#fde68a' : '#92400e',
               borderRadius: 1,
               fontSize: '0.7rem',
               '&:hover': {
-                bgcolor: mode === 'dark' ? '#92400e' : '#fde68a',
+                bgcolor: mode === 'dark' ? '#78350f' : '#fde68a',
               },
             }}
             title="درخواست قطعه"

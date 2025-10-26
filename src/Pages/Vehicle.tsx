@@ -248,8 +248,9 @@ const Vehicle: FC = () => {
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card sx={{ 
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white'
+              background: 'linear-gradient(135deg, #aa8c78 0%, #98877b 100%)',
+              color: 'white',
+              boxShadow: '0 4px 12px rgba(170, 140, 120, 0.2)'
             }}>
               <CardContent>
                 <Typography variant="h4" component="div" fontWeight="bold">
@@ -264,8 +265,9 @@ const Vehicle: FC = () => {
           
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card sx={{ 
-              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-              color: 'white'
+              background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
+              color: '#991b1b',
+              boxShadow: '0 4px 12px rgba(254, 202, 202, 0.3)'
             }}>
               <CardContent>
                 <Typography variant="h4" component="div" fontWeight="bold">
@@ -280,8 +282,9 @@ const Vehicle: FC = () => {
           
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card sx={{ 
-              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-              color: 'white'
+              background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+              color: '#92400e',
+              boxShadow: '0 4px 12px rgba(253, 230, 138, 0.3)'
             }}>
               <CardContent>
                 <Typography variant="h4" component="div" fontWeight="bold">
@@ -296,8 +299,9 @@ const Vehicle: FC = () => {
           
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card sx={{ 
-              background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-              color: 'white'
+              background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
+              color: '#065f46',
+              boxShadow: '0 4px 12px rgba(167, 243, 208, 0.3)'
             }}>
               <CardContent>
                 <Typography variant="h4" component="div" fontWeight="bold">
