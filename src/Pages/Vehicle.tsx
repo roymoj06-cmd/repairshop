@@ -97,25 +97,7 @@ const Vehicle: FC = () => {
         });
       }
 
-      // Apply baseline filtering
-      const baselineStatuses = getBaselineStatuses();
-      if (baselineStatuses && result?.data?.values) {
-        // Filter to only show vehicles with 'in_repair' status
-        const filteredValues = result.data.values.filter((vehicle: any) => {
-          const status = baselineStatuses[vehicle.id];
-          return !status || status === 'in_repair';
-        });
-
-        return {
-          ...result,
-          data: {
-            ...result.data,
-            values: filteredValues,
-            totalPage: Math.ceil(filteredValues.length / 18),
-          }
-        };
-      }
-
+      // Baseline filtering temporarily disabled to show all vehicles
       return result;
     },
   });
