@@ -45,7 +45,7 @@ const BaselineSetup: React.FC = () => {
         isDischarged: false // Only fetch unreleased vehicles (ترخیص نشده)
       });
       
-      // Filter out vehicles with temporary release
+      // Filter out vehicles with temporary release or discharged
       const vehicleList = Array.isArray(result?.data) 
         ? result.data 
         : result?.data?.values 
@@ -54,8 +54,8 @@ const BaselineSetup: React.FC = () => {
       
       const filteredList = vehicleList.filter((vehicle: IGetRepairReceptions) => {
         // Exclude vehicles with temporary release (isTemporaryRelease === true)
-        // Only show vehicles that are NOT temporarily released
-        return vehicle.isTemporaryRelease !== true;
+        // Exclude vehicles that are discharged (isDischarged === true)
+        return vehicle.isTemporaryRelease !== true && vehicle.isDischarged !== true;
       });
       
       return {
