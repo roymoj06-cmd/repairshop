@@ -180,11 +180,15 @@ const BaselineSetup: React.FC = () => {
         ? vehicles.data.values 
         : [];
       
-      // Create status map for API: true for selected, false for unselected
+      // Create status map for API
+      // IMPORTANT: API field is "isTemporaryRelease"
+      // true = temporarily released (outside workshop)
+      // false = inside workshop (resident)
       const vehicleStatuses: Record<number, boolean> = {};
       
       vehicleList.forEach((vehicle: IGetRepairReceptions) => {
-        vehicleStatuses[vehicle.id] = selectedVehicles.has(vehicle.id);
+        // INVERTED LOGIC: selected vehicles are INSIDE (false), unselected are OUTSIDE (true)
+        vehicleStatuses[vehicle.id] = !selectedVehicles.has(vehicle.id);
       });
 
       // Call API to update temporary release status
