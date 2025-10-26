@@ -61,7 +61,7 @@ const BaselineSetup: React.FC = () => {
 
   // Filter table vehicles based on search
   const filteredTableVehicles = useMemo(() => {
-    if (!vehicles?.data) return [];
+    if (!vehicles?.data || !Array.isArray(vehicles.data)) return [];
     
     const query = normalizePlateText(tableSearchQuery);
     if (!query) return vehicles.data;
