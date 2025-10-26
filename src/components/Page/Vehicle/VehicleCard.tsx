@@ -78,9 +78,6 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
 
   // Calculate progress percentage (cap at 100% for visual, but track actual for display)
   const progressPercent = Math.min((timeInWorkshop.totalHours / maxAllowedHours) * 100, 100);
-  const overProgressPercent = delayInfo.hasDelay 
-    ? Math.min(((timeInWorkshop.totalHours - maxAllowedHours) / maxAllowedHours) * 100, 100)
-    : 0;
 
   // Get color for days in workshop (subtle, calm colors)
   const getDaysColor = (days: number) => {
@@ -384,7 +381,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
         </Box>
 
         {/* Timeline Progress Bar - Professional gradient design */}
-        <Box sx={{ mb: 1.5 }}>
+        <Box sx={{ mb: 1.5, px: 0.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
             <AccessTime sx={{ fontSize: '0.9rem', color: mode === 'dark' ? '#b0b0b0' : '#888888' }} />
             <Typography 
@@ -408,7 +405,14 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
           </Box>
           
           {/* Progress bar container - smooth gradient design */}
-          <Box sx={{ position: 'relative', height: 6, bgcolor: mode === 'dark' ? '#2a2a2a' : '#E9E7E5', borderRadius: '8px', overflow: 'visible' }}>
+          <Box sx={{ 
+            position: 'relative', 
+            height: 6, 
+            bgcolor: mode === 'dark' ? '#2a2a2a' : '#E9E7E5', 
+            borderRadius: '8px', 
+            overflow: 'hidden',
+            border: '1px solid #DDD'
+          }}>
             {/* Progress fill with gradient */}
             <Box
               sx={{
@@ -417,7 +421,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
                 top: 0,
                 height: '100%',
                 width: `${Math.min(progressPercent, 100)}%`,
-                borderRadius: '8px',
+                borderRadius: '8px 0 0 8px',
                 background: delayInfo.hasDelay 
                   ? `linear-gradient(to right, #A3C49F 0%, #E6C56D 70%, #C86B5A 100%)`
                   : progressPercent > 70
@@ -429,23 +433,6 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
                   : '0 1px 3px rgba(0,0,0,0.1)',
               }}
             />
-            
-            {/* Overflow indicator for delays */}
-            {delayInfo.hasDelay && (
-              <Box
-                sx={{
-                  position: 'absolute',
-                  left: '100%',
-                  top: 0,
-                  height: '100%',
-                  width: `${Math.min(overProgressPercent, 50)}%`,
-                  bgcolor: '#C86B5A',
-                  borderRadius: '0 8px 8px 0',
-                  transition: 'width 0.6s ease-in-out',
-                  opacity: 0.9,
-                }}
-              />
-            )}
             
             {/* Current position marker with tooltip */}
             <Tooltip 
@@ -481,6 +468,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
                   boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
+                  zIndex: 2,
                   '&:hover': {
                     transform: 'translate(-50%, -50%) scale(1.3)',
                     boxShadow: '0 3px 6px rgba(0,0,0,0.3)',
@@ -489,23 +477,23 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
               />
             </Tooltip>
             
-            {/* Max allowed time marker */}
+            {/* Max allowed time marker - inside the bar */}
             <Box
               sx={{
                 position: 'absolute',
-                left: '100%',
-                top: -1,
+                right: 0,
+                top: 0,
                 width: 1.5,
-                height: 8,
+                height: '100%',
                 bgcolor: mode === 'dark' ? '#555555' : '#bbbbbb',
-                transform: 'translateX(-0.75px)',
                 opacity: 0.6,
+                zIndex: 1,
               }}
             />
           </Box>
           
           {/* Labels with color coding */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.75 }}>
             <Typography 
               variant="caption" 
               sx={{ 
