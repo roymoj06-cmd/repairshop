@@ -22,7 +22,7 @@ import { CheckCircle, Delete, Info, Search } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getRepairReceptions } from '@/service/repair/repair.service';
+import { getRepairReceptions, updateTemporaryReleaseStatus } from '@/service/repair/repair.service';
 import { PlateNumberDisplay } from '@/components';
 import { useTheme } from '@/context/ThemeContext';
 import PlateSearchInput from '@/components/common/PlateSearchInput';
@@ -138,7 +138,7 @@ const BaselineSetup: React.FC = () => {
   };
 
   // Confirm baseline setup
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (selectedVehicles.size === 0) {
       toast.error('لطفاً حداقل یک خودرو را انتخاب کنید');
       return;
@@ -147,9 +147,6 @@ const BaselineSetup: React.FC = () => {
     setIsProcessing(true);
 
     try {
-      // Create status map for all vehicles
-      const statusMap: Record<number, 'in_repair' | 'system_released'> = {};
-      
       // Get vehicle list with proper structure handling
       const vehicleList = Array.isArray(vehicles?.data) 
         ? vehicles.data 
@@ -157,6 +154,18 @@ const BaselineSetup: React.FC = () => {
         ? vehicles.data.values 
         : [];
       
+      // Create status map for API: true for selected, false for unselected
+      const vehicleStatuses: Record<number, boolean> = {};
+      
+      vehicleList.forEach((vehicle: IGetRepairReceptions) => {
+        vehicleStatuses[vehicle.id] = selectedVehicles.has(vehicle.id);
+      });
+
+      // Call API to update temporary release status
+      await updateTemporaryReleaseStatus({ vehicleStatuses });
+
+      // Also save to localStorage for baseline filtering
+      const statusMap: Record<number, 'in_repair' | 'system_released'> = {};
       vehicleList.forEach((vehicle: IGetRepairReceptions) => {
         if (selectedVehicles.has(vehicle.id)) {
           statusMap[vehicle.id] = 'in_repair';
