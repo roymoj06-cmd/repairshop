@@ -389,7 +389,23 @@ const BaselineSetup: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {!filteredTableVehicles || !Array.isArray(filteredTableVehicles) || filteredTableVehicles.length === 0 ? (
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                      <CircularProgress size={30} sx={{ color: '#3d8b78' }} />
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontFamily: '"IRANSans", sans-serif',
+                          color: mode === 'dark' ? '#888888' : '#999999',
+                          mt: 2
+                        }}
+                      >
+                        در حال بارگذاری خودروهای ترخیص نشده...
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : !filteredTableVehicles || !Array.isArray(filteredTableVehicles) || filteredTableVehicles.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                       <Typography 
@@ -399,7 +415,7 @@ const BaselineSetup: React.FC = () => {
                           color: mode === 'dark' ? '#888888' : '#999999'
                         }}
                       >
-                        {tableSearchQuery ? 'خودرویی یافت نشد' : 'خودرویی در سیستم وجود ندارد'}
+                        {tableSearchQuery ? 'خودرویی یافت نشد' : 'خودروی ترخیص نشده‌ای در سیستم وجود ندارد'}
                       </Typography>
                     </TableCell>
                   </TableRow>
