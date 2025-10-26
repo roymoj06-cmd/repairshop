@@ -2,16 +2,18 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ExpandMore, FilterList } from "@mui/icons-material";
 import { toast } from "react-toastify";
-import { FC, useState } from "react";
+import { FC, useState, useMemo } from "react";
 import {
   AccordionSummary,
   AccordionDetails,
   Grid,
   useMediaQuery,
-  Pagination,
   Accordion,
   Paper,
   Box,
+  Card,
+  CardContent,
+  Typography,
 } from "@mui/material";
 
 import {
@@ -29,10 +31,9 @@ import {
 } from "@/components";
 
 const Vehicle: FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState<plateSection>({ isDischarged: "false" });
   const navigate = useNavigate();
-  const page = searchParams.get("page") ?? 1;
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
   const { user } = useStore();
   const isCustomRange = useMediaQuery(
@@ -50,12 +51,12 @@ const Vehicle: FC = () => {
     { value: "true", label: "ترخیص شده" },
   ];
   const { isPending: isPendingRepairReceptions, data: vehicles } = useQuery({
-    queryKey: ["repairReceptions", page, filter],
+    queryKey: ["repairReceptions", filter],
     queryFn: () => {
       if (!user?.isDinawinEmployee) {
         return getRepairReceptionsByCustomerId({
-          page: page ? +page : 1,
-          size: 18,
+          page: 1,
+          size: 1000,
           isDischarged:
             filter?.isDischarged !== null ? filter?.isDischarged : undefined,
           plateSection1: filter?.plateSection1,
@@ -65,8 +66,8 @@ const Vehicle: FC = () => {
         });
       } else {
         return getRepairReceptions({
-          page: page ? +page : 1,
-          size: 18,
+          page: 1,
+          size: 1000,
           isDischarged:
             filter?.isDischarged !== null ? filter?.isDischarged : undefined,
           customerId: filter?.customerId,
@@ -115,9 +116,41 @@ const Vehicle: FC = () => {
       searchCustomers(newInputValue);
     }
   };
-  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
-    setSearchParams({ page: value.toString() });
-  };
+  // Calculate KPI metrics
+  const kpiMetrics = useMemo(() => {
+    const allVehicles = vehicles?.data?.values || [];
+    const total = allVehicles.length;
+    
+    // Calculate delayed vehicles (more than 3 days)
+    const now = new Date();
+    const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+    
+    const delayed = allVehicles.filter((v: any) => {
+      if (!v.receptionDate) return false;
+      const [year, month, day] = v.receptionDate.split('/').map(Number);
+      const receptionDate = new Date(year, month - 1, day);
+      return receptionDate < threeDaysAgo;
+    }).length;
+    
+    // Calculate waiting for parts (based on status or other criteria)
+    // For now, we'll use a placeholder - you may need to adjust based on actual data structure
+    const waitingForParts = allVehicles.filter((v: any) => 
+      v.description?.includes('منتظر قطعه') || 
+      v.description?.includes('خرید قطعه')
+    ).length;
+    
+    // Calculate ready for delivery today (factored but not discharged)
+    const readyForDelivery = allVehicles.filter((v: any) => 
+      v.status === true && !v.isDischarged
+    ).length;
+    
+    return {
+      total,
+      delayed,
+      waitingForParts,
+      readyForDelivery
+    };
+  }, [vehicles?.data?.values]);
   const handleCardClick = (
     receptionId: string | number,
     event?: React.MouseEvent
@@ -210,6 +243,75 @@ const Vehicle: FC = () => {
         </Accordion>
       </Box>
 
+      {/* KPI Dashboard */}
+      <Box sx={{ mb: 3 }}>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card sx={{ 
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white'
+            }}>
+              <CardContent>
+                <Typography variant="h4" component="div" fontWeight="bold">
+                  {kpiMetrics.total}
+                </Typography>
+                <Typography variant="body2">
+                  خودروهای داخل تعمیرگاه
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card sx={{ 
+              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+              color: 'white'
+            }}>
+              <CardContent>
+                <Typography variant="h4" component="div" fontWeight="bold">
+                  {kpiMetrics.delayed}
+                </Typography>
+                <Typography variant="body2">
+                  بیش از ۳ روز خوابیده
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card sx={{ 
+              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+              color: 'white'
+            }}>
+              <CardContent>
+                <Typography variant="h4" component="div" fontWeight="bold">
+                  {kpiMetrics.waitingForParts}
+                </Typography>
+                <Typography variant="body2">
+                  منتظر قطعه / خرید
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card sx={{ 
+              background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+              color: 'white'
+            }}>
+              <CardContent>
+                <Typography variant="h4" component="div" fontWeight="bold">
+                  {kpiMetrics.readyForDelivery}
+                </Typography>
+                <Typography variant="body2">
+                  آماده تحویل امروز
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Box>
+
       <Box className="vehicle-cards-container p-2">
         <Grid container spacing={2}>
           {vehicles?.data?.values?.map((vehicle: any) => (
@@ -224,21 +326,6 @@ const Vehicle: FC = () => {
           ))}
         </Grid>
       </Box>
-      {vehicles?.data?.totalPage && vehicles?.data?.totalPage > 1 && (
-        <Paper className="pagination-container flex justify-center mt-12">
-          <Pagination
-            count={vehicles?.data?.totalPage}
-            onChange={handlePageChange}
-            boundaryCount={1}
-            siblingCount={1}
-            showFirstButton
-            color="primary"
-            showLastButton
-            size="large"
-            page={+page}
-          />
-        </Paper>
-      )}
     </Box>
   );
 };
