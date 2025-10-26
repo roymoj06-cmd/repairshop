@@ -31,16 +31,18 @@ import {
   VehicleCard,
   Loading,
 } from "@/components";
-import BaselineInitModal from "@/components/Page/Vehicle/BaselineInitModal";
 
 const Vehicle: FC = () => {
   const [, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState<plateSection>({ isDischarged: "false" });
-  const [showBaselineModal, setShowBaselineModal] = useState(false);
   const navigate = useNavigate();
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
   const { user } = useStore();
   const { mode } = useTheme();
+  
+  // Check if baseline setup is completed
+  const isBaselineCompleted = localStorage.getItem('baselineSetupCompleted') === 'true';
+  
   const isCustomRange = useMediaQuery(
     "(min-width: 1200px) and (max-width: 1300px)"
   );
@@ -60,7 +62,7 @@ const Vehicle: FC = () => {
     const stored = localStorage.getItem('vehicleStatusBaseline');
     if (!stored) return null;
     try {
-      return JSON.parse(stored) as Array<{ vehicleId: number; status: string }>;
+      return JSON.parse(stored) as Record<number, 'in_repair' | 'system_released' | 'released'>;
     } catch {
       return null;
     }
@@ -100,8 +102,8 @@ const Vehicle: FC = () => {
       if (baselineStatuses && result?.data?.values) {
         // Filter to only show vehicles with 'in_repair' status
         const filteredValues = result.data.values.filter((vehicle: any) => {
-          const mapping = baselineStatuses.find(m => m.vehicleId === vehicle.id);
-          return !mapping || mapping.status === 'in_repair';
+          const status = baselineStatuses[vehicle.id];
+          return !status || status === 'in_repair';
         });
 
         return {
@@ -218,29 +220,54 @@ const Vehicle: FC = () => {
       {isPendingRepairReceptions && <Loading />}
       
       {/* Baseline Initialization Button */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'flex-end', 
-        mb: 2,
-        px: 2,
-      }}>
-        <Button
-          variant="outlined"
-          startIcon={<Settings />}
-          onClick={() => setShowBaselineModal(true)}
-          sx={{
-            borderColor: mode === 'dark' ? '#444' : '#d0d0d0',
-            color: mode === 'dark' ? '#b0b0b0' : '#2b2b2b',
-            fontFamily: '"IRANSans", sans-serif',
-            '&:hover': {
-              borderColor: mode === 'dark' ? '#555' : '#2b2b2b',
-              bgcolor: mode === 'dark' ? '#2a2a2a' : '#f8f8f8',
-            }
-          }}
-        >
-          راه‌اندازی اولیه سیستم
-        </Button>
-      </Box>
+      {!isBaselineCompleted && (
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          alignItems: 'center',
+          mb: 2,
+          px: 2,
+        }}>
+          <Paper
+            sx={{
+              p: 2,
+              bgcolor: mode === 'dark' ? '#2a2a2a' : '#fff3cd',
+              border: mode === 'dark' ? '1px solid #444' : '1px solid #ffc107',
+              borderRadius: '8px',
+              width: '100%',
+              maxWidth: 600,
+              textAlign: 'center'
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                fontFamily: '"IRANSans", sans-serif',
+                color: mode === 'dark' ? '#e0e0e0' : '#856404',
+                mb: 1.5
+              }}
+            >
+              برای شروع استفاده از سیستم، لطفاً راه‌اندازی اولیه را انجام دهید.
+              این کار فقط یک‌بار لازم است.
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<Settings />}
+              onClick={() => navigate(dir.baselineSetup)}
+              sx={{
+                bgcolor: '#3d8b78',
+                color: '#ffffff',
+                fontFamily: '"IRANSans", sans-serif',
+                '&:hover': {
+                  bgcolor: '#357a67',
+                }
+              }}
+            >
+              راه‌اندازی اولیه سیستم
+            </Button>
+          </Paper>
+        </Box>
+      )}
 
       <Box>
         <Accordion
@@ -416,12 +443,6 @@ const Vehicle: FC = () => {
           ))}
         </Grid>
       </Box>
-
-      {/* Baseline Initialization Modal */}
-      <BaselineInitModal 
-        open={showBaselineModal} 
-        onClose={() => setShowBaselineModal(false)} 
-      />
     </Box>
   );
 };

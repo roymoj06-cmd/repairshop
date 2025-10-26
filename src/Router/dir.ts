@@ -11,6 +11,7 @@ export default {
   carsManagement: "/dashboard/cars-management",
   resetPassword: "/reset-password",
   vehicles: "/dashboard/vehicles",
+  baselineSetup: "/dashboard/baseline-setup",
   accessDenied: "/access-denied",
   dashboard: "/dashboard",
   profile: "/profile",
