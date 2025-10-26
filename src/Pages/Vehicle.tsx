@@ -121,13 +121,13 @@ const Vehicle: FC = () => {
       if (vehicleStatusFilter && result?.data?.values) {
         const filteredValues = result.data.values.filter((v: IGetRepairReceptions) => {
           if (vehicleStatusFilter === 'Resident') {
-            // مقیم = داخل تعمیرگاه = not discharged AND not temporarily released
-            return v.isDischarged !== true && v.isTemporaryRelease !== true;
+            // مقیم = isResidentVehicle === true
+            return v.isResidentVehicle === true;
           } else if (vehicleStatusFilter === 'TempReleased') {
-            // ترخیص موقت = بیرون ولی پرونده بسته نشده = not discharged BUT temporarily released
-            return v.isDischarged !== true && v.isTemporaryRelease === true;
+            // ترخیص موقت = isTemporaryRelease === true
+            return v.isTemporaryRelease === true;
           } else if (vehicleStatusFilter === 'Released') {
-            // ترخیص شده = تحویل کامل و پرونده بسته = discharged
+            // ترخیص شده = isDischarged === true
             return v.isDischarged === true;
           }
           return true;
