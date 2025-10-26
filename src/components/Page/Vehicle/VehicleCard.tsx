@@ -98,8 +98,46 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
     };
   };
 
-  // Get status info (calm, professional colors)
-  const getStatusInfo = () => {
+  // Get vehicle status badge info based on new status system
+  const getVehicleStatusInfo = () => {
+    const status = vehicle.vehicleStatus || 
+      (vehicle.isDischarged ? 'Released' : 
+       (vehicle.isTemporaryRelease ? 'TempReleased' : 'Resident'));
+    
+    switch(status) {
+      case 'Resident':
+        return {
+          label: 'در تعمیرگاه',
+          color: '#5a4a3a',
+          bgColor: '#f5ede3',
+          borderColor: '#D9CBB8'
+        };
+      case 'TempReleased':
+        return {
+          label: 'ترخیص موقت',
+          color: '#9a7f2a',
+          bgColor: '#fef9ec',
+          borderColor: '#E6C56D'
+        };
+      case 'Released':
+        return {
+          label: 'ترخیص‌شده',
+          color: '#3a5a32',
+          bgColor: '#eff7ed',
+          borderColor: '#B9D8B2'
+        };
+      default:
+        return {
+          label: 'در تعمیرگاه',
+          color: '#5a4a3a',
+          bgColor: '#f5ede3',
+          borderColor: '#D9CBB8'
+        };
+    }
+  };
+
+  // Get secondary status info (work status)
+  const getWorkStatusInfo = () => {
     if (vehicle.status) {
       return { 
         label: 'آماده تحویل', 
@@ -166,7 +204,8 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
     setShowDeleteDialog(false);
   };
 
-  const statusInfo = getStatusInfo();
+  const vehicleStatusInfo = getVehicleStatusInfo();
+  const workStatusInfo = getWorkStatusInfo();
   const daysColor = getDaysColor(daysInWorkshop);
 
   return (
@@ -218,8 +257,8 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
           </IconButton>
         )}
 
-        {/* Header: Plate Number - lighter and smaller */}
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1, position: 'relative' }}>
+        {/* Header: Plate Number with dual status badges */}
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1.5, position: 'relative' }}>
           <Box sx={{ flex: 1 }}>
             <PlateNumberDisplay
               plateSection1={vehicle.plateSection1}
@@ -228,25 +267,43 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
               plateSection4={vehicle.plateSection4}
             />
           </Box>
+        </Box>
+        
+        {/* Status badges - vehicle status and work status */}
+        <Box sx={{ display: 'flex', gap: 0.75, mb: 1.5, flexWrap: 'wrap' }}>
+          {/* Primary: Vehicle Status */}
+          <Chip
+            label={vehicleStatusInfo.label}
+            size="small"
+            sx={{
+              bgcolor: vehicleStatusInfo.bgColor,
+              color: vehicleStatusInfo.color,
+              fontWeight: 600,
+              fontSize: '0.7rem',
+              height: '24px',
+              borderRadius: '6px',
+              border: `1.5px solid ${vehicleStatusInfo.borderColor}`,
+              px: 1,
+              fontFamily: '"IRANSans", sans-serif',
+            }}
+          />
           
-          {/* Status badge - positioned to not overlap plate */}
-          <Box sx={{ position: 'absolute', top: 0, left: 0 }}>
-            <Chip
-              label={statusInfo.label}
-              size="small"
-              sx={{
-                bgcolor: statusInfo.bgColor,
-                color: statusInfo.color,
-                fontWeight: 500,
-                fontSize: '0.7rem',
-                height: '22px',
-                borderRadius: '5px',
-                border: `1px solid ${statusInfo.color}25`,
-                px: 0.75,
-                fontFamily: '"IRANSans", sans-serif',
-              }}
-            />
-          </Box>
+          {/* Secondary: Work Status */}
+          <Chip
+            label={workStatusInfo.label}
+            size="small"
+            sx={{
+              bgcolor: workStatusInfo.bgColor,
+              color: workStatusInfo.color,
+              fontWeight: 500,
+              fontSize: '0.68rem',
+              height: '24px',
+              borderRadius: '6px',
+              border: `1px solid ${workStatusInfo.color}25`,
+              px: 0.75,
+              fontFamily: '"IRANSans", sans-serif',
+            }}
+          />
         </Box>
 
         {/* Days in workshop - calm colors with spacing */}

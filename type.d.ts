@@ -92,6 +92,7 @@ interface IGetRepairReceptions {
   id: number;
   isDischarged?: boolean;
   isTemporaryRelease?: boolean | null;
+  vehicleStatus?: 'Resident' | 'TempReleased' | 'Released';
 }
 interface IGenerateRepairRecaptionFactors {
   repairReception: {

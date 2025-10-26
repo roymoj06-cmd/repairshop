@@ -52,24 +52,17 @@ const Vehicle: FC = () => {
     }
     return { xs: 12, sm: 6, md: 3, lg: 2 };
   };
-  const statusOptions = [
-    { value: null, label: "همه" },
-    { value: "false", label: "ترخیص نشده" },
-    { value: "true", label: "ترخیص شده" },
+  const [vehicleStatusFilter, setVehicleStatusFilter] = useState<'Resident' | 'TempReleased' | 'Released' | null>('Resident');
+  
+  // New status filter options
+  const vehicleStatusOptions = [
+    { value: 'Resident', label: "🚗 خودروهای مقیم" },
+    { value: 'TempReleased', label: "🟡 ترخیص موقت" },
+    { value: 'Released', label: "🟢 ترخیص‌شده" },
   ];
-  // Get baseline status mappings from localStorage
-  const getBaselineStatuses = () => {
-    const stored = localStorage.getItem('vehicleStatusBaseline');
-    if (!stored) return null;
-    try {
-      return JSON.parse(stored) as Record<number, 'in_repair' | 'system_released' | 'released'>;
-    } catch {
-      return null;
-    }
-  };
 
   const { isPending: isPendingRepairReceptions, data: vehicles } = useQuery({
-    queryKey: ["repairReceptions", filter],
+    queryKey: ["repairReceptions", filter, vehicleStatusFilter],
     queryFn: async () => {
       let result;
       if (!user?.isDinawinEmployee) {
@@ -97,7 +90,26 @@ const Vehicle: FC = () => {
         });
       }
 
-      // Baseline filtering temporarily disabled to show all vehicles
+      // Filter by vehicle status
+      if (vehicleStatusFilter && result?.data?.values) {
+        const filteredValues = result.data.values.filter((v: IGetRepairReceptions) => {
+          // Map old data to new status logic
+          const status = v.vehicleStatus || 
+            (v.isDischarged ? 'Released' : 
+             (v.isTemporaryRelease ? 'TempReleased' : 'Resident'));
+          return status === vehicleStatusFilter;
+        });
+        
+        return {
+          ...result,
+          data: {
+            ...result.data,
+            values: filteredValues,
+            totalCount: filteredValues.length
+          }
+        };
+      }
+
       return result;
     },
   });
@@ -118,13 +130,6 @@ const Vehicle: FC = () => {
       }
     },
   });
-  const handleStatusChange = (newValue: any) => {
-    setFilter({
-      ...filter,
-      isDischarged: newValue?.value,
-    });
-    setSearchParams({ page: "1" });
-  };
   const handleCustomerSearch = (newValue: any) => {
     if (newValue?.value) {
       setFilter((prev: any) => ({ ...prev, customerId: newValue.value }));
@@ -138,39 +143,40 @@ const Vehicle: FC = () => {
       searchCustomers(newInputValue);
     }
   };
-  // Calculate KPI metrics
+  // Calculate KPI metrics based on vehicle status
   const kpiMetrics = useMemo(() => {
+    // Get all vehicles without filter to calculate totals
     const allVehicles = vehicles?.data?.values || [];
-    const total = allVehicles.length;
     
-    // Calculate delayed vehicles (more than 3 days)
-    const now = new Date();
-    const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
-    
-    const delayed = allVehicles.filter((v: any) => {
-      if (!v.receptionDate) return false;
-      const [year, month, day] = v.receptionDate.split('/').map(Number);
-      const receptionDate = new Date(year, month - 1, day);
-      return receptionDate < threeDaysAgo;
+    // Count by status
+    const residentCount = allVehicles.filter((v: any) => {
+      const status = v.vehicleStatus || 
+        (v.isDischarged ? 'Released' : 
+         (v.isTemporaryRelease ? 'TempReleased' : 'Resident'));
+      return status === 'Resident';
     }).length;
     
-    // Calculate waiting for parts (based on status or other criteria)
-    // For now, we'll use a placeholder - you may need to adjust based on actual data structure
-    const waitingForParts = allVehicles.filter((v: any) => 
-      v.description?.includes('منتظر قطعه') || 
-      v.description?.includes('خرید قطعه')
-    ).length;
+    const tempReleasedCount = allVehicles.filter((v: any) => {
+      const status = v.vehicleStatus || 
+        (v.isDischarged ? 'Released' : 
+         (v.isTemporaryRelease ? 'TempReleased' : 'Resident'));
+      return status === 'TempReleased';
+    }).length;
     
-    // Calculate ready for delivery today (factored but not discharged)
-    const readyForDelivery = allVehicles.filter((v: any) => 
-      v.status === true && !v.isDischarged
-    ).length;
+    const releasedCount = allVehicles.filter((v: any) => {
+      const status = v.vehicleStatus || 
+        (v.isDischarged ? 'Released' : 
+         (v.isTemporaryRelease ? 'TempReleased' : 'Resident'));
+      return status === 'Released';
+    }).length;
+    
+    const total = residentCount + tempReleasedCount + releasedCount;
     
     return {
-      total,
-      delayed,
-      waitingForParts,
-      readyForDelivery
+      resident: residentCount,
+      tempReleased: tempReleasedCount,
+      released: releasedCount,
+      total
     };
   }, [vehicles?.data?.values]);
   const handleCardClick = (
@@ -332,6 +338,45 @@ const Vehicle: FC = () => {
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={2} display="flex" alignItems="end">
+              {/* Vehicle Status Filter - Primary filter */}
+              <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }}>
+                <label className="font-12" style={{ 
+                  fontFamily: '"IRANSans", sans-serif',
+                  color: mode === 'dark' ? '#e8e8e8' : '#2b2b2b'
+                }}>وضعیت خودرو</label>
+                <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
+                  {vehicleStatusOptions.map((option) => (
+                    <Button
+                      key={option.value}
+                      variant={vehicleStatusFilter === option.value ? "contained" : "outlined"}
+                      size="small"
+                      onClick={() => setVehicleStatusFilter(option.value as any)}
+                      sx={{
+                        fontFamily: '"IRANSans", sans-serif',
+                        fontSize: '0.75rem',
+                        bgcolor: vehicleStatusFilter === option.value 
+                          ? (option.value === 'Resident' ? '#D9CBB8' : 
+                             option.value === 'TempReleased' ? '#E6C56D' : '#B9D8B2')
+                          : 'transparent',
+                        color: vehicleStatusFilter === option.value 
+                          ? '#2b2b2b'
+                          : (mode === 'dark' ? '#e8e8e8' : '#2b2b2b'),
+                        borderColor: option.value === 'Resident' ? '#D9CBB8' : 
+                                     option.value === 'TempReleased' ? '#E6C56D' : '#B9D8B2',
+                        '&:hover': {
+                          bgcolor: vehicleStatusFilter === option.value 
+                            ? (option.value === 'Resident' ? '#cbbe9f' : 
+                               option.value === 'TempReleased' ? '#d9b554' : '#a8c79f')
+                            : (mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'),
+                        }
+                      }}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </Box>
+              </Grid>
+              
               <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }}>
                 <label className="font-12">شماره پلاک</label>
                 <PlateNumberDisplay
@@ -359,33 +404,95 @@ const Vehicle: FC = () => {
                   />
                 </Grid>
               )}
-              <Grid size={{ xs: 12, sm: 12, md: 4, lg: 3 }}>
-                <EnhancedSelect
-                  value={
-                    statusOptions?.find(
-                      (option) => option.value === filter?.isDischarged
-                    ) || statusOptions[0]
-                  }
-                  onChange={handleStatusChange}
-                  enableSpeechToText={true}
-                  options={statusOptions}
-                  loading={isPending}
-                  name="isDischarged"
-                  iconPosition="end"
-                  searchable={true}
-                  disabled={false}
-                  label="وضعیت"
-                  isRtl={true}
-                />
-              </Grid>
             </Grid>
           </AccordionDetails>
         </Accordion>
       </Box>
 
-      {/* KPI Dashboard - Design System Colored Cards */}
+      {/* KPI Dashboard - New Status-Based Cards */}
       <Box sx={{ mb: 3 }}>
         <Grid container spacing={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card 
+              sx={{ 
+                background: 'linear-gradient(135deg, #f5ede3 0%, #faf6f0 100%)',
+                boxShadow: '0 2px 12px rgba(217, 203, 184, 0.2)',
+                borderRadius: '12px',
+                border: '1px solid #D9CBB8',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 16px rgba(217, 203, 184, 0.3)',
+                }
+              }}
+              onClick={() => setVehicleStatusFilter('Resident')}
+            >
+              <CardContent sx={{ p: 2.5 }}>
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#5a4a3a', fontFamily: '"IRANSans", sans-serif' }}>
+                  {kpiMetrics.resident}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#7a6a5a', fontSize: '0.875rem', fontFamily: '"IRANSans", sans-serif' }}>
+                  🚗 خودروهای مقیم
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card 
+              sx={{ 
+                background: 'linear-gradient(135deg, #fef9ec 0%, #fffcf2 100%)',
+                boxShadow: '0 2px 12px rgba(230, 197, 109, 0.2)',
+                borderRadius: '12px',
+                border: '1px solid #E6C56D',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 16px rgba(230, 197, 109, 0.3)',
+                }
+              }}
+              onClick={() => setVehicleStatusFilter('TempReleased')}
+            >
+              <CardContent sx={{ p: 2.5 }}>
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#9a7f2a', fontFamily: '"IRANSans", sans-serif' }}>
+                  {kpiMetrics.tempReleased}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#b89f4a', fontSize: '0.875rem', fontFamily: '"IRANSans", sans-serif' }}>
+                  🟡 ترخیص موقت
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Card 
+              sx={{ 
+                background: 'linear-gradient(135deg, #eff7ed 0%, #f5faf3 100%)',
+                boxShadow: '0 2px 12px rgba(185, 216, 178, 0.2)',
+                borderRadius: '12px',
+                border: '1px solid #B9D8B2',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 16px rgba(185, 216, 178, 0.3)',
+                }
+              }}
+              onClick={() => setVehicleStatusFilter('Released')}
+            >
+              <CardContent sx={{ p: 2.5 }}>
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#3a5a32', fontFamily: '"IRANSans", sans-serif' }}>
+                  {kpiMetrics.released}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#5a7a52', fontSize: '0.875rem', fontFamily: '"IRANSans", sans-serif' }}>
+                  🟢 ترخیص‌شده
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card sx={{ 
               background: 'linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)',
@@ -395,68 +502,11 @@ const Vehicle: FC = () => {
               border: '1px solid #ebebeb'
             }}>
               <CardContent sx={{ p: 2.5 }}>
-                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#1d1d1d' }}>
+                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#1d1d1d', fontFamily: '"IRANSans", sans-serif' }}>
                   {kpiMetrics.total}
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#666666', fontSize: '0.875rem' }}>
-                  خودروهای داخل تعمیرگاه
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Card sx={{ 
-              background: 'linear-gradient(135deg, #fef2f2 0%, #fff5f5 100%)',
-              color: '#dc3545',
-              boxShadow: '0 2px 12px rgba(220, 53, 69, 0.1)',
-              borderRadius: '12px',
-              border: '1px solid #fecaca'
-            }}>
-              <CardContent sx={{ p: 2.5 }}>
-                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#dc3545' }}>
-                  {kpiMetrics.delayed}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#991b1b', fontSize: '0.875rem' }}>
-                  بیش از ۳ روز خوابیده
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Card sx={{ 
-              background: 'linear-gradient(135deg, #fff8e1 0%, #fffbeb 100%)',
-              color: '#f2a102',
-              boxShadow: '0 2px 12px rgba(242, 161, 2, 0.1)',
-              borderRadius: '12px',
-              border: '1px solid #fde68a'
-            }}>
-              <CardContent sx={{ p: 2.5 }}>
-                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#f2a102' }}>
-                  {kpiMetrics.waitingForParts}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#92400e', fontSize: '0.875rem' }}>
-                  منتظر قطعه / خرید
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Card sx={{ 
-              background: 'linear-gradient(135deg, #e8f5f1 0%, #f0faf7 100%)',
-              color: '#42a68c',
-              boxShadow: '0 2px 12px rgba(66, 166, 140, 0.1)',
-              borderRadius: '12px',
-              border: '1px solid #a7f3d0'
-            }}>
-              <CardContent sx={{ p: 2.5 }}>
-                <Typography variant="h3" component="div" fontWeight="bold" sx={{ mb: 0.5, color: '#42a68c' }}>
-                  {kpiMetrics.readyForDelivery}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#065f46', fontSize: '0.875rem' }}>
-                  آماده تحویل امروز
+                <Typography variant="body2" sx={{ color: '#666666', fontSize: '0.875rem', fontFamily: '"IRANSans", sans-serif' }}>
+                  مجموع کل
                 </Typography>
               </CardContent>
             </Card>
