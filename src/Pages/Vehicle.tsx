@@ -251,6 +251,59 @@ const Vehicle: FC = () => {
         </Box>
       )}
 
+      {/* Reset Baseline Button - Always visible */}
+      {isBaselineCompleted && (
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          alignItems: 'center',
+          mb: 2,
+          px: 2,
+        }}>
+          <Paper
+            sx={{
+              p: 2,
+              bgcolor: mode === 'dark' ? '#2a2a2a' : '#fff0f0',
+              border: mode === 'dark' ? '1px solid #444' : '1px solid #f87171',
+              borderRadius: '8px',
+              width: '100%',
+              maxWidth: 600,
+              textAlign: 'center'
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                fontFamily: '"IRANSans", sans-serif',
+                color: mode === 'dark' ? '#e0e0e0' : '#991b1b',
+                mb: 1.5
+              }}
+            >
+              اگر می‌خواهید راه‌اندازی اولیه را مجدداً انجام دهید، می‌توانید وضعیت را ریست کنید.
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<Settings />}
+              onClick={() => {
+                localStorage.removeItem('baselineSetupCompleted');
+                localStorage.removeItem('vehicleStatusBaseline');
+                window.location.reload();
+              }}
+              sx={{
+                bgcolor: '#dc3545',
+                color: '#ffffff',
+                fontFamily: '"IRANSans", sans-serif',
+                '&:hover': {
+                  bgcolor: '#c82333',
+                }
+              }}
+            >
+              ریست راه‌اندازی اولیه
+            </Button>
+          </Paper>
+        </Box>
+      )}
+
       <Box>
         <Accordion
           defaultExpanded
