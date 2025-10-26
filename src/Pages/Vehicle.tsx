@@ -1,6 +1,6 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ExpandMore, FilterList } from "@mui/icons-material";
+import { ExpandMore, FilterList, Settings } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import { FC, useState, useMemo } from "react";
 import {
@@ -14,6 +14,7 @@ import {
   Card,
   CardContent,
   Typography,
+  Button,
 } from "@mui/material";
 
 import {
@@ -30,10 +31,12 @@ import {
   VehicleCard,
   Loading,
 } from "@/components";
+import BaselineInitModal from "@/components/Page/Vehicle/BaselineInitModal";
 
 const Vehicle: FC = () => {
   const [, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState<plateSection>({ isDischarged: "false" });
+  const [showBaselineModal, setShowBaselineModal] = useState(false);
   const navigate = useNavigate();
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
   const { user } = useStore();
@@ -52,11 +55,23 @@ const Vehicle: FC = () => {
     { value: "false", label: "ترخیص نشده" },
     { value: "true", label: "ترخیص شده" },
   ];
+  // Get baseline status mappings from localStorage
+  const getBaselineStatuses = () => {
+    const stored = localStorage.getItem('vehicleStatusBaseline');
+    if (!stored) return null;
+    try {
+      return JSON.parse(stored) as Array<{ vehicleId: number; status: string }>;
+    } catch {
+      return null;
+    }
+  };
+
   const { isPending: isPendingRepairReceptions, data: vehicles } = useQuery({
     queryKey: ["repairReceptions", filter],
-    queryFn: () => {
+    queryFn: async () => {
+      let result;
       if (!user?.isDinawinEmployee) {
-        return getRepairReceptionsByCustomerId({
+        result = await getRepairReceptionsByCustomerId({
           page: 1,
           size: 1000,
           isDischarged:
@@ -67,7 +82,7 @@ const Vehicle: FC = () => {
           plateSection4: filter?.plateSection4,
         });
       } else {
-        return getRepairReceptions({
+        result = await getRepairReceptions({
           page: 1,
           size: 1000,
           isDischarged:
@@ -79,6 +94,27 @@ const Vehicle: FC = () => {
           plateSection4: filter?.plateSection4,
         });
       }
+
+      // Apply baseline filtering
+      const baselineStatuses = getBaselineStatuses();
+      if (baselineStatuses && result?.data?.values) {
+        // Filter to only show vehicles with 'in_repair' status
+        const filteredValues = result.data.values.filter((vehicle: any) => {
+          const mapping = baselineStatuses.find(m => m.vehicleId === vehicle.id);
+          return !mapping || mapping.status === 'in_repair';
+        });
+
+        return {
+          ...result,
+          data: {
+            ...result.data,
+            values: filteredValues,
+            totalPage: Math.ceil(filteredValues.length / 18),
+          }
+        };
+      }
+
+      return result;
     },
   });
   const { mutateAsync: searchCustomers, isPending } = useMutation({
@@ -180,6 +216,32 @@ const Vehicle: FC = () => {
       minHeight: '100vh'
     }}>
       {isPendingRepairReceptions && <Loading />}
+      
+      {/* Baseline Initialization Button */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'flex-end', 
+        mb: 2,
+        px: 2,
+      }}>
+        <Button
+          variant="outlined"
+          startIcon={<Settings />}
+          onClick={() => setShowBaselineModal(true)}
+          sx={{
+            borderColor: mode === 'dark' ? '#444' : '#d0d0d0',
+            color: mode === 'dark' ? '#b0b0b0' : '#2b2b2b',
+            fontFamily: '"IRANSans", sans-serif',
+            '&:hover': {
+              borderColor: mode === 'dark' ? '#555' : '#2b2b2b',
+              bgcolor: mode === 'dark' ? '#2a2a2a' : '#f8f8f8',
+            }
+          }}
+        >
+          راه‌اندازی اولیه سیستم
+        </Button>
+      </Box>
+
       <Box>
         <Accordion
           defaultExpanded
@@ -354,6 +416,12 @@ const Vehicle: FC = () => {
           ))}
         </Grid>
       </Box>
+
+      {/* Baseline Initialization Modal */}
+      <BaselineInitModal 
+        open={showBaselineModal} 
+        onClose={() => setShowBaselineModal(false)} 
+      />
     </Box>
   );
 };
