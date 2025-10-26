@@ -163,8 +163,8 @@ const BaselineSetup: React.FC = () => {
     setSelectedVehicleData((prev) => prev.filter((v) => v.id !== vehicleId));
   };
 
-  // Confirm baseline setup
-  const handleConfirm = async () => {
+  // Handle setting vehicles as Resident (مقیم)
+  const handleSetResident = async () => {
     if (selectedVehicles.size === 0) {
       toast.error('لطفاً حداقل یک خودرو را انتخاب کنید');
       return;
@@ -181,10 +181,8 @@ const BaselineSetup: React.FC = () => {
         : [];
       
       // Create status map for API
-      // Logic based on user's requirements:
-      // - Selected vehicles (14) = Resident = isTemporaryRelease: false
-      // - Unselected vehicles = TempReleased = isTemporaryRelease: true
-      // - Only vehicles explicitly discharged will have isDischarged: true
+      // Selected vehicles = Resident = isTemporaryRelease: false
+      // Unselected vehicles = TempReleased = isTemporaryRelease: true
       
       const vehicleStatuses: Record<number, boolean> = {};
       
@@ -200,13 +198,13 @@ const BaselineSetup: React.FC = () => {
         }
       });
 
-      console.log('=== BASELINE SETUP DEBUG ===');
+      console.log('=== BASELINE SETUP (RESIDENT) ===');
       console.log('Total vehicles in system:', vehicleList.length);
       console.log('Selected vehicles (should be Resident):', selectedVehicles.size);
       console.log('Unselected vehicles (should be TempReleased):', vehicleList.length - selectedVehicles.size);
       console.log('Selected vehicle IDs:', Array.from(selectedVehicles));
       console.log('Sample status map (first 3):', Object.entries(vehicleStatuses).slice(0, 3));
-      console.log('=============================');
+      console.log('===================================');
 
       // Call API to update temporary release status
       await updateTemporaryReleaseStatus(vehicleStatuses);
@@ -216,6 +214,70 @@ const BaselineSetup: React.FC = () => {
 
       toast.success(
         `راه‌اندازی موفق: ${selectedVehicles.size} خودرو به عنوان "مقیم" و ${vehicleList.length - selectedVehicles.size} خودرو به عنوان "ترخیص موقت" ثبت شد.`
+      );
+      
+      // Navigate to vehicles page
+      setTimeout(() => {
+        navigate('/dashboard/vehicles');
+      }, 1000);
+    } catch (error) {
+      console.error('Error setting up baseline:', error);
+      toast.error('خطا در راه‌اندازی سیستم');
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle setting vehicles as Temporarily Released (ترخیص موقت)
+  const handleSetTempReleased = async () => {
+    if (selectedVehicles.size === 0) {
+      toast.error('لطفاً حداقل یک خودرو را انتخاب کنید');
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // Get vehicle list with proper structure handling
+      const vehicleList = Array.isArray(vehicles?.data) 
+        ? vehicles.data 
+        : vehicles?.data?.values 
+        ? vehicles.data.values 
+        : [];
+      
+      // Create status map for API
+      // Selected vehicles = TempReleased = isTemporaryRelease: true
+      // Unselected vehicles = Resident = isTemporaryRelease: false
+      
+      const vehicleStatuses: Record<number, boolean> = {};
+      
+      vehicleList.forEach((vehicle: IGetRepairReceptions) => {
+        // Selected = TEMPORARILY RELEASED = isTemporaryRelease: true
+        // Unselected = INSIDE workshop (Resident) = isTemporaryRelease: false
+        const isTemporaryRelease = selectedVehicles.has(vehicle.id);
+        vehicleStatuses[vehicle.id] = isTemporaryRelease;
+        
+        // Debug log for first few vehicles
+        if (Object.keys(vehicleStatuses).length <= 5) {
+          console.log(`Vehicle ${vehicle.id}: selected=${selectedVehicles.has(vehicle.id)}, isTemporaryRelease=${isTemporaryRelease}`);
+        }
+      });
+
+      console.log('=== BASELINE SETUP (TEMP RELEASED) ===');
+      console.log('Total vehicles in system:', vehicleList.length);
+      console.log('Selected vehicles (should be TempReleased):', selectedVehicles.size);
+      console.log('Unselected vehicles (should be Resident):', vehicleList.length - selectedVehicles.size);
+      console.log('Selected vehicle IDs:', Array.from(selectedVehicles));
+      console.log('Sample status map (first 3):', Object.entries(vehicleStatuses).slice(0, 3));
+      console.log('=======================================');
+
+      // Call API to update temporary release status
+      await updateTemporaryReleaseStatus(vehicleStatuses);
+
+      // Mark baseline as completed
+      localStorage.setItem('baselineSetupCompleted', 'true');
+
+      toast.success(
+        `راه‌اندازی موفق: ${selectedVehicles.size} خودرو به عنوان "ترخیص موقت" و ${vehicleList.length - selectedVehicles.size} خودرو به عنوان "مقیم" ثبت شد.`
       );
       
       // Navigate to vehicles page
@@ -711,7 +773,7 @@ const BaselineSetup: React.FC = () => {
           <Button
             variant="contained"
             startIcon={isProcessing ? <CircularProgress size={20} /> : <CheckCircle />}
-            onClick={handleConfirm}
+            onClick={handleSetResident}
             disabled={isProcessing || selectedVehicles.size === 0}
             sx={{
               fontFamily: '"IRANSans", sans-serif',
@@ -726,7 +788,28 @@ const BaselineSetup: React.FC = () => {
               }
             }}
           >
-            {isProcessing ? 'در حال پردازش...' : 'تایید و راه‌اندازی'}
+            {isProcessing ? 'در حال پردازش...' : 'خودروهای مقیم'}
+          </Button>
+
+          <Button
+            variant="contained"
+            startIcon={isProcessing ? <CircularProgress size={20} /> : <CheckCircle />}
+            onClick={handleSetTempReleased}
+            disabled={isProcessing || selectedVehicles.size === 0}
+            sx={{
+              fontFamily: '"IRANSans", sans-serif',
+              bgcolor: '#c86b5a',
+              color: '#ffffff',
+              '&:hover': {
+                bgcolor: '#b55c4d'
+              },
+              '&:disabled': {
+                bgcolor: mode === 'dark' ? '#2a2a2a' : '#e0e0e0',
+                color: mode === 'dark' ? '#666666' : '#999999'
+              }
+            }}
+          >
+            {isProcessing ? 'در حال پردازش...' : 'ترخیص موقت'}
           </Button>
         </Paper>
       </Box>
