@@ -1,4 +1,4 @@
-import { IconButton, Paper, Chip, Box, Typography } from "@mui/material";
+import { IconButton, Paper, Chip, Box, Typography, Tooltip } from "@mui/material";
 import { Delete as DeleteIcon, NoteAdd, CheckCircle, Build, AccessTime } from "@mui/icons-material";
 import React, { useState, useMemo } from "react";
 import { toast } from "react-toastify";
@@ -383,7 +383,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
           </Box>
         </Box>
 
-        {/* Timeline Progress Bar - calm colors */}
+        {/* Timeline Progress Bar - Professional gradient design */}
         <Box sx={{ mb: 1.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
             <AccessTime sx={{ fontSize: '0.9rem', color: mode === 'dark' ? '#b0b0b0' : '#888888' }} />
@@ -402,77 +402,127 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
                 <>
                   مدت خواب: {timeInWorkshop.days} روز
                   {timeInWorkshop.hours > 0 && ` و ${timeInWorkshop.hours} ساعت`}
-                  {delayInfo.hasDelay && (
-                    <span style={{ color: '#a0614f', fontWeight: 400 }}>
-                      {' '}(+{delayInfo.delayDays} روز
-                      {delayInfo.delayHours > 0 && ` و ${delayInfo.delayHours} ساعت`}
-                      {' '}تأخیر)
-                    </span>
-                  )}
                 </>
               )}
             </Typography>
           </Box>
           
-          {/* Progress bar container - thicker but calm */}
-          <Box sx={{ position: 'relative', height: 8, bgcolor: mode === 'dark' ? '#2a2a2a' : '#f2f2f2', borderRadius: '4px', overflow: 'hidden' }}>
-            {/* Normal time (calm green) */}
+          {/* Progress bar container - smooth gradient design */}
+          <Box sx={{ position: 'relative', height: 6, bgcolor: mode === 'dark' ? '#2a2a2a' : '#E9E7E5', borderRadius: '8px', overflow: 'visible' }}>
+            {/* Progress fill with gradient */}
             <Box
               sx={{
                 position: 'absolute',
                 left: 0,
                 top: 0,
                 height: '100%',
-                width: `${progressPercent}%`,
-                bgcolor: '#82baa8',
-                transition: 'width 0.3s ease',
-                borderRadius: '4px',
+                width: `${Math.min(progressPercent, 100)}%`,
+                borderRadius: '8px',
+                background: delayInfo.hasDelay 
+                  ? `linear-gradient(to right, #A3C49F 0%, #E6C56D 70%, #C86B5A 100%)`
+                  : progressPercent > 70
+                    ? `linear-gradient(to right, #A3C49F 0%, #A3C49F ${100 - progressPercent}%, #E6C56D 100%)`
+                    : '#A3C49F',
+                transition: 'width 0.6s ease-in-out',
+                boxShadow: mode === 'dark' 
+                  ? '0 1px 3px rgba(0,0,0,0.3)' 
+                  : '0 1px 3px rgba(0,0,0,0.1)',
               }}
             />
             
-            {/* Delay time (brownish-red) */}
+            {/* Overflow indicator for delays */}
             {delayInfo.hasDelay && (
               <Box
                 sx={{
                   position: 'absolute',
-                  left: 0,
+                  left: '100%',
                   top: 0,
                   height: '100%',
-                  width: `${Math.min(progressPercent + overProgressPercent, 200)}%`,
-                  background: 'linear-gradient(90deg, #82baa8 0%, #82baa8 50%, #c89080 50%, #c89080 100%)',
-                  backgroundSize: '200% 100%',
-                  backgroundPosition: 'left',
-                  transition: 'width 0.3s ease',
-                  borderRadius: '4px',
+                  width: `${Math.min(overProgressPercent, 50)}%`,
+                  bgcolor: '#C86B5A',
+                  borderRadius: '0 8px 8px 0',
+                  transition: 'width 0.6s ease-in-out',
+                  opacity: 0.9,
                 }}
               />
             )}
             
-            {/* Marker for max allowed time */}
+            {/* Current position marker with tooltip */}
+            <Tooltip 
+              title={
+                <Box sx={{ p: 0.5, fontFamily: '"IRANSans", sans-serif' }}>
+                  <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
+                    مدت خواب: {timeInWorkshop.days} روز
+                    {timeInWorkshop.hours > 0 && ` و ${timeInWorkshop.hours} ساعت`}
+                  </Typography>
+                  {delayInfo.hasDelay && (
+                    <Typography variant="caption" sx={{ display: 'block', color: '#ffcccb', fontSize: '0.7rem', mt: 0.5 }}>
+                      ({delayInfo.delayDays} روز
+                      {delayInfo.delayHours > 0 && ` و ${delayInfo.delayHours} ساعت`}
+                      {' '}تأخیر)
+                    </Typography>
+                  )}
+                </Box>
+              }
+              arrow
+              placement="top"
+            >
+              <Box
+                sx={{
+                  position: 'absolute',
+                  left: `${Math.min(progressPercent, 100)}%`,
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: 10,
+                  height: 10,
+                  bgcolor: '#5C544E',
+                  borderRadius: '50%',
+                  border: '2px solid #fff',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'translate(-50%, -50%) scale(1.3)',
+                    boxShadow: '0 3px 6px rgba(0,0,0,0.3)',
+                  }
+                }}
+              />
+            </Tooltip>
+            
+            {/* Max allowed time marker */}
             <Box
               sx={{
                 position: 'absolute',
                 left: '100%',
                 top: -1,
-                width: 2,
-                height: 10,
+                width: 1.5,
+                height: 8,
                 bgcolor: mode === 'dark' ? '#555555' : '#bbbbbb',
-                transform: 'translateX(-1px)',
+                transform: 'translateX(-0.75px)',
+                opacity: 0.6,
               }}
             />
           </Box>
           
-          {/* Labels - subtle gray */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+          {/* Labels with color coding */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
             <Typography 
               variant="caption" 
               sx={{ 
                 fontSize: '0.65rem', 
-                color: mode === 'dark' ? '#777777' : '#aaaaaa',
+                color: delayInfo.hasDelay 
+                  ? '#C86B5A' 
+                  : (progressPercent > 70 ? '#E6C56D' : '#7A9A77'),
                 fontFamily: '"IRANSans", sans-serif',
+                fontWeight: 400,
               }}
             >
-              ورود
+              {delayInfo.hasDelay 
+                ? `+${delayInfo.delayDays} روز تأخیر` 
+                : progressPercent > 70 
+                  ? 'نزدیک به حد مجاز'
+                  : 'در محدوده مجاز'
+              }
             </Typography>
             <Typography 
               variant="caption" 
