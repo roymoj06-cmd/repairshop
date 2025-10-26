@@ -96,7 +96,7 @@ const BaselineSetup: React.FC = () => {
 
   // Select all filtered vehicles
   const handleSelectAll = () => {
-    if (!filteredTableVehicles.length) return;
+    if (!filteredTableVehicles || !Array.isArray(filteredTableVehicles) || !filteredTableVehicles.length) return;
 
     const allFiltered = filteredTableVehicles.filter((v: IGetRepairReceptions) => !selectedVehicles.has(v.id));
     
@@ -389,7 +389,7 @@ const BaselineSetup: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredTableVehicles.length === 0 ? (
+                {!filteredTableVehicles || !Array.isArray(filteredTableVehicles) || filteredTableVehicles.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                       <Typography 
@@ -404,7 +404,7 @@ const BaselineSetup: React.FC = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredTableVehicles.map((vehicle: IGetRepairReceptions) => {
+                  Array.isArray(filteredTableVehicles) && filteredTableVehicles.map((vehicle: IGetRepairReceptions) => {
                     const isSelected = selectedVehicles.has(vehicle.id);
                     const status = getVehicleStatus(vehicle.id);
                     
