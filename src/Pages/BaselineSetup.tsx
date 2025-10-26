@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Box, 
   Paper, 
@@ -60,7 +60,7 @@ const BaselineSetup: React.FC = () => {
   };
 
   // Filter table vehicles based on search
-  const filteredTableVehicles = React.useMemo(() => {
+  const filteredTableVehicles = useMemo(() => {
     if (!vehicles?.data) return [];
     
     const query = normalizePlateText(tableSearchQuery);
@@ -171,9 +171,10 @@ const BaselineSetup: React.FC = () => {
   };
 
   const totalVehicles = vehicles?.data?.length || 0;
-  const isAllFilteredSelected = filteredTableVehicles.length > 0 && 
+  const isAllFilteredSelected = (filteredTableVehicles?.length || 0) > 0 && 
     filteredTableVehicles.every((v: IGetRepairReceptions) => selectedVehicles.has(v.id));
-  const isSomeFilteredSelected = filteredTableVehicles.some((v: IGetRepairReceptions) => selectedVehicles.has(v.id));
+  const isSomeFilteredSelected = (filteredTableVehicles?.length || 0) > 0 && 
+    filteredTableVehicles.some((v: IGetRepairReceptions) => selectedVehicles.has(v.id));
 
   if (isLoading) {
     return (
