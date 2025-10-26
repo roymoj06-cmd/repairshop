@@ -182,14 +182,14 @@ const Vehicle: FC = () => {
   const kpiMetrics = useMemo(() => {
     const allVehicles = allVehiclesForKPI?.data?.values || [];
     
-    // مقیم = داخل تعمیرگاه
+    // مقیم = isResidentVehicle === true
     const residentCount = allVehicles.filter((v: any) => 
-      v.isDischarged !== true && v.isTemporaryRelease !== true
+      v.isResidentVehicle === true
     ).length;
     
-    // ترخیص موقت = بیرون ولی پرونده بسته نشده
+    // ترخیص موقت = isTemporaryRelease === true
     const tempReleasedCount = allVehicles.filter((v: any) => 
-      v.isDischarged !== true && v.isTemporaryRelease === true
+      v.isTemporaryRelease === true
     ).length;
     
     // ترخیص شده = تحویل کامل
