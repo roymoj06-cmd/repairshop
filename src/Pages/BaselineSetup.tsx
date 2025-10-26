@@ -191,11 +191,22 @@ const BaselineSetup: React.FC = () => {
       vehicleList.forEach((vehicle: IGetRepairReceptions) => {
         // Selected = INSIDE workshop (Resident) = isTemporaryRelease: false
         // Unselected = OUTSIDE workshop (TempReleased) = isTemporaryRelease: true
-        vehicleStatuses[vehicle.id] = !selectedVehicles.has(vehicle.id);
+        const isTemporaryRelease = !selectedVehicles.has(vehicle.id);
+        vehicleStatuses[vehicle.id] = isTemporaryRelease;
+        
+        // Debug log for first few vehicles
+        if (Object.keys(vehicleStatuses).length <= 5) {
+          console.log(`Vehicle ${vehicle.id}: selected=${selectedVehicles.has(vehicle.id)}, isTemporaryRelease=${isTemporaryRelease}`);
+        }
       });
 
-      console.log('Baseline setup - Selected vehicles:', Array.from(selectedVehicles));
-      console.log('Baseline setup - Status map:', vehicleStatuses);
+      console.log('=== BASELINE SETUP DEBUG ===');
+      console.log('Total vehicles in system:', vehicleList.length);
+      console.log('Selected vehicles (should be Resident):', selectedVehicles.size);
+      console.log('Unselected vehicles (should be TempReleased):', vehicleList.length - selectedVehicles.size);
+      console.log('Selected vehicle IDs:', Array.from(selectedVehicles));
+      console.log('Sample status map (first 3):', Object.entries(vehicleStatuses).slice(0, 3));
+      console.log('=============================');
 
       // Call API to update temporary release status
       await updateTemporaryReleaseStatus(vehicleStatuses);
