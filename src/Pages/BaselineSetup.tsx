@@ -162,7 +162,7 @@ const BaselineSetup: React.FC = () => {
       });
 
       // Call API to update temporary release status
-      await updateTemporaryReleaseStatus({ vehicleStatuses });
+      await updateTemporaryReleaseStatus(vehicleStatuses);
 
       // Also save to localStorage for baseline filtering
       const statusMap: Record<number, 'in_repair' | 'system_released'> = {};
