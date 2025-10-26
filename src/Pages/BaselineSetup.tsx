@@ -61,15 +61,22 @@ const BaselineSetup: React.FC = () => {
 
   // Filter table vehicles based on search
   const filteredTableVehicles = useMemo(() => {
-    if (!vehicles?.data || !Array.isArray(vehicles.data)) return [];
+    // Check both possible response structures
+    const vehicleList = Array.isArray(vehicles?.data) 
+      ? vehicles.data 
+      : vehicles?.data?.values 
+      ? vehicles.data.values 
+      : [];
+    
+    if (!vehicleList || !Array.isArray(vehicleList)) return [];
     
     const query = normalizePlateText(tableSearchQuery);
-    if (!query) return vehicles.data;
+    if (!query) return vehicleList;
 
-    return vehicles.data.filter((vehicle: IGetRepairReceptions) => {
+    return vehicleList.filter((vehicle: IGetRepairReceptions) => {
       const customerName = normalizePlateText(vehicle.customerName || '');
       const plateStr = normalizePlateText(
-        `${vehicle.plateSection1}${vehicle.plateSection2}${vehicle.plateSection3}${vehicle.plateSection4}`
+        `${vehicle.plateSection1 || ''}${vehicle.plateSection2 || ''}${vehicle.plateSection3 || ''}${vehicle.plateSection4 || ''}`
       );
       
       return customerName.includes(query) || plateStr.includes(query);
@@ -143,7 +150,14 @@ const BaselineSetup: React.FC = () => {
       // Create status map for all vehicles
       const statusMap: Record<number, 'in_repair' | 'system_released'> = {};
       
-      vehicles?.data?.forEach((vehicle: IGetRepairReceptions) => {
+      // Get vehicle list with proper structure handling
+      const vehicleList = Array.isArray(vehicles?.data) 
+        ? vehicles.data 
+        : vehicles?.data?.values 
+        ? vehicles.data.values 
+        : [];
+      
+      vehicleList.forEach((vehicle: IGetRepairReceptions) => {
         if (selectedVehicles.has(vehicle.id)) {
           statusMap[vehicle.id] = 'in_repair';
         } else {
@@ -170,7 +184,12 @@ const BaselineSetup: React.FC = () => {
     }
   };
 
-  const totalVehicles = vehicles?.data?.length || 0;
+  // Get total count from either response structure
+  const totalVehicles = Array.isArray(vehicles?.data) 
+    ? vehicles.data.length 
+    : vehicles?.data?.values?.length 
+    || vehicles?.data?.totalCount 
+    || 0;
   const isAllFilteredSelected = (filteredTableVehicles?.length || 0) > 0 && 
     filteredTableVehicles.every((v: IGetRepairReceptions) => selectedVehicles.has(v.id));
   const isSomeFilteredSelected = (filteredTableVehicles?.length || 0) > 0 && 
@@ -268,7 +287,13 @@ const BaselineSetup: React.FC = () => {
 
           <Box sx={{ mb: 2 }}>
             <PlateSearchInput
-              vehicles={vehicles?.data || []}
+              vehicles={
+                Array.isArray(vehicles?.data) 
+                  ? vehicles.data 
+                  : vehicles?.data?.values 
+                  ? vehicles.data.values 
+                  : []
+              }
               onSelect={handleSelectVehicle}
               selectedIds={selectedVehicles}
             />
