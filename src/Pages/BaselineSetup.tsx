@@ -35,14 +35,40 @@ const BaselineSetup: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [tableSearchQuery, setTableSearchQuery] = useState('');
 
-  // Fetch all undischarged vehicles
+  // Fetch all undischarged vehicles (excluding temporary released)
   const { data: vehicles, isLoading } = useQuery({
     queryKey: ['allRepairReceptions'],
-    queryFn: () => getRepairReceptions({ 
-      page: 1, 
-      size: 1000, 
-      isDischarged: false // Only fetch unreleased vehicles (ترخیص نشده)
-    }),
+    queryFn: async () => {
+      const result = await getRepairReceptions({ 
+        page: 1, 
+        size: 1000, 
+        isDischarged: false // Only fetch unreleased vehicles (ترخیص نشده)
+      });
+      
+      // Filter out vehicles with temporary release
+      const vehicleList = Array.isArray(result?.data) 
+        ? result.data 
+        : result?.data?.values 
+        ? result.data.values 
+        : [];
+      
+      const filteredList = vehicleList.filter((vehicle: IGetRepairReceptions) => {
+        // Exclude vehicles with temporary release (isTemporaryRelease === true)
+        // Only show vehicles that are NOT temporarily released
+        return vehicle.isTemporaryRelease !== true;
+      });
+      
+      return {
+        ...result,
+        data: Array.isArray(result?.data)
+          ? filteredList
+          : {
+              ...result.data,
+              values: filteredList,
+              totalCount: filteredList.length
+            }
+      };
+    },
   });
 
   // Get status for a vehicle based on current baseline
