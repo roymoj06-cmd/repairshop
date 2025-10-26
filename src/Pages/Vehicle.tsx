@@ -117,21 +117,23 @@ const Vehicle: FC = () => {
         });
       }
 
-      // Filter by vehicle status (Resident vs TempReleased)
+      // Filter by vehicle status (Resident vs TempReleased vs Released)
       if (vehicleStatusFilter && result?.data?.values) {
         const filteredValues = result.data.values.filter((v: IGetRepairReceptions) => {
           if (vehicleStatusFilter === 'Resident') {
-            // Resident = not discharged AND not temporarily released
-            return !v.isDischarged && !v.isTemporaryRelease;
+            // مقیم = داخل تعمیرگاه = not discharged AND not temporarily released
+            return v.isDischarged !== true && v.isTemporaryRelease !== true;
           } else if (vehicleStatusFilter === 'TempReleased') {
-            // TempReleased = not discharged BUT temporarily released
-            return !v.isDischarged && v.isTemporaryRelease === true;
+            // ترخیص موقت = بیرون ولی پرونده بسته نشده = not discharged BUT temporarily released
+            return v.isDischarged !== true && v.isTemporaryRelease === true;
           } else if (vehicleStatusFilter === 'Released') {
-            // Released = discharged
+            // ترخیص شده = تحویل کامل و پرونده بسته = discharged
             return v.isDischarged === true;
           }
           return true;
         });
+        
+        console.log(`Filter: ${vehicleStatusFilter}, Total: ${result.data.values.length}, Filtered: ${filteredValues.length}`);
         
         return {
           ...result,
@@ -180,19 +182,24 @@ const Vehicle: FC = () => {
   const kpiMetrics = useMemo(() => {
     const allVehicles = allVehiclesForKPI?.data?.values || [];
     
+    // مقیم = داخل تعمیرگاه
     const residentCount = allVehicles.filter((v: any) => 
-      !v.isDischarged && !v.isTemporaryRelease
+      v.isDischarged !== true && v.isTemporaryRelease !== true
     ).length;
     
+    // ترخیص موقت = بیرون ولی پرونده بسته نشده
     const tempReleasedCount = allVehicles.filter((v: any) => 
-      !v.isDischarged && v.isTemporaryRelease === true
+      v.isDischarged !== true && v.isTemporaryRelease === true
     ).length;
     
+    // ترخیص شده = تحویل کامل
     const releasedCount = allVehicles.filter((v: any) => 
       v.isDischarged === true
     ).length;
     
     const total = residentCount + tempReleasedCount + releasedCount;
+    
+    console.log('KPI Metrics:', { resident: residentCount, tempReleased: tempReleasedCount, released: releasedCount, total });
     
     return {
       resident: residentCount,
@@ -314,8 +321,10 @@ const Vehicle: FC = () => {
               startIcon={<Settings />}
               onClick={() => {
                 localStorage.removeItem('baselineSetupCompleted');
-                localStorage.removeItem('vehicleStatusBaseline');
-                window.location.reload();
+                toast.info('راه‌اندازی اولیه ریست شد. صفحه بازخوانی می‌شود...');
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
               }}
               sx={{
                 bgcolor: '#dc3545',

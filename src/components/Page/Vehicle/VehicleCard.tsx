@@ -98,42 +98,45 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
     };
   };
 
-  // Get vehicle status badge info based on new status system
+  // Get vehicle status badge info based on database fields
   const getVehicleStatusInfo = () => {
-    const status = vehicle.vehicleStatus || 
-      (vehicle.isDischarged ? 'Released' : 
-       (vehicle.isTemporaryRelease ? 'TempReleased' : 'Resident'));
-    
-    switch(status) {
-      case 'Resident':
-        return {
-          label: 'در تعمیرگاه',
-          color: '#5a4a3a',
-          bgColor: '#f5ede3',
-          borderColor: '#D9CBB8'
-        };
-      case 'TempReleased':
-        return {
-          label: 'ترخیص موقت',
-          color: '#9a7f2a',
-          bgColor: '#fef9ec',
-          borderColor: '#E6C56D'
-        };
-      case 'Released':
-        return {
-          label: 'ترخیص‌شده',
-          color: '#3a5a32',
-          bgColor: '#eff7ed',
-          borderColor: '#B9D8B2'
-        };
-      default:
-        return {
-          label: 'در تعمیرگاه',
-          color: '#5a4a3a',
-          bgColor: '#f5ede3',
-          borderColor: '#D9CBB8'
-        };
+    // مقیم = داخل تعمیرگاه
+    if (vehicle.isDischarged !== true && vehicle.isTemporaryRelease !== true) {
+      return {
+        label: 'در تعمیرگاه',
+        color: '#5a4a3a',
+        bgColor: '#f5ede3',
+        borderColor: '#D9CBB8'
+      };
     }
+    
+    // ترخیص موقت = بیرون ولی پرونده بسته نشده
+    if (vehicle.isDischarged !== true && vehicle.isTemporaryRelease === true) {
+      return {
+        label: 'ترخیص موقت',
+        color: '#9a7f2a',
+        bgColor: '#fef9ec',
+        borderColor: '#E6C56D'
+      };
+    }
+    
+    // ترخیص شده = تحویل کامل
+    if (vehicle.isDischarged === true) {
+      return {
+        label: 'ترخیص‌شده',
+        color: '#3a5a32',
+        bgColor: '#eff7ed',
+        borderColor: '#B9D8B2'
+      };
+    }
+    
+    // Default fallback
+    return {
+      label: 'در تعمیرگاه',
+      color: '#5a4a3a',
+      bgColor: '#f5ede3',
+      borderColor: '#D9CBB8'
+    };
   };
 
   // Get secondary status info (work status)

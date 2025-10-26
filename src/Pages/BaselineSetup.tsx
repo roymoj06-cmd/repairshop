@@ -181,36 +181,31 @@ const BaselineSetup: React.FC = () => {
         : [];
       
       // Create status map for API
-      // IMPORTANT: API field is "isTemporaryRelease"
-      // true = temporarily released (outside workshop)
-      // false = inside workshop (resident)
+      // Logic based on user's requirements:
+      // - Selected vehicles (14) = Resident = isTemporaryRelease: false
+      // - Unselected vehicles = TempReleased = isTemporaryRelease: true
+      // - Only vehicles explicitly discharged will have isDischarged: true
+      
       const vehicleStatuses: Record<number, boolean> = {};
       
       vehicleList.forEach((vehicle: IGetRepairReceptions) => {
-        // INVERTED LOGIC: selected vehicles are INSIDE (false), unselected are OUTSIDE (true)
+        // Selected = INSIDE workshop (Resident) = isTemporaryRelease: false
+        // Unselected = OUTSIDE workshop (TempReleased) = isTemporaryRelease: true
         vehicleStatuses[vehicle.id] = !selectedVehicles.has(vehicle.id);
       });
+
+      console.log('Baseline setup - Selected vehicles:', Array.from(selectedVehicles));
+      console.log('Baseline setup - Status map:', vehicleStatuses);
 
       // Call API to update temporary release status
       await updateTemporaryReleaseStatus(vehicleStatuses);
 
-      // Also save to localStorage for baseline filtering
-      const statusMap: Record<number, 'in_repair' | 'system_released'> = {};
-      vehicleList.forEach((vehicle: IGetRepairReceptions) => {
-        if (selectedVehicles.has(vehicle.id)) {
-          statusMap[vehicle.id] = 'in_repair';
-        } else {
-          statusMap[vehicle.id] = 'system_released';
-        }
-      });
-
-      // Save to localStorage
-      localStorage.setItem('vehicleStatusBaseline', JSON.stringify(statusMap));
-      
       // Mark baseline as completed
       localStorage.setItem('baselineSetupCompleted', 'true');
 
-      toast.success(`راه‌اندازی با موفقیت انجام شد. ${selectedVehicles.size} خودرو در تعمیرگاه ثبت شد.`);
+      toast.success(
+        `راه‌اندازی موفق: ${selectedVehicles.size} خودرو به عنوان "مقیم" و ${vehicleList.length - selectedVehicles.size} خودرو به عنوان "ترخیص موقت" ثبت شد.`
+      );
       
       // Navigate to vehicles page
       setTimeout(() => {
