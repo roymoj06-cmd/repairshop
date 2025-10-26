@@ -219,7 +219,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
         )}
 
         {/* Header: Plate Number - lighter and smaller */}
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1, position: 'relative' }}>
           <Box sx={{ flex: 1 }}>
             <PlateNumberDisplay
               plateSection1={vehicle.plateSection1}
@@ -228,25 +228,25 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onRefresh }) => {
               plateSection4={vehicle.plateSection4}
             />
           </Box>
-        </Box>
-
-        {/* Status badge - top right, minimal design */}
-        <Box sx={{ position: 'absolute', top: 14, right: 14 }}>
-          <Chip
-            label={statusInfo.label}
-            size="small"
-            sx={{
-              bgcolor: statusInfo.bgColor,
-              color: statusInfo.color,
-              fontWeight: 500,
-              fontSize: '0.7rem',
-              height: '22px',
-              borderRadius: '5px',
-              border: `1px solid ${statusInfo.color}25`,
-              px: 0.75,
-              fontFamily: '"IRANSans", sans-serif',
-            }}
-          />
+          
+          {/* Status badge - positioned to not overlap plate */}
+          <Box sx={{ position: 'absolute', top: 0, left: 0 }}>
+            <Chip
+              label={statusInfo.label}
+              size="small"
+              sx={{
+                bgcolor: statusInfo.bgColor,
+                color: statusInfo.color,
+                fontWeight: 500,
+                fontSize: '0.7rem',
+                height: '22px',
+                borderRadius: '5px',
+                border: `1px solid ${statusInfo.color}25`,
+                px: 0.75,
+                fontFamily: '"IRANSans", sans-serif',
+              }}
+            />
+          </Box>
         </Box>
 
         {/* Days in workshop - calm colors with spacing */}
