@@ -31,9 +31,9 @@
   },
   "include": [
     "src",
-    "node_modules/react-hook-form",
+    "./node_modules/react-hook-form",
     "**/*.ts",
     "**/*.tsx",
-    "i18n.js"
+    "./i18n.js"
   ]
 }
