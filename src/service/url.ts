@@ -33,6 +33,9 @@ export const proxyServerUrl = {
   updateCar: `${panelServiceBaseUrl}/Car/UpdateCar`,
   createCar: `${panelServiceBaseUrl}/Car/CreateCar`,
   getCars: `${panelServiceBaseUrl}/Car/GetCars`,
+  getCarTips: `${panelServiceBaseUrl}/Car/GetCarTips`,
+  getAllCarCompanies: `${panelServiceBaseUrl}/Car/GetAllCarCompanies`,
+  getCarTipsByCompanyId: `${panelServiceBaseUrl}/Car/GetCarTipsByCompanyId/`,
 
   // repair Controller
   deleteRepairReceptionDetailById: `${panelServiceBaseUrl}/Repair/DeleteRepairReceptionDetailById`,
@@ -181,4 +184,11 @@ export const proxyServerUrl = {
   createMechanicAttendance: `${panelServiceBaseUrl}/MechanicAttendance/CreateMechanicAttendance`,
   updateMechanicAttendance: `${panelServiceBaseUrl}/MechanicAttendance/UpdateMechanicAttendance`,
   deleteMechanicAttendance: `${panelServiceBaseUrl}/MechanicAttendance/DeleteMechanicAttendance`,
+
+  // HolidayCalendar Controller
+  getHolidayById: `${panelServiceBaseUrl}/HolidayCalendar/GetHolidayById`,
+  getHolidayByShamsiDate: `${panelServiceBaseUrl}/HolidayCalendar/GetHolidayByShamsiDate`,
+  createHoliday: `${panelServiceBaseUrl}/HolidayCalendar/CreateHoliday`,
+  updateHoliday: `${panelServiceBaseUrl}/HolidayCalendar/UpdateHoliday`,
+  deleteHoliday: `${panelServiceBaseUrl}/HolidayCalendar/DeleteHoliday`,
 };

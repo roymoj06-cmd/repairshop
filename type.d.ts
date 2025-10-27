@@ -876,3 +876,22 @@ interface IGetMechanicAttendanceByDateRange {
 interface ISendFileLinksNotification {
   fileIds: number[];
 }
+interface IHolidayCalendar {
+  id: number;
+  shamsiDate: string;
+  reason: string;
+  createDm?: string;
+  lastUpdateDm?: string;
+}
+interface ICreateHolidayCalendar {
+  shamsiDate: string;
+  reason: string;
+}
+interface IUpdateHolidayCalendar {
+  shamsiDate: string;
+  reason: string;
+}
+interface IGetHolidayByShamsiDate {
+  fromDate?: string;
+  toDate?: string;
+}

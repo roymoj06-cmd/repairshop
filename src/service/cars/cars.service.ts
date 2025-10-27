@@ -53,3 +53,30 @@ export const getCustomerCars = async (customerId: number) => {
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+
+export const getCarTips = async () => {
+  const reqConfig: AxiosRequestConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getCarTips}`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+
+export const getAllCarCompanies = async (
+  page: number = 1,
+  size: number = 10
+) => {
+  const reqConfig: AxiosRequestConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getAllCarCompanies}?page=${page}&size=${size}`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+
+export const getCarTipsByCompanyId = async (carCompanyId: number) => {
+  const reqConfig: AxiosRequestConfig = {
+    method: "GET",
+    url: `${proxyServerUrl.getCarTipsByCompanyId}${carCompanyId}`,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
