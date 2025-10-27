@@ -1,21 +1,19 @@
-import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 
 export const getToken = () => {
-  if (Cookies.get("token")) {
-    return Cookies.get("token");
-  }
+  return localStorage.getItem("token") || undefined;
 };
+
 export const getSessionCustomerToken = () => {
-  if (sessionStorage?.getItem("customerToken")) {
-    return sessionStorage?.getItem("customerToken");
-  }
+  return sessionStorage?.getItem("customerToken") || undefined;
 };
+
 export const useAuth = () => {
-  return Cookies.get("token");
+  return localStorage.getItem("token") || undefined;
 };
+
 export const checkLogin = () => {
-  return !!Cookies.get("token");
+  return !!localStorage.getItem("token");
 };
 export const p2e = (s: any) =>
   s?.replace(/[۰-۹]/g, (d: any) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
