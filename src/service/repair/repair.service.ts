@@ -205,3 +205,19 @@ export const getRepairReceptionsByCustomerId = async ({
   };
   return await axiosInstance(reqConfig).then((res) => res.data);
 };
+export const updateTemporaryReleaseStatus = async (vehicleStatuses: Record<number, boolean | null>) => {
+  const reqConfig: AxiosRequestConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.updateTemporaryReleaseStatus}`,
+    data: vehicleStatuses,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};
+export const updateResidentVehicleStatus = async (vehicleStatuses: Record<number, boolean | null>) => {
+  const reqConfig: AxiosRequestConfig = {
+    method: "PUT",
+    url: `${proxyServerUrl.updateResidentVehicleStatus}`,
+    data: vehicleStatuses,
+  };
+  return await axiosInstance(reqConfig).then((res) => res.data);
+};

@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { Add } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import {
-  Grid2 as Grid,
+  Grid,
   Typography,
   Divider,
   Tabs,

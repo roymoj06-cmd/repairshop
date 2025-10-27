@@ -51,6 +51,8 @@ export const proxyServerUrl = {
   updateRepairReception: `${panelServiceBaseUrl}/Repair/UpdateRepairReception`,
   deleteRepairReception: `${panelServiceBaseUrl}/Repair/DeleteRepairReception`,
   getRepairReceptions: `${panelServiceBaseUrl}/Repair/GetRepairReceptions`,
+  updateTemporaryReleaseStatus: `${panelServiceBaseUrl}/Repair/UpdateTemporaryReleaseStatus`,
+  updateResidentVehicleStatus: `${panelServiceBaseUrl}/Repair/UpdateResidentVehicleStatus`,
   getCustomerCars: `${panelServiceBaseUrl}/Repair/GetCustomerCars/`,
   salesViewByCustomerAndByCarId: `${panelServiceBaseUrl}/Repair`,
   scanProduct: `${panelServiceBaseUrl}/Repair/ScanProduct`,

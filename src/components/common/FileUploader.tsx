@@ -2,10 +2,9 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { FC, ChangeEvent, useRef } from "react";
 import {
-  Grid2 as Grid,
+  Grid,
   IconButton,
   Typography,
-  ListItem,
   List,
   Box,
   Chip,

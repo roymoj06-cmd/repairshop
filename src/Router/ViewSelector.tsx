@@ -20,6 +20,7 @@ const TaskManagement = lazy(() => import("@/Pages/TaskManagement"));
 const ResetPassword = lazy(() => import("@/Pages/ResetPassword"));
 const AccessDenied = lazy(() => import("@/Pages/AccessDenied"));
 const Dashboard = lazy(() => import("@/Pages/Dashboard"));
+const BaselineSetup = lazy(() => import("@/Pages/BaselineSetup"));
 const Vehicle = lazy(() => import("@/Pages/Vehicle"));
 const Login = lazy(() => import("@/Pages/Login"));
 
@@ -66,6 +67,9 @@ const ViewSelector: FC = () => {
 
           {/* گاراژ من - برای همه آزاد است */}
           <Route path={dir.vehicles} element={<Vehicle />} />
+
+          {/* راه‌اندازی اولیه سیستم - برای همه آزاد است */}
+          <Route path={dir.baselineSetup} element={<BaselineSetup />} />
 
           {/* مسیرهای محافظت شده با سطح دسترسی */}
           <Route

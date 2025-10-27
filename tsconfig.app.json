@@ -25,15 +25,15 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@lib/*": ["src/lib/*"]
+      "@/*": ["./src/*"],
+      "@lib/*": ["./src/lib/*"]
     }
   },
   "include": [
-    "src",
+    "./src",
     "./node_modules/react-hook-form",
-    "**/*.ts",
-    "**/*.tsx",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
     "./i18n.js"
   ]
 }

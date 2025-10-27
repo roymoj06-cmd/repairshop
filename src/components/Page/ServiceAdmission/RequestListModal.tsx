@@ -8,7 +8,7 @@ import {
     DialogContent,
     DialogActions,
     useMediaQuery,
-    Grid2 as Grid,
+    Grid,
     DialogTitle,
     CardContent,
     CardActions,

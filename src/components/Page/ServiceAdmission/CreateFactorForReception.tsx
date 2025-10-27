@@ -437,10 +437,9 @@ const CreateFactorForReception: React.FC<CreateFactorForReceptionProps> = ({
                                 size="small"
                                 className="font-14"
                                 onChange={(e) => {
-                                  const rawValue = e.target.value.replaceAll(
-                                    ",",
-                                    ""
-                                  );
+                                  const rawValue = e.target.value
+                                    .split(",")
+                                    .join("");
                                   handleChangeProductPrice(
                                     product.productId,
                                     rawValue
@@ -500,7 +499,6 @@ const CreateFactorForReception: React.FC<CreateFactorForReceptionProps> = ({
                                   justifyContent: "center",
                                   gap: 1,
                                 }}
-                                ya
                               >
                                 <span>{product.productName}</span>
                                 {product.isCustomerOwner === true && (
@@ -733,10 +731,9 @@ const CreateFactorForReception: React.FC<CreateFactorForReceptionProps> = ({
                                   : ""
                               }
                               onChange={(e) => {
-                                const rawValue = e.target.value.replaceAll(
-                                  ",",
-                                  ""
-                                );
+                                const rawValue = e.target.value
+                                  .split(",")
+                                  .join("");
                                 handleChangeProductPrice(
                                   product.productId,
                                   rawValue

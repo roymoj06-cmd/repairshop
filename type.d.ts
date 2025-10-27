@@ -90,6 +90,9 @@ interface IGetRepairReceptions {
   code: number;
   status: true;
   id: number;
+  isDischarged?: boolean;
+  isTemporaryRelease?: boolean | null;
+  vehicleStatus?: 'Resident' | 'TempReleased' | 'Released';
 }
 interface IGenerateRepairRecaptionFactors {
   repairReception: {
@@ -579,6 +582,7 @@ interface IGetMechanicProductRequestByProblemId {
 interface IGetRepairReceptionService {
   repairCustomerProblemDescription: string;
   isSelectedForFactorLocal?: boolean;
+  isSelectedForFactor?: boolean;
   performedByMechanicName: string;
   repairCustomerProblemId: number;
   performedByMechanicId: number;
@@ -594,7 +598,7 @@ interface IGetRepairReceptionService {
   serviceId: number;
   startDate: string;
   endDate: string;
-  status: string;
+  status?: string;
   description?: string;
   id: number;
 }

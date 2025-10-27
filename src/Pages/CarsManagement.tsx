@@ -2,7 +2,7 @@ import { Add } from "@mui/icons-material";
 import { useMutation } from "@tanstack/react-query";
 import { FC, useState } from "react";
 import { toast } from "react-toastify";
-import { Grid2 as Grid, Typography, Paper, Box } from "@mui/material";
+import { Grid, Typography, Paper, Box } from "@mui/material";
 
 import { getCustomers } from "@/service/customer/customer.service";
 import {

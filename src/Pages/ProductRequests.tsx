@@ -20,7 +20,7 @@ import {
   useMediaQuery,
   DialogContent,
   DialogActions,
-  Grid2 as Grid,
+  Grid,
   DialogTitle,
   Typography,
   IconButton,

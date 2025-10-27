@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import moment from "moment-jalaali";
 import { useState } from "react";
 import {
-  Grid2 as Grid,
+  Grid,
   Autocomplete,
   CardContent,
   Typography,

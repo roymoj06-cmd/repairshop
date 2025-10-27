@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 import { z } from "zod";
 import {
   DialogContent,
-  Grid2 as Grid,
+  Grid,
   DialogActions,
   Autocomplete,
   FormControl,

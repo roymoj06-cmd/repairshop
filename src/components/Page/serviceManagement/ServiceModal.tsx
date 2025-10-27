@@ -4,7 +4,7 @@ import {
   FormControlLabel,
   DialogContent,
   DialogActions,
-  Grid2 as Grid,
+  Grid,
   DialogTitle,
   TextField,
   MenuItem,

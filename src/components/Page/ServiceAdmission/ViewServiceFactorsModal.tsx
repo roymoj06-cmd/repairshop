@@ -296,7 +296,7 @@ const ViewServiceFactorsModal: React.FC<ViewServiceFactorsModalProps> = ({
                 {factorsData?.isSuccess && factorsData.data && factorsData.data.length > 0 ? (
                     <Box sx={{ p: 2 }}>
                         <Accordion defaultExpanded sx={{ boxShadow: "none" }}>
-                            {factorsData.data.map((factor: IGetAllRepairServiceFactor, index: number) => (
+                            {factorsData.data.map((factor: IGetAllRepairServiceFactor, _index: number) => (
                                 <Accordion
                                     key={factor.id}
                                     sx={{
