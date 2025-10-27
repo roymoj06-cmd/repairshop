@@ -59,11 +59,16 @@ interface IOrderDetails {
   brand: string;
 }
 
+interface IFile {
+  id: number;
+  title: string;
+}
+
 interface IOrdersType {
   orderDetails: IOrderDetails[];
   repairReceptionId: number;
   orderHeaderId: number;
-  files?: any[];
+  files?: IFile[];
   code: number;
 }
 
@@ -83,7 +88,7 @@ const ProductFactorModal: FC<IProductFactorModalProps> = ({
     queryKey: ["repairReceptionSummary", repairReceptionId],
     queryFn: () => repairReceptionSummary(repairReceptionId),
     enabled: open && !!repairReceptionId,
-    select: (data: any) => data?.data || null,
+    select: (data: unknown) => (data as { data: unknown })?.data || null,
   });
   useEffect(() => {
     if (open && repairReceptionId) {

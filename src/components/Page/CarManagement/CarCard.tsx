@@ -26,7 +26,7 @@ interface CarCardProps {
     carType?: string;
     id: number;
   };
-  onEdit: (car: any) => void;
+  onEdit: (car: IUpdateCarRepair) => void;
   onDelete: (id: number) => void;
 }
 

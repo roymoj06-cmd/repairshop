@@ -17,10 +17,6 @@ import {
   Button,
 } from "@mui/material";
 
-import {
-  getRepairReceptions,
-  getRepairReceptionsByCustomerId,
-} from "@/service/repair/repair.service";
 import { getCustomers } from "@/service/customer/customer.service";
 import { useStore } from "@/Store/useStore";
 import { useTheme } from "@/context/ThemeContext";
@@ -31,35 +27,21 @@ import {
   VehicleCard,
   Loading,
 } from "@/components";
+import { useVehicles, useVehiclesKPI } from "@/features";
 
 const Vehicle: FC = () => {
   const [, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState<plateSection>({ isDischarged: "false" });
   const navigate = useNavigate();
-  const [customerOptions, setCustomerOptions] = useState<any[]>([]);
+  const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([]);
   const { user } = useStore();
   const { mode } = useTheme();
   
   // Check if baseline setup is completed
   const isBaselineCompleted = localStorage.getItem('baselineSetupCompleted') === 'true';
   
-  // Separate query for KPI metrics - fetch ALL vehicles without filters
-  const { data: allVehiclesForKPI } = useQuery({
-    queryKey: ["allVehiclesKPI"],
-    queryFn: async () => {
-      if (!user?.isDinawinEmployee) {
-        return await getRepairReceptionsByCustomerId({
-          page: 1,
-          size: 10000, // Get all
-        });
-      } else {
-        return await getRepairReceptions({
-          page: 1,
-          size: 10000, // Get all
-        });
-      }
-    },
-  });
+  // Use custom hook for KPI metrics
+  const { data: allVehiclesForKPI } = useVehiclesKPI();
   
   const isCustomRange = useMediaQuery(
     "(min-width: 1200px) and (max-width: 1300px)"
@@ -79,74 +61,10 @@ const Vehicle: FC = () => {
     { value: 'Released', label: "🟢 ترخیص‌شده" },
   ];
 
-  const { isPending: isPendingRepairReceptions, data: vehicles } = useQuery({
-    queryKey: ["repairReceptions", filter, vehicleStatusFilter],
-    queryFn: async () => {
-      let result;
-      
-      // Determine isDischarged filter based on vehicle status filter
-      let dischargedFilter: boolean | null | undefined = filter?.isDischarged !== null ? filter?.isDischarged : undefined;
-      
-      // Override isDischarged filter based on vehicle status
-      if (vehicleStatusFilter === 'Resident' || vehicleStatusFilter === 'TempReleased') {
-        dischargedFilter = false; // Both are undischarged
-      } else if (vehicleStatusFilter === 'Released') {
-        dischargedFilter = true; // Released means discharged
-      }
-      
-      if (!user?.isDinawinEmployee) {
-        result = await getRepairReceptionsByCustomerId({
-          page: 1,
-          size: 1000,
-          isDischarged: dischargedFilter,
-          plateSection1: filter?.plateSection1,
-          plateSection2: filter?.plateSection2,
-          plateSection3: filter?.plateSection3,
-          plateSection4: filter?.plateSection4,
-        });
-      } else {
-        result = await getRepairReceptions({
-          page: 1,
-          size: 1000,
-          isDischarged: dischargedFilter,
-          customerId: filter?.customerId,
-          plateSection1: filter?.plateSection1,
-          plateSection2: filter?.plateSection2,
-          plateSection3: filter?.plateSection3,
-          plateSection4: filter?.plateSection4,
-        });
-      }
-
-      // Filter by vehicle status (Resident vs TempReleased vs Released)
-      if (vehicleStatusFilter && result?.data?.values) {
-        const filteredValues = result.data.values.filter((v: IGetRepairReceptions) => {
-          if (vehicleStatusFilter === 'Resident') {
-            // مقیم = isResidentVehicle === true
-            return v.isResidentVehicle === true;
-          } else if (vehicleStatusFilter === 'TempReleased') {
-            // ترخیص موقت = isTemporaryRelease === true
-            return v.isTemporaryRelease === true;
-          } else if (vehicleStatusFilter === 'Released') {
-            // ترخیص شده = isDischarged === true
-            return v.isDischarged === true;
-          }
-          return true;
-        });
-        
-        console.log(`Filter: ${vehicleStatusFilter}, Total: ${result.data.values.length}, Filtered: ${filteredValues.length}`);
-        
-        return {
-          ...result,
-          data: {
-            ...result.data,
-            values: filteredValues,
-            totalCount: filteredValues.length
-          }
-        };
-      }
-
-      return result;
-    },
+  // Use custom hook for vehicles
+  const { isPending: isPendingRepairReceptions, data: vehicles } = useVehicles({
+    ...filter,
+    vehicleStatusFilter,
   });
   const { mutateAsync: searchCustomers, isPending } = useMutation({
     mutationFn: getCustomers,
